@@ -1,4 +1,5 @@
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import path from "path";
 import { defineConfig, lazyPlugins } from "vite-plus";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
@@ -19,6 +20,9 @@ export default defineConfig({
   },
   resolve: {
     tsconfigPaths: true,
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
   },
   plugins: lazyPlugins(() => [
     tailwindcss(),
