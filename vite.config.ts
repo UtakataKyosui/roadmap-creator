@@ -3,7 +3,7 @@ import path from "path";
 import { defineConfig, lazyPlugins } from "vite-plus";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import { nitro } from "nitro/vite";
+import { voidPlugin } from 'void';
 
 export default defineConfig({
   staged: {
@@ -25,11 +25,11 @@ export default defineConfig({
     },
   },
   plugins: lazyPlugins(() => [
+    voidPlugin(),
     tailwindcss(),
     tanstackStart({
       srcDirectory: "src",
     }),
     viteReact(),
-    nitro(),
   ]),
 });

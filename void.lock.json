@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "source": {
+    "account_id": "a5fe722b1d3ed1cb2dd9665abafcd39e",
+    "compatibility_date": "2026-02-24"
+  },
+  "resolved": {
+    "account_id": "a5fe722b1d3ed1cb2dd9665abafcd39e",
+    "compatibility_date": "2026-02-24",
+    "name": "tanstack-start-example-basic"
+  },
+  "text": "{\n  \"account_id\": \"a5fe722b1d3ed1cb2dd9665abafcd39e\",\n  \"compatibility_date\": \"2026-02-24\",\n  \"name\": \"tanstack-start-example-basic\"\n}"
+}

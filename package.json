@@ -7,8 +7,10 @@
     "dev": "vp dev",
     "build": "vp build && tsc --noEmit",
     "preview": "vp preview",
-    "start": "node .output/server/index.mjs",
-    "prepare": "vp config"
+    "prepare": "vp config",
+    "void": "void",
+    "void:connect": "void connect",
+    "void:deploy": "vp build && void deploy"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -38,7 +40,8 @@
     "tailwindcss": "^4.2.2",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "vite": "catalog:",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:",
+    "void": "^1.1.11"
   },
   "devEngines": {
     "packageManager": {
