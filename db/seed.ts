@@ -43,7 +43,7 @@ export default defineSeed<typeof import("./schema")>(async ({ db, schema }) => {
     updatedAt: now,
   });
   await db.insert(schema.labels).values({
-    id: "0190a000-0000-7000-8000-000000000040",
+    id: devFixtures.labelId,
     workspaceId: devFixtures.workspaceId,
     name: "基礎",
     color: "#3B82F6",
