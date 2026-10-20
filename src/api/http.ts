@@ -16,7 +16,7 @@ export class ApiError extends Error {
   }
 
   get isUnauthorized() {
-    return this.code === "unauthorized";
+    return this.status === 401 || this.code === "unauthorized";
   }
 
   get isVersionConflict() {
@@ -29,7 +29,9 @@ export class ApiError extends Error {
 }
 
 // サーバー側のレンダリングでは相対URLを解決できないため、APIのオリジンを環境変数で与える。
-const serverOrigin = () => process.env.API_ORIGIN ?? "http://localhost:3000";
+// nodejs_compat が無い実行環境では process が存在しないため、存在を確かめてから参照する。
+const serverOrigin = () =>
+  (typeof process === "undefined" ? undefined : process.env.API_ORIGIN) ?? "http://localhost:3000";
 
 const resolveUrl = (url: string) =>
   typeof window === "undefined" ? new URL(url, serverOrigin()).toString() : url;

@@ -31,3 +31,5 @@ jobs:
         run: pnpm api:check
       - name: 型チェック
         run: pnpm exec tsc --noEmit
+      - name: API 連携のテスト
+        run: pnpm test --run
