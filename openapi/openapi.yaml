@@ -2,13 +2,23 @@ openapi: 3.1.0
 info:
   title: Roadmap Studio API
   version: 0.1.0
+  description: Roadmap Studioフェーズ1のAPI契約の正本。
 servers:
   - url: http://localhost:3000/api
+tags:
+  - name: Workspaces
+  - name: Projects
+  - name: Roadmaps
+  - name: Tasks
+  - name: Labels
+security:
+  - sessionCookie: []
 paths:
-  /users:
+  /workspaces:
     get:
-      operationId: listUsers
-      summary: List users
+      operationId: listWorkspaces
+      summary: ログイン中のユーザーが所属するWorkspace一覧
+      tags: [Workspaces]
       responses:
         "200":
           description: OK
@@ -17,32 +27,447 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/User"
-  /users/{userId}:
+                  $ref: "#/components/schemas/Workspace"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /workspaces/{workspaceId}/members:
     get:
-      operationId: getUser
-      summary: Get a user
+      operationId: listWorkspaceMembers
+      summary: Workspaceのメンバー一覧（担当者の選択肢）
+      tags: [Workspaces]
       parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+        - $ref: "#/components/parameters/WorkspaceId"
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Member"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
-          description: User not found
+          $ref: "#/components/responses/NotFound"
+  /workspaces/{workspaceId}/labels:
+    get:
+      operationId: listLabels
+      summary: Workspaceのラベル一覧
+      tags: [Labels]
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+      responses:
+        "200":
+          description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Label"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /workspaces/{workspaceId}/projects:
+    get:
+      operationId: listProjects
+      summary: Workspaceのプロジェクト一覧
+      tags: [Projects]
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /workspaces/{workspaceId}/projects/{projectId}/roadmaps:
+    get:
+      operationId: listRoadmaps
+      summary: プロジェクト配下のロードマップ一覧
+      tags: [Roadmaps]
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Roadmap"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      operationId: createRoadmap
+      summary: ロードマップを作成する
+      tags: [Roadmaps]
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoadmapCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Roadmap"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /workspaces/{workspaceId}/roadmaps/{roadmapId}:
+    get:
+      operationId: getRoadmap
+      summary: ロードマップを取得する
+      tags: [Roadmaps]
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/RoadmapId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Roadmap"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateRoadmap
+      summary: ロードマップを更新する
+      tags: [Roadmaps]
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/RoadmapId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoadmapUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Roadmap"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/VersionConflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /workspaces/{workspaceId}/roadmaps/{roadmapId}/tasks:
+    get:
+      operationId: listTasks
+      summary: ロードマップのタスク一覧（ボード・タイムライン共通）
+      description: sort未指定ならsortOrder昇順（同値はid昇順）。ボードは列ごとにstatusで絞って取得する。
+      tags: [Tasks]
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/RoadmapId"
+        - name: status
+          in: query
+          description: 指定したステータスのみ返す。複数指定はOR。
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/TaskStatus"
+          style: form
+          explode: true
+        - name: assigneeId
+          in: query
+          schema:
+            $ref: "#/components/schemas/Id"
+        - name: labelId
+          in: query
+          description: 指定したラベルのいずれかを持つタスクのみ返す。
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Id"
+          style: form
+          explode: true
+        - name: q
+          in: query
+          description: タイトルと説明の部分一致検索。
+          schema:
+            type: string
+            maxLength: 200
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [sortOrder, dueDate, startDate, priority, createdAt]
+            default: sortOrder
+        - name: direction
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 100
+        - name: cursor
+          in: query
+          description: 前回応答のnextCursor。
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: createTask
+      summary: タスクを作成する
+      tags: [Tasks]
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/RoadmapId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /workspaces/{workspaceId}/roadmaps/{roadmapId}/tasks/{taskId}:
+    get:
+      operationId: getTask
+      summary: タスクを取得する
+      tags: [Tasks]
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/RoadmapId"
+        - $ref: "#/components/parameters/TaskId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateTask
+      summary: タスクを更新する（詳細編集・ステータス変更・列内の並べ替え）
+      tags: [Tasks]
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/RoadmapId"
+        - $ref: "#/components/parameters/TaskId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/VersionConflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteTask
+      summary: タスクを削除する
+      description: 紐づくCommentも削除される。
+      tags: [Tasks]
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/RoadmapId"
+        - $ref: "#/components/parameters/TaskId"
+      responses:
+        "204":
+          description: No Content
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
 components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: session
+      description: サーバー側セッションのCookie。Cookie名は認証ライブラリの確定（#13）に合わせて変更する。
+  parameters:
+    WorkspaceId:
+      name: workspaceId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Id"
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Id"
+    RoadmapId:
+      name: roadmapId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Id"
+    TaskId:
+      name: taskId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Id"
+  responses:
+    Unauthorized:
+      description: 未認証。画面はログインへ誘導する。再試行しない。
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UnauthorizedError"
+    Forbidden:
+      description: Workspaceのメンバーではない、または権限が足りない。再試行しない。
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ForbiddenError"
+    NotFound:
+      description: 対象が存在しない、または閲覧権限のない対象。再試行しない。
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/NotFoundError"
+    VersionConflict:
+      description: 送信したversionが現在値と異なる。再取得してから操作をやり直す。
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/VersionConflictError"
+    ValidationFailed:
+      description: 入力が不正。detailsに項目ごとの理由を返す。再試行しない。
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ValidationFailedError"
+    InternalError:
+      description: サーバー内部のエラー。ネットワーク失敗と同様に限り再試行できる。
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/InternalError"
   schemas:
     Id:
       type: string
@@ -378,9 +803,133 @@ components:
           $ref: "#/components/schemas/Timestamp"
         updatedAt:
           $ref: "#/components/schemas/Timestamp"
+    Member:
+      type: object
+      description: Workspaceのメンバー。担当者の選択肢に使う。
+      required: [user, role]
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        role:
+          $ref: "#/components/schemas/MembershipRole"
+    RoadmapCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: [string, "null"]
+          maxLength: 2000
+    RoadmapUpdate:
+      type: object
+      description: 部分更新。未指定の項目は据え置き、descriptionのnullは未設定化。versionが現在値と異なれば409を返す。
+      required: [version]
+      properties:
+        version:
+          $ref: "#/components/schemas/Version"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: [string, "null"]
+          maxLength: 2000
+    TaskPage:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Task"
+        nextCursor:
+          type: [string, "null"]
+          description: 次ページがなければnull。
+    ErrorCode:
+      type: string
+      enum: [unauthorized, forbidden, not_found, version_conflict, validation_failed, internal]
+    ErrorDetail:
+      type: object
+      required: [path, message]
+      properties:
+        path:
+          type: string
+          description: 入力項目のJSONポインタ（例 /dueDate）。
+        message:
+          type: string
+    UnauthorizedError:
+      description: 401の応答本文。
+      allOf:
+        - $ref: "#/components/schemas/Error"
+        - type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum: [unauthorized]
+    ForbiddenError:
+      description: 403の応答本文。
+      allOf:
+        - $ref: "#/components/schemas/Error"
+        - type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum: [forbidden]
+    NotFoundError:
+      description: 404の応答本文。
+      allOf:
+        - $ref: "#/components/schemas/Error"
+        - type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum: [not_found]
+    VersionConflictError:
+      description: 409の応答本文。
+      allOf:
+        - $ref: "#/components/schemas/Error"
+        - type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum: [version_conflict]
+    ValidationFailedError:
+      description: 422の応答本文。detailsに項目ごとの理由を必ず含む。
+      allOf:
+        - $ref: "#/components/schemas/Error"
+        - type: object
+          required: [code, message, details]
+          properties:
+            code:
+              type: string
+              enum: [validation_failed]
+    InternalError:
+      description: 500の応答本文。
+      allOf:
+        - $ref: "#/components/schemas/Error"
+        - type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum: [internal]
     Error:
       type: object
-      required: [error]
+      description: 共通エラー形式。画面にはmessageをそのまま出さず、codeで文言を決める。
+      required: [code, message]
       properties:
-        error:
+        code:
+          $ref: "#/components/schemas/ErrorCode"
+        message:
           type: string
+        details:
+          type: array
+          items:
+            $ref: "#/components/schemas/ErrorDetail"

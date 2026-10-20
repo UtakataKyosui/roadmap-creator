@@ -14,6 +14,9 @@ export default defineConfig({
       baseUrl: "/api",
       clean: true,
     },
+    hooks: {
+      afterAllFilesWrite: "vp fmt src/api/generated",
+    },
   },
   zod: {
     input,
@@ -23,6 +26,9 @@ export default defineConfig({
       client: "zod",
       fileExtension: ".zod.ts",
       clean: true,
+    },
+    hooks: {
+      afterAllFilesWrite: "vp fmt src/api/generated",
     },
   },
 });
