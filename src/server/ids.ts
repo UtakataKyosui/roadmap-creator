@@ -2,8 +2,11 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3
 
 export const isUuid = (value: string) => UUID_PATTERN.test(value);
 
-// 先頭48bitがミリ秒のUNIX時刻になるUUID v7。作成順にほぼ昇順で並ぶ。
-export const uuidv7 = (timestamp = Date.now()) => {
+let lastTimestamp = 0;
+
+// 先頭48bitがミリ秒のUNIX時刻になるUUID v7。時刻を指定しない限り、同じミリ秒内でも生成順に昇順になる。
+export const uuidv7 = (explicitTimestamp?: number) => {
+  const timestamp = explicitTimestamp ?? (lastTimestamp = Math.max(Date.now(), lastTimestamp + 1));
   const bytes = crypto.getRandomValues(new Uint8Array(16));
   bytes[0] = Math.floor(timestamp / 2 ** 40) & 0xff;
   bytes[1] = Math.floor(timestamp / 2 ** 32) & 0xff;

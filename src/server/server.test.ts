@@ -20,6 +20,11 @@ describe("uuidv7", () => {
     expect([...ids].sort()).toEqual(ids);
   });
 
+  test("時刻を指定しなければ、続けて生成しても昇順になる", () => {
+    const ids = Array.from({ length: 50 }, () => uuidv7());
+    expect([...ids].sort()).toEqual(ids);
+  });
+
   test("先頭48bitにミリ秒の時刻が入る", () => {
     const timestamp = Date.UTC(2026, 0, 1);
     const hex = uuidv7(timestamp).replaceAll("-", "").slice(0, 12);
