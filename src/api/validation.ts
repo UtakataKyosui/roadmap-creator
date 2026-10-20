@@ -1,4 +1,5 @@
 import type { ZodType, output } from "zod";
+import { hasValidDateRange } from "@/domain/calendar-date";
 import { CreateTaskBody, UpdateTaskBody } from "./generated/zod/tasks/tasks.zod";
 
 export class ResponseValidationError extends Error {
@@ -22,9 +23,6 @@ export const parseResponse = <S extends ZodType>(schema: S, data: unknown): outp
 
 // 生成されたZodスキーマでは表せない横断検証。開始日は期限日以前でなければならない。
 type DateRange = { startDate?: string | null; dueDate?: string | null };
-
-const hasValidDateRange = (value: DateRange) =>
-  !value.startDate || !value.dueDate || value.startDate <= value.dueDate;
 
 const dateRangeIssue = {
   message: "開始日は期限日以前にしてください",
