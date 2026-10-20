@@ -18,6 +18,7 @@ import { Route as RedirectRouteImport } from './routes/redirect'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as PathlessLayoutNestedLayoutRouteImport } from './routes/_pathlessLayout/_nested-layout'
 import { Route as ApiUsersRouteImport } from './routes/api/users'
+import { Route as ApiWorkspacesRouteImport } from './routes/api/workspaces'
 import { Route as PostsIndexRouteImport } from './routes/posts.index'
 import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
 import { Route as UsersIndexRouteImport } from './routes/users.index'
@@ -26,6 +27,9 @@ import { Route as PathlessLayoutNestedLayoutRouteARouteImport } from './routes/_
 import { Route as PathlessLayoutNestedLayoutRouteBRouteImport } from './routes/_pathlessLayout/_nested-layout/route-b'
 import { Route as ApiUsersUserIdRouteImport } from './routes/api/users.$userId'
 import { Route as PostsPostIdDeepRouteImport } from './routes/posts_.$postId.deep'
+import { Route as ApiWorkspacesWorkspaceIdLabelsRouteImport } from './routes/api/workspaces.$workspaceId.labels'
+import { Route as ApiWorkspacesWorkspaceIdMembersRouteImport } from './routes/api/workspaces.$workspaceId.members'
+import { Route as ApiWorkspacesWorkspaceIdProjectsRouteImport } from './routes/api/workspaces.$workspaceId.projects'
 import { Route as ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteImport } from './routes/api/workspaces.$workspaceId.roadmaps.$roadmapId'
 import { Route as ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRouteImport } from './routes/api/workspaces.$workspaceId.projects.$projectId.roadmaps'
 import { Route as ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRouteImport } from './routes/api/workspaces.$workspaceId.roadmaps.$roadmapId.tasks'
@@ -75,6 +79,11 @@ const ApiUsersRoute = ApiUsersRouteImport.update({
   path: '/api/users',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWorkspacesRoute = ApiWorkspacesRouteImport.update({
+  id: '/api/workspaces',
+  path: '/api/workspaces',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PostsIndexRoute = PostsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -117,17 +126,35 @@ const PostsPostIdDeepRoute = PostsPostIdDeepRouteImport.update({
   path: '/posts/$postId/deep',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWorkspacesWorkspaceIdLabelsRoute =
+  ApiWorkspacesWorkspaceIdLabelsRouteImport.update({
+    id: '/$workspaceId/labels',
+    path: '/$workspaceId/labels',
+    getParentRoute: () => ApiWorkspacesRoute,
+  } as any)
+const ApiWorkspacesWorkspaceIdMembersRoute =
+  ApiWorkspacesWorkspaceIdMembersRouteImport.update({
+    id: '/$workspaceId/members',
+    path: '/$workspaceId/members',
+    getParentRoute: () => ApiWorkspacesRoute,
+  } as any)
+const ApiWorkspacesWorkspaceIdProjectsRoute =
+  ApiWorkspacesWorkspaceIdProjectsRouteImport.update({
+    id: '/$workspaceId/projects',
+    path: '/$workspaceId/projects',
+    getParentRoute: () => ApiWorkspacesRoute,
+  } as any)
 const ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRoute =
   ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteImport.update({
-    id: '/api/workspaces/$workspaceId/roadmaps/$roadmapId',
-    path: '/api/workspaces/$workspaceId/roadmaps/$roadmapId',
-    getParentRoute: () => rootRouteImport,
+    id: '/$workspaceId/roadmaps/$roadmapId',
+    path: '/$workspaceId/roadmaps/$roadmapId',
+    getParentRoute: () => ApiWorkspacesRoute,
   } as any)
 const ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute =
   ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRouteImport.update({
-    id: '/api/workspaces/$workspaceId/projects/$projectId/roadmaps',
-    path: '/api/workspaces/$workspaceId/projects/$projectId/roadmaps',
-    getParentRoute: () => rootRouteImport,
+    id: '/$projectId/roadmaps',
+    path: '/$projectId/roadmaps',
+    getParentRoute: () => ApiWorkspacesWorkspaceIdProjectsRoute,
   } as any)
 const ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRoute =
   ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRouteImport.update({
@@ -150,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/redirect': typeof RedirectRoute
   '/users': typeof UsersRouteWithChildren
   '/api/users': typeof ApiUsersRouteWithChildren
+  '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
   '/posts/$postId': typeof PostsPostIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/posts/': typeof PostsIndexRoute
@@ -158,6 +186,9 @@ export interface FileRoutesByFullPath {
   '/route-b': typeof PathlessLayoutNestedLayoutRouteBRoute
   '/api/users/$userId': typeof ApiUsersUserIdRoute
   '/posts/$postId/deep': typeof PostsPostIdDeepRoute
+  '/api/workspaces/$workspaceId/labels': typeof ApiWorkspacesWorkspaceIdLabelsRoute
+  '/api/workspaces/$workspaceId/members': typeof ApiWorkspacesWorkspaceIdMembersRoute
+  '/api/workspaces/$workspaceId/projects': typeof ApiWorkspacesWorkspaceIdProjectsRouteWithChildren
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteWithChildren
   '/api/workspaces/$workspaceId/projects/$projectId/roadmaps': typeof ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRouteWithChildren
@@ -169,6 +200,7 @@ export interface FileRoutesByTo {
   '/deferred': typeof DeferredRoute
   '/redirect': typeof RedirectRoute
   '/api/users': typeof ApiUsersRouteWithChildren
+  '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
   '/posts/$postId': typeof PostsPostIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/posts': typeof PostsIndexRoute
@@ -177,6 +209,9 @@ export interface FileRoutesByTo {
   '/route-b': typeof PathlessLayoutNestedLayoutRouteBRoute
   '/api/users/$userId': typeof ApiUsersUserIdRoute
   '/posts/$postId/deep': typeof PostsPostIdDeepRoute
+  '/api/workspaces/$workspaceId/labels': typeof ApiWorkspacesWorkspaceIdLabelsRoute
+  '/api/workspaces/$workspaceId/members': typeof ApiWorkspacesWorkspaceIdMembersRoute
+  '/api/workspaces/$workspaceId/projects': typeof ApiWorkspacesWorkspaceIdProjectsRouteWithChildren
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteWithChildren
   '/api/workspaces/$workspaceId/projects/$projectId/roadmaps': typeof ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRouteWithChildren
@@ -193,6 +228,7 @@ export interface FileRoutesById {
   '/users': typeof UsersRouteWithChildren
   '/_pathlessLayout/_nested-layout': typeof PathlessLayoutNestedLayoutRouteWithChildren
   '/api/users': typeof ApiUsersRouteWithChildren
+  '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
   '/posts/$postId': typeof PostsPostIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/posts/': typeof PostsIndexRoute
@@ -201,6 +237,9 @@ export interface FileRoutesById {
   '/_pathlessLayout/_nested-layout/route-b': typeof PathlessLayoutNestedLayoutRouteBRoute
   '/api/users/$userId': typeof ApiUsersUserIdRoute
   '/posts_/$postId/deep': typeof PostsPostIdDeepRoute
+  '/api/workspaces/$workspaceId/labels': typeof ApiWorkspacesWorkspaceIdLabelsRoute
+  '/api/workspaces/$workspaceId/members': typeof ApiWorkspacesWorkspaceIdMembersRoute
+  '/api/workspaces/$workspaceId/projects': typeof ApiWorkspacesWorkspaceIdProjectsRouteWithChildren
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteWithChildren
   '/api/workspaces/$workspaceId/projects/$projectId/roadmaps': typeof ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRouteWithChildren
@@ -216,6 +255,7 @@ export interface FileRouteTypes {
     | '/redirect'
     | '/users'
     | '/api/users'
+    | '/api/workspaces'
     | '/posts/$postId'
     | '/users/$userId'
     | '/posts/'
@@ -224,6 +264,9 @@ export interface FileRouteTypes {
     | '/route-b'
     | '/api/users/$userId'
     | '/posts/$postId/deep'
+    | '/api/workspaces/$workspaceId/labels'
+    | '/api/workspaces/$workspaceId/members'
+    | '/api/workspaces/$workspaceId/projects'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId'
     | '/api/workspaces/$workspaceId/projects/$projectId/roadmaps'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks'
@@ -235,6 +278,7 @@ export interface FileRouteTypes {
     | '/deferred'
     | '/redirect'
     | '/api/users'
+    | '/api/workspaces'
     | '/posts/$postId'
     | '/users/$userId'
     | '/posts'
@@ -243,6 +287,9 @@ export interface FileRouteTypes {
     | '/route-b'
     | '/api/users/$userId'
     | '/posts/$postId/deep'
+    | '/api/workspaces/$workspaceId/labels'
+    | '/api/workspaces/$workspaceId/members'
+    | '/api/workspaces/$workspaceId/projects'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId'
     | '/api/workspaces/$workspaceId/projects/$projectId/roadmaps'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks'
@@ -258,6 +305,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/_pathlessLayout/_nested-layout'
     | '/api/users'
+    | '/api/workspaces'
     | '/posts/$postId'
     | '/users/$userId'
     | '/posts/'
@@ -266,6 +314,9 @@ export interface FileRouteTypes {
     | '/_pathlessLayout/_nested-layout/route-b'
     | '/api/users/$userId'
     | '/posts_/$postId/deep'
+    | '/api/workspaces/$workspaceId/labels'
+    | '/api/workspaces/$workspaceId/members'
+    | '/api/workspaces/$workspaceId/projects'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId'
     | '/api/workspaces/$workspaceId/projects/$projectId/roadmaps'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks'
@@ -281,9 +332,8 @@ export interface RootRouteChildren {
   RedirectRoute: typeof RedirectRoute
   UsersRoute: typeof UsersRouteWithChildren
   ApiUsersRoute: typeof ApiUsersRouteWithChildren
+  ApiWorkspacesRoute: typeof ApiWorkspacesRouteWithChildren
   PostsPostIdDeepRoute: typeof PostsPostIdDeepRoute
-  ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRoute: typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteWithChildren
-  ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute: typeof ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -351,6 +401,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUsersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/workspaces': {
+      id: '/api/workspaces'
+      path: '/api/workspaces'
+      fullPath: '/api/workspaces'
+      preLoaderRoute: typeof ApiWorkspacesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/posts/': {
       id: '/posts/'
       path: '/'
@@ -407,19 +464,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsPostIdDeepRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/workspaces/$workspaceId/labels': {
+      id: '/api/workspaces/$workspaceId/labels'
+      path: '/$workspaceId/labels'
+      fullPath: '/api/workspaces/$workspaceId/labels'
+      preLoaderRoute: typeof ApiWorkspacesWorkspaceIdLabelsRouteImport
+      parentRoute: typeof ApiWorkspacesRoute
+    }
+    '/api/workspaces/$workspaceId/members': {
+      id: '/api/workspaces/$workspaceId/members'
+      path: '/$workspaceId/members'
+      fullPath: '/api/workspaces/$workspaceId/members'
+      preLoaderRoute: typeof ApiWorkspacesWorkspaceIdMembersRouteImport
+      parentRoute: typeof ApiWorkspacesRoute
+    }
+    '/api/workspaces/$workspaceId/projects': {
+      id: '/api/workspaces/$workspaceId/projects'
+      path: '/$workspaceId/projects'
+      fullPath: '/api/workspaces/$workspaceId/projects'
+      preLoaderRoute: typeof ApiWorkspacesWorkspaceIdProjectsRouteImport
+      parentRoute: typeof ApiWorkspacesRoute
+    }
     '/api/workspaces/$workspaceId/roadmaps/$roadmapId': {
       id: '/api/workspaces/$workspaceId/roadmaps/$roadmapId'
-      path: '/api/workspaces/$workspaceId/roadmaps/$roadmapId'
+      path: '/$workspaceId/roadmaps/$roadmapId'
       fullPath: '/api/workspaces/$workspaceId/roadmaps/$roadmapId'
       preLoaderRoute: typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiWorkspacesRoute
     }
     '/api/workspaces/$workspaceId/projects/$projectId/roadmaps': {
       id: '/api/workspaces/$workspaceId/projects/$projectId/roadmaps'
-      path: '/api/workspaces/$workspaceId/projects/$projectId/roadmaps'
+      path: '/$projectId/roadmaps'
       fullPath: '/api/workspaces/$workspaceId/projects/$projectId/roadmaps'
       preLoaderRoute: typeof ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiWorkspacesWorkspaceIdProjectsRoute
     }
     '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks': {
       id: '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks'
@@ -504,6 +582,21 @@ const ApiUsersRouteWithChildren = ApiUsersRoute._addFileChildren(
   ApiUsersRouteChildren,
 )
 
+interface ApiWorkspacesWorkspaceIdProjectsRouteChildren {
+  ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute: typeof ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute
+}
+
+const ApiWorkspacesWorkspaceIdProjectsRouteChildren: ApiWorkspacesWorkspaceIdProjectsRouteChildren =
+  {
+    ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute:
+      ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute,
+  }
+
+const ApiWorkspacesWorkspaceIdProjectsRouteWithChildren =
+  ApiWorkspacesWorkspaceIdProjectsRoute._addFileChildren(
+    ApiWorkspacesWorkspaceIdProjectsRouteChildren,
+  )
+
 interface ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRouteChildren {
   ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksTaskIdRoute: typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksTaskIdRoute
 }
@@ -534,6 +627,26 @@ const ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteWithChildren =
     ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteChildren,
   )
 
+interface ApiWorkspacesRouteChildren {
+  ApiWorkspacesWorkspaceIdLabelsRoute: typeof ApiWorkspacesWorkspaceIdLabelsRoute
+  ApiWorkspacesWorkspaceIdMembersRoute: typeof ApiWorkspacesWorkspaceIdMembersRoute
+  ApiWorkspacesWorkspaceIdProjectsRoute: typeof ApiWorkspacesWorkspaceIdProjectsRouteWithChildren
+  ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRoute: typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteWithChildren
+}
+
+const ApiWorkspacesRouteChildren: ApiWorkspacesRouteChildren = {
+  ApiWorkspacesWorkspaceIdLabelsRoute: ApiWorkspacesWorkspaceIdLabelsRoute,
+  ApiWorkspacesWorkspaceIdMembersRoute: ApiWorkspacesWorkspaceIdMembersRoute,
+  ApiWorkspacesWorkspaceIdProjectsRoute:
+    ApiWorkspacesWorkspaceIdProjectsRouteWithChildren,
+  ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRoute:
+    ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteWithChildren,
+}
+
+const ApiWorkspacesRouteWithChildren = ApiWorkspacesRoute._addFileChildren(
+  ApiWorkspacesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PathlessLayoutRoute: PathlessLayoutRouteWithChildren,
@@ -543,11 +656,8 @@ const rootRouteChildren: RootRouteChildren = {
   RedirectRoute: RedirectRoute,
   UsersRoute: UsersRouteWithChildren,
   ApiUsersRoute: ApiUsersRouteWithChildren,
+  ApiWorkspacesRoute: ApiWorkspacesRouteWithChildren,
   PostsPostIdDeepRoute: PostsPostIdDeepRoute,
-  ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRoute:
-    ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteWithChildren,
-  ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute:
-    ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
