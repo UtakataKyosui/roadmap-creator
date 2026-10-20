@@ -443,3 +443,22 @@ export const updateTask = async (
   }
   return (await findTask(db, workspaceId, roadmapId, taskId))!;
 };
+
+export const deleteTask = async (
+  db: Db,
+  actorId: string,
+  workspaceId: string,
+  roadmapId: string,
+  taskId: string,
+) => {
+  assertIds(workspaceId, roadmapId, taskId);
+  await requireMember(db, workspaceId, actorId);
+  // コメントとラベルの紐づけは外部キーの連鎖削除で消える。
+  const deleted = await db
+    .delete(tasks)
+    .where(
+      and(eq(tasks.id, taskId), eq(tasks.roadmapId, roadmapId), eq(tasks.workspaceId, workspaceId)),
+    )
+    .returning({ id: tasks.id });
+  if (deleted.length === 0) throw notFound();
+};

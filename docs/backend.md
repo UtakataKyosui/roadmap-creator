@@ -48,7 +48,7 @@ pnpm dev          # http://localhost:3000
 | サービス（業務ロジック。DB を引数で受ける） | `src/server/roadmaps.ts`, `src/server/tasks.ts`          |
 | 共通処理（認可・エラー・ID・JSON 入出力）   | `src/server/access.ts`, `errors.ts`, `http.ts`, `ids.ts` |
 
-実装済みの操作は、ロードマップの一覧・作成・取得・更新と、タスクの一覧・作成・取得・更新（並べ替えを含む）。Workspace・メンバー・ラベル・プロジェクトの一覧とタスクの削除は未実装（#27）。
+OpenAPI 契約のすべての操作を実装している。Workspace・メンバー・ラベル・プロジェクトの一覧は `src/server/workspaces.ts`、タスクの削除は `src/server/tasks.ts`（紐づくコメントとラベルの紐づけは外部キーの連鎖削除で消える）。
 
 ### データの整合
 

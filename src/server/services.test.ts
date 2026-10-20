@@ -8,7 +8,7 @@ import {
 } from "../api/generated/zod/tasks/tasks.zod";
 import { devFixtures } from "../../db/dev-fixtures";
 import { createRoadmap, getRoadmap, listRoadmaps, updateRoadmap } from "./roadmaps";
-import { createTask, getTask, listTasks, updateTask } from "./tasks";
+import { createTask, deleteTask, getTask, listTasks, updateTask } from "./tasks";
 import { handle } from "./http";
 import {
   createTestDb,
@@ -574,6 +574,51 @@ describe("タスク一覧", () => {
     expect(
       await status(listTasks(db, otherUserId, workspaceId, roadmapId, new URLSearchParams())),
     ).toBe(403);
+  });
+});
+
+describe("タスクの削除", () => {
+  const count = (table: string) =>
+    (sqlite.prepare(`SELECT count(*) AS n FROM ${table}`).get() as { n: number }).n;
+
+  test("削除すると取得できなくなり、コメントとラベルの紐づけも消える。ほかのタスクは残る", async () => {
+    const target = await makeTask({ title: "消す", labelIds: [labelA] });
+    const keep = await makeTask({ title: "残す", labelIds: [labelA] });
+    sqlite
+      .prepare(
+        "INSERT INTO comments (id,task_id,author_id,body,created_at,updated_at) VALUES (?,?,?,?,?,?)",
+      )
+      .run("0190a000-0000-7000-8000-0000000000c1", target.id, userId, "メモ", "t", "t");
+    sqlite
+      .prepare(
+        "INSERT INTO comments (id,task_id,author_id,body,created_at,updated_at) VALUES (?,?,?,?,?,?)",
+      )
+      .run("0190a000-0000-7000-8000-0000000000c2", keep.id, userId, "メモ", "t", "t");
+
+    expect(await deleteTask(db, userId, workspaceId, roadmapId, target.id)).toBeUndefined();
+
+    expect(await status(getTask(db, userId, workspaceId, roadmapId, target.id))).toBe(404);
+    expect(await titles()).toEqual(["残す"]);
+    expect(count("comments")).toBe(1);
+    expect(count("task_labels")).toBe(1);
+  });
+
+  test("もう一度削除すると404、メンバーでなければ403で削除されない", async () => {
+    const task = await makeTask({ title: "t" });
+    expect(await status(deleteTask(db, otherUserId, workspaceId, roadmapId, task.id))).toBe(403);
+    expect(await titles()).toEqual(["t"]);
+    await deleteTask(db, userId, workspaceId, roadmapId, task.id);
+    expect(await status(deleteTask(db, userId, workspaceId, roadmapId, task.id))).toBe(404);
+    expect(await status(deleteTask(db, userId, workspaceId, roadmapId, "abc"))).toBe(404);
+  });
+
+  test("別のロードマップのタスクは削除できない", async () => {
+    const other = (await createRoadmap(db, userId, workspaceId, projectId, { name: "別" })) as {
+      id: string;
+    };
+    const task = await makeTask({ title: "t" });
+    expect(await status(deleteTask(db, userId, workspaceId, other.id, task.id))).toBe(404);
+    expect(await titles()).toEqual(["t"]);
   });
 });
 

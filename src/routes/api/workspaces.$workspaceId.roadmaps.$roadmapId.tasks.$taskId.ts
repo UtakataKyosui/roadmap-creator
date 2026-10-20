@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { database as db } from "@/server/database";
 import { handle, readJson } from "@/server/http";
-import { getTask, updateTask } from "@/server/tasks";
+import { deleteTask, getTask, updateTask } from "@/server/tasks";
 
 export const Route = createFileRoute(
   "/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks/$taskId",
@@ -22,6 +22,11 @@ export const Route = createFileRoute(
             params.taskId,
             await readJson(request),
           ),
+        ),
+      DELETE: ({ params }) =>
+        handle(
+          (actorId) => deleteTask(db, actorId, params.workspaceId, params.roadmapId, params.taskId),
+          204,
         ),
     },
   },
