@@ -3,8 +3,17 @@ import { roadmaps } from "../../db/schema";
 import { CreateRoadmapBody, UpdateRoadmapBody } from "@/api/generated/zod/roadmaps/roadmaps.zod";
 import { assertIds, findRoadmap, requireMember, requireProject } from "./access";
 import type { Db } from "./db";
-import { notFound, parseInput, versionConflict } from "./errors";
+import { notFound, parseInput, validationFailed, versionConflict } from "./errors";
 import { nowIso, uuidv7 } from "./ids";
+
+// OpenAPIのminLengthは空白のみの名称を許すため、サーバー側でも空白のみを拒否し、前後の空白を除く。
+const trimmedName = (name: string) => {
+  const trimmed = name.trim();
+  if (trimmed === "") {
+    throw validationFailed([{ path: "/name", message: "名称を入力してください" }]);
+  }
+  return trimmed;
+};
 
 export const listRoadmaps = async (
   db: Db,
@@ -40,7 +49,7 @@ export const createRoadmap = async (
       id: uuidv7(),
       projectId,
       workspaceId,
-      name: input.name,
+      name: trimmedName(input.name),
       description: input.description ?? null,
       createdBy: actorId,
       createdAt: now,
@@ -78,7 +87,7 @@ export const updateRoadmap = async (
   const [updated] = await db
     .update(roadmaps)
     .set({
-      ...(input.name !== undefined && { name: input.name }),
+      ...(input.name !== undefined && { name: trimmedName(input.name) }),
       ...(input.description !== undefined && { description: input.description }),
       updatedAt: nowIso(),
       version: sql`${roadmaps.version} + 1`,

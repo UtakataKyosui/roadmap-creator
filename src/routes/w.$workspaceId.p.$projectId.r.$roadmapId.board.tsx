@@ -1,10 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { EmptyState } from "@/components/state/StateViews";
+import { roadmapTasksOptions } from "@/api/roadmap-tasks";
+import { TaskBoard } from "@/components/task/TaskBoard";
+import { todayCalendarDate } from "@/domain/calendar-date";
 
 export const Route = createFileRoute("/w/$workspaceId/p/$projectId/r/$roadmapId/board")({
-  component: () => (
-    <main>
-      <EmptyState title="ボード" description="#6 で実装します。" />
-    </main>
-  ),
+  loader: async ({ context: { queryClient }, params }) => {
+    await queryClient.ensureQueryData(roadmapTasksOptions(params.workspaceId, params.roadmapId));
+    return { today: todayCalendarDate() };
+  },
+  component: BoardPage,
 });
+
+function BoardPage() {
+  const scope = Route.useParams();
+  const { today } = Route.useLoaderData();
+  return <TaskBoard key={scope.roadmapId} scope={scope} initialToday={today} />;
+}

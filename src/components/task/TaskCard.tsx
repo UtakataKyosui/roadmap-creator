@@ -14,15 +14,32 @@ type Props = {
   // ドラッグ用のハンドルに渡す属性（ボードが dnd のリスナーを渡す）。
   handleProps?: ComponentPropsWithoutRef<"button">;
   className?: string;
+  onOpen?: () => void;
 };
 
 // ボードのカード。長いタイトルは2行で省略し、担当者・期限が未設定でも崩れない。
-export function TaskCard({ task, assignee, labels = [], today, handleProps, className }: Props) {
+export function TaskCard({
+  task,
+  assignee,
+  labels = [],
+  today,
+  handleProps,
+  className,
+  onOpen,
+}: Props) {
   const overdue = isOverdue(task.dueDate, task.status, today);
   return (
     <article className={cn("rounded-lg border bg-card p-3 text-sm shadow-xs", className)}>
       <div className="flex items-start gap-2">
-        <h3 className="line-clamp-2 min-w-0 flex-1 font-medium break-words">{task.title}</h3>
+        <h3 className="line-clamp-2 min-w-0 flex-1 font-medium break-words">
+          {onOpen ? (
+            <button type="button" className="text-left hover:underline" onClick={onOpen}>
+              {task.title}
+            </button>
+          ) : (
+            task.title
+          )}
+        </h3>
         <button
           type="button"
           aria-label={`「${task.title}」を移動`}
