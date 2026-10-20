@@ -1,5 +1,6 @@
 import { createServerOnlyFn } from "@tanstack/react-start";
 import { getRequestHeaders } from "@tanstack/react-start/server";
+import { env } from "void/env";
 import type { Error as ApiErrorBody, ErrorCode, ErrorDetail } from "./generated/models";
 
 export class ApiError extends Error {
@@ -29,9 +30,15 @@ export class ApiError extends Error {
 }
 
 // サーバー側のレンダリングでは相対URLを解決できないため、APIのオリジンを環境変数で与える。
-// nodejs_compat が無い実行環境では process が存在しないため、存在を確かめてから参照する。
-const serverOrigin = () =>
-  (typeof process === "undefined" ? undefined : process.env.API_ORIGIN) ?? "http://localhost:3000";
+// workerdでは .env の値が process.env に入らないため、void/env 経由で読む。
+// リクエストの外（テストなど）ではCloudflareのenvを参照できないため、既定のオリジンを使う。
+const serverOrigin = createServerOnlyFn(() => {
+  try {
+    return (env as { API_ORIGIN?: string }).API_ORIGIN ?? "http://localhost:3000";
+  } catch {
+    return "http://localhost:3000";
+  }
+});
 
 const resolveUrl = (url: string) =>
   typeof window === "undefined" ? new URL(url, serverOrigin()).toString() : url;

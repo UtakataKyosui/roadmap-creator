@@ -2,6 +2,10 @@
 
 +自分や知り合いが学習を行うためのRoadmapを作成するためのWebアプリケーション
 
+## バックエンドとローカル開発
+
+API サーバーは TanStack Start のサーバールート、DB は Cloudflare D1（Drizzle）。DB 選定の理由、ローカル起動、マイグレーション、seed の手順は [`docs/backend.md`](docs/backend.md) を参照。
+
 ## API 契約
 
 API 契約の正本は [`openapi/openapi.yaml`](openapi/openapi.yaml)（OpenAPI 3.1）。型、Zod スキーマ、TanStack Query のクエリ／ミューテーションは、すべてこのファイルから [Orval](https://orval.dev) で生成する。API の型は手書きしない。
@@ -36,7 +40,7 @@ API 契約の正本は [`openapi/openapi.yaml`](openapi/openapi.yaml)（OpenAPI 
 - 一覧のうちタスクだけがカーソル式ページングを持つ
 - エラーは共通の `Error`（`code` / `message` / `details`）で返す。画面は `code` で文言を決める
 - QueryKey は生成される `getXxxQueryKey` を使う。URL に `workspaceId` と `roadmapId` が入るため、キーに自然に反映される
-- サーバー側レンダリング時の API オリジンは環境変数 `API_ORIGIN`（既定 `http://localhost:3000`）で指定する
+- サーバー側レンダリング時の API オリジンは環境変数 `API_ORIGIN`（既定 `http://localhost:3000`）で指定する。`env.ts` に宣言し `void/env` から読む（Worker 内では `process.env` に値が入らない）。本番は `void secret put API_ORIGIN` で設定する
 
 ### 画面からの使い方
 
