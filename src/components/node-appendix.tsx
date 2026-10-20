@@ -26,12 +26,7 @@ export interface NodeAppendixProps
   position?: "top" | "bottom" | "left" | "right";
 }
 
-export function NodeAppendix({
-  children,
-  className,
-  position,
-  ...props
-}: NodeAppendixProps) {
+export function NodeAppendix({ children, className, position, ...props }: NodeAppendixProps) {
   return (
     <div className={cn(appendixVariants({ position }), className)} {...props}>
       {children}

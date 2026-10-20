@@ -12,7 +12,7 @@ peerDependencyRules:
   allowedVersions:
     vite: "*"
 permissions:
-  '@tanstack/react-start':
+  "@tanstack/react-start":
     skills: true
   void:
     skills: true

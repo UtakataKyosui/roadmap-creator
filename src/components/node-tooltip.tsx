@@ -61,9 +61,7 @@ export function NodeTooltipTrigger(props: ComponentProps<"div">) {
     [props, hideTooltip],
   );
 
-  return (
-    <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} {...props} />
-  );
+  return <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} {...props} />;
 }
 
 /* TOOLTIP CONTENT ---------------------------------------------------------- */
@@ -72,12 +70,7 @@ export function NodeTooltipTrigger(props: ComponentProps<"div">) {
 //  * A component that displays the tooltip content based on visibility context.
 //  */
 
-export function NodeTooltipContent({
-  children,
-  position,
-  className,
-  ...props
-}: NodeToolbarProps) {
+export function NodeTooltipContent({ children, position, className, ...props }: NodeToolbarProps) {
   const tooltipContext = useContext(TooltipContext);
   if (!tooltipContext) {
     throw new Error("NodeTooltipContent must be used within NodeTooltip");
@@ -88,10 +81,7 @@ export function NodeTooltipContent({
     <div>
       <NodeToolbar
         isVisible={isVisible}
-        className={cn(
-          "bg-primary text-primary-foreground rounded-sm p-2",
-          className,
-        )}
+        className={cn("bg-primary text-primary-foreground rounded-sm p-2", className)}
         tabIndex={1}
         position={position}
         {...props}

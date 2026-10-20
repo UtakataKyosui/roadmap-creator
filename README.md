@@ -8,6 +8,9 @@ API サーバーは TanStack Start のサーバールート、DB は Cloudflare 
 
 ## API 契約
 
+画面構成と操作仕様は [`docs/phase1-screens.md`](docs/phase1-screens.md)、検証・CI/CDと配備手順は [`docs/deployment.md`](docs/deployment.md) を参照。
+全検証は `vp run verify`。配備コマンド `vp run void:deploy` も同じ検証を先に実行する。
+
 API 契約の正本は [`openapi/openapi.yaml`](openapi/openapi.yaml)（OpenAPI 3.1）。型、Zod スキーマ、TanStack Query のクエリ／ミューテーションは、すべてこのファイルから [Orval](https://orval.dev) で生成する。API の型は手書きしない。
 
 | コマンド            | 内容                                                                        |
