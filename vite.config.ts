@@ -3,7 +3,7 @@ import path from "path";
 import { defineConfig, lazyPlugins } from "vite-plus";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import { voidPlugin } from 'void';
+import { voidPlugin } from "void";
 
 export default defineConfig({
   staged: {
@@ -11,6 +11,7 @@ export default defineConfig({
   },
   fmt: {},
   lint: {
+    ignorePatterns: ["src/api/generated/**"],
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
     rules: { "vite-plus/prefer-vite-plus-imports": "error" },
     options: { typeAware: true, typeCheck: true },

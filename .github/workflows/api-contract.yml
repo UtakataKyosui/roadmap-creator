@@ -1,0 +1,33 @@
+name: API contract
+
+on:
+  pull_request:
+    paths:
+      - openapi/**
+      - orval.config.ts
+      - redocly.yaml
+      - src/api/**
+      - package.json
+      - pnpm-lock.yaml
+  push:
+    branches: [main]
+
+jobs:
+  api-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.14.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: OpenAPI 仕様の検証
+        run: pnpm api:lint
+      - name: 生成物が仕様と一致するか確認
+        run: pnpm api:check
+      - name: 型チェック
+        run: pnpm exec tsc --noEmit

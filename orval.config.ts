@@ -13,6 +13,10 @@ export default defineConfig({
       httpClient: "fetch",
       baseUrl: "/api",
       clean: true,
+      override: {
+        mutator: { path: "./src/api/http.ts", name: "customFetch" },
+        fetch: { forceSuccessResponse: true },
+      },
     },
     hooks: {
       afterAllFilesWrite: "vp fmt src/api/generated",

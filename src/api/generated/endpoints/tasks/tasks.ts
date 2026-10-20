@@ -35,6 +35,11 @@ import type {
   VersionConflictResponse,
 } from "../../models";
 
+import { customFetch } from "../../../http";
+import type { ErrorType } from "../../../http";
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
   const result = { queryKey } as T & { queryKey: K };
   for (const key of Object.keys(query)) {
@@ -93,8 +98,6 @@ export type listTasksResponseError = (
   headers: Headers;
 };
 
-export type listTasksResponse = listTasksResponseSuccess | listTasksResponseError;
-
 export const getListTasksUrl = (
   workspaceId: string,
   roadmapId: string,
@@ -132,17 +135,12 @@ export const listTasks = async (
   workspaceId: string,
   roadmapId: string,
   params?: ListTasksParams,
-  options?: RequestInit,
-): Promise<listTasksResponse> => {
-  const res = await fetch(getListTasksUrl(workspaceId, roadmapId, params), {
+  options?: Parameters<typeof customFetch>[1],
+): Promise<listTasksResponseSuccess> => {
+  return customFetch<listTasksResponseSuccess>(getListTasksUrl(workspaceId, roadmapId, params), {
     ...options,
     method: "GET",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: listTasksResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as listTasksResponse;
 };
 
 export const getListTasksQueryKey = (
@@ -158,27 +156,28 @@ export const getListTasksQueryKey = (
 
 export const getListTasksQueryOptions = <
   TData = Awaited<ReturnType<typeof listTasks>>,
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
     | ValidationFailedResponse
-    | InternalErrorResponse,
+    | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   roadmapId: string,
   params?: ListTasksParams,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listTasks>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getListTasksQueryKey(workspaceId, roadmapId, params);
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof listTasks>>> = ({ signal }) =>
-    listTasks(workspaceId, roadmapId, params, { signal, ...fetchOptions });
+    listTasks(workspaceId, roadmapId, params, { signal, ...requestOptions });
 
   return {
     queryKey,
@@ -195,21 +194,23 @@ export const getListTasksQueryOptions = <
 };
 
 export type ListTasksQueryResult = NonNullable<Awaited<ReturnType<typeof listTasks>>>;
-export type ListTasksQueryError =
+export type ListTasksQueryError = ErrorType<
   | UnauthorizedResponse
   | ForbiddenResponse
   | NotFoundResponse
   | ValidationFailedResponse
-  | InternalErrorResponse;
+  | InternalErrorResponse
+>;
 
 export function useListTasks<
   TData = Awaited<ReturnType<typeof listTasks>>,
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
     | ValidationFailedResponse
-    | InternalErrorResponse,
+    | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   roadmapId: string,
@@ -224,18 +225,19 @@ export function useListTasks<
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useListTasks<
   TData = Awaited<ReturnType<typeof listTasks>>,
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
     | ValidationFailedResponse
-    | InternalErrorResponse,
+    | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   roadmapId: string,
@@ -250,25 +252,26 @@ export function useListTasks<
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useListTasks<
   TData = Awaited<ReturnType<typeof listTasks>>,
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
     | ValidationFailedResponse
-    | InternalErrorResponse,
+    | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   roadmapId: string,
   params?: ListTasksParams,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listTasks>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
@@ -278,19 +281,20 @@ export function useListTasks<
 
 export function useListTasks<
   TData = Awaited<ReturnType<typeof listTasks>>,
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
     | ValidationFailedResponse
-    | InternalErrorResponse,
+    | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   roadmapId: string,
   params?: ListTasksParams,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listTasks>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -346,8 +350,6 @@ export type createTaskResponseError = (
   headers: Headers;
 };
 
-export type createTaskResponse = createTaskResponseSuccess | createTaskResponseError;
-
 export const getCreateTaskUrl = (workspaceId: string, roadmapId: string) => {
   return `/api/workspaces/${workspaceId}/roadmaps/${roadmapId}/tasks`;
 };
@@ -359,8 +361,8 @@ export const createTask = async (
   workspaceId: string,
   roadmapId: string,
   taskCreate: TaskCreate,
-  options?: RequestInit,
-): Promise<createTaskResponse> => {
+  options?: Parameters<typeof customFetch>[1],
+): Promise<createTaskResponseSuccess> => {
   const getHeaders = (
     h?: NonNullable<RequestInit["headers"]>,
   ): Record<string, string | readonly string[]> => {
@@ -380,28 +382,24 @@ export const createTask = async (
     }
     return headers;
   };
-  const res = await fetch(getCreateTaskUrl(workspaceId, roadmapId), {
+  return customFetch<createTaskResponseSuccess>(getCreateTaskUrl(workspaceId, roadmapId), {
     ...options,
     method: "POST",
     headers: { "Content-Type": "application/json", ...getHeaders(options?.headers) },
     body: JSON.stringify(taskCreate),
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: createTaskResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as createTaskResponse;
 };
 
 export const getCreateTaskMutationKey = () => ["createTask"] as const;
 
 export const getCreateTaskMutationOptions = <
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
     | ValidationFailedResponse
-    | InternalErrorResponse,
+    | InternalErrorResponse
+  >,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -410,7 +408,7 @@ export const getCreateTaskMutationOptions = <
     CreateTaskMutationVariables,
     TContext
   >;
-  fetch?: RequestInit;
+  request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof createTask>>,
   TError,
@@ -418,11 +416,11 @@ export const getCreateTaskMutationOptions = <
   TContext
 > => {
   const mutationKey = getCreateTaskMutationKey();
-  const { mutation: mutationOptions, fetch: fetchOptions } = options
+  const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, fetch: undefined };
+    : { mutation: { mutationKey }, request: undefined };
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof createTask>>,
@@ -430,7 +428,7 @@ export const getCreateTaskMutationOptions = <
   > = (props) => {
     const { workspaceId, roadmapId, data } = props ?? {};
 
-    return createTask(workspaceId, roadmapId, data, fetchOptions);
+    return createTask(workspaceId, roadmapId, data, requestOptions);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -438,12 +436,13 @@ export const getCreateTaskMutationOptions = <
 
 export type CreateTaskMutationResult = NonNullable<Awaited<ReturnType<typeof createTask>>>;
 export type CreateTaskMutationBody = TaskCreate;
-export type CreateTaskMutationError =
+export type CreateTaskMutationError = ErrorType<
   | UnauthorizedResponse
   | ForbiddenResponse
   | NotFoundResponse
   | ValidationFailedResponse
-  | InternalErrorResponse;
+  | InternalErrorResponse
+>;
 export type CreateTaskMutationVariables = {
   workspaceId: string;
   roadmapId: string;
@@ -454,12 +453,13 @@ export type CreateTaskMutationVariables = {
  * @summary タスクを作成する
  */
 export const useCreateTask = <
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
     | ValidationFailedResponse
-    | InternalErrorResponse,
+    | InternalErrorResponse
+  >,
   TContext = unknown,
 >(
   options?: {
@@ -469,7 +469,7 @@ export const useCreateTask = <
       CreateTaskMutationVariables,
       TContext
     >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
@@ -517,8 +517,6 @@ export type getTaskResponseError = (
   headers: Headers;
 };
 
-export type getTaskResponse = getTaskResponseSuccess | getTaskResponseError;
-
 export const getGetTaskUrl = (workspaceId: string, roadmapId: string, taskId: string) => {
   return `/api/workspaces/${workspaceId}/roadmaps/${roadmapId}/tasks/${taskId}`;
 };
@@ -530,17 +528,12 @@ export const getTask = async (
   workspaceId: string,
   roadmapId: string,
   taskId: string,
-  options?: RequestInit,
-): Promise<getTaskResponse> => {
-  const res = await fetch(getGetTaskUrl(workspaceId, roadmapId, taskId), {
+  options?: Parameters<typeof customFetch>[1],
+): Promise<getTaskResponseSuccess> => {
+  return customFetch<getTaskResponseSuccess>(getGetTaskUrl(workspaceId, roadmapId, taskId), {
     ...options,
     method: "GET",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: getTaskResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as getTaskResponse;
 };
 
 export const getGetTaskQueryKey = (workspaceId: string, roadmapId: string, taskId: string) => {
@@ -549,22 +542,24 @@ export const getGetTaskQueryKey = (workspaceId: string, roadmapId: string, taskI
 
 export const getGetTaskQueryOptions = <
   TData = Awaited<ReturnType<typeof getTask>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   roadmapId: string,
   taskId: string,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTask>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getGetTaskQueryKey(workspaceId, roadmapId, taskId);
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getTask>>> = ({ signal }) =>
-    getTask(workspaceId, roadmapId, taskId, { signal, ...fetchOptions });
+    getTask(workspaceId, roadmapId, taskId, { signal, ...requestOptions });
 
   return {
     queryKey,
@@ -583,15 +578,15 @@ export const getGetTaskQueryOptions = <
 };
 
 export type GetTaskQueryResult = NonNullable<Awaited<ReturnType<typeof getTask>>>;
-export type GetTaskQueryError =
-  | UnauthorizedResponse
-  | ForbiddenResponse
-  | NotFoundResponse
-  | InternalErrorResponse;
+export type GetTaskQueryError = ErrorType<
+  UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+>;
 
 export function useGetTask<
   TData = Awaited<ReturnType<typeof getTask>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   roadmapId: string,
@@ -606,13 +601,15 @@ export function useGetTask<
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetTask<
   TData = Awaited<ReturnType<typeof getTask>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   roadmapId: string,
@@ -627,20 +624,22 @@ export function useGetTask<
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetTask<
   TData = Awaited<ReturnType<typeof getTask>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   roadmapId: string,
   taskId: string,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTask>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
@@ -650,14 +649,16 @@ export function useGetTask<
 
 export function useGetTask<
   TData = Awaited<ReturnType<typeof getTask>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   roadmapId: string,
   taskId: string,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTask>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -719,8 +720,6 @@ export type updateTaskResponseError = (
   headers: Headers;
 };
 
-export type updateTaskResponse = updateTaskResponseSuccess | updateTaskResponseError;
-
 export const getUpdateTaskUrl = (workspaceId: string, roadmapId: string, taskId: string) => {
   return `/api/workspaces/${workspaceId}/roadmaps/${roadmapId}/tasks/${taskId}`;
 };
@@ -733,8 +732,8 @@ export const updateTask = async (
   roadmapId: string,
   taskId: string,
   taskUpdate: TaskUpdate,
-  options?: RequestInit,
-): Promise<updateTaskResponse> => {
+  options?: Parameters<typeof customFetch>[1],
+): Promise<updateTaskResponseSuccess> => {
   const getHeaders = (
     h?: NonNullable<RequestInit["headers"]>,
   ): Record<string, string | readonly string[]> => {
@@ -754,29 +753,25 @@ export const updateTask = async (
     }
     return headers;
   };
-  const res = await fetch(getUpdateTaskUrl(workspaceId, roadmapId, taskId), {
+  return customFetch<updateTaskResponseSuccess>(getUpdateTaskUrl(workspaceId, roadmapId, taskId), {
     ...options,
     method: "PATCH",
     headers: { "Content-Type": "application/json", ...getHeaders(options?.headers) },
     body: JSON.stringify(taskUpdate),
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: updateTaskResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as updateTaskResponse;
 };
 
 export const getUpdateTaskMutationKey = () => ["updateTask"] as const;
 
 export const getUpdateTaskMutationOptions = <
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
     | VersionConflictResponse
     | ValidationFailedResponse
-    | InternalErrorResponse,
+    | InternalErrorResponse
+  >,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -785,7 +780,7 @@ export const getUpdateTaskMutationOptions = <
     UpdateTaskMutationVariables,
     TContext
   >;
-  fetch?: RequestInit;
+  request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof updateTask>>,
   TError,
@@ -793,11 +788,11 @@ export const getUpdateTaskMutationOptions = <
   TContext
 > => {
   const mutationKey = getUpdateTaskMutationKey();
-  const { mutation: mutationOptions, fetch: fetchOptions } = options
+  const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, fetch: undefined };
+    : { mutation: { mutationKey }, request: undefined };
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof updateTask>>,
@@ -805,7 +800,7 @@ export const getUpdateTaskMutationOptions = <
   > = (props) => {
     const { workspaceId, roadmapId, taskId, data } = props ?? {};
 
-    return updateTask(workspaceId, roadmapId, taskId, data, fetchOptions);
+    return updateTask(workspaceId, roadmapId, taskId, data, requestOptions);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -813,13 +808,14 @@ export const getUpdateTaskMutationOptions = <
 
 export type UpdateTaskMutationResult = NonNullable<Awaited<ReturnType<typeof updateTask>>>;
 export type UpdateTaskMutationBody = TaskUpdate;
-export type UpdateTaskMutationError =
+export type UpdateTaskMutationError = ErrorType<
   | UnauthorizedResponse
   | ForbiddenResponse
   | NotFoundResponse
   | VersionConflictResponse
   | ValidationFailedResponse
-  | InternalErrorResponse;
+  | InternalErrorResponse
+>;
 export type UpdateTaskMutationVariables = {
   workspaceId: string;
   roadmapId: string;
@@ -831,13 +827,14 @@ export type UpdateTaskMutationVariables = {
  * @summary タスクを更新する（詳細編集・ステータス変更・列内の並べ替え）
  */
 export const useUpdateTask = <
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
     | VersionConflictResponse
     | ValidationFailedResponse
-    | InternalErrorResponse,
+    | InternalErrorResponse
+  >,
   TContext = unknown,
 >(
   options?: {
@@ -847,7 +844,7 @@ export const useUpdateTask = <
       UpdateTaskMutationVariables,
       TContext
     >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
@@ -895,8 +892,6 @@ export type deleteTaskResponseError = (
   headers: Headers;
 };
 
-export type deleteTaskResponse = deleteTaskResponseSuccess | deleteTaskResponseError;
-
 export const getDeleteTaskUrl = (workspaceId: string, roadmapId: string, taskId: string) => {
   return `/api/workspaces/${workspaceId}/roadmaps/${roadmapId}/tasks/${taskId}`;
 };
@@ -909,23 +904,20 @@ export const deleteTask = async (
   workspaceId: string,
   roadmapId: string,
   taskId: string,
-  options?: RequestInit,
-): Promise<deleteTaskResponse> => {
-  const res = await fetch(getDeleteTaskUrl(workspaceId, roadmapId, taskId), {
+  options?: Parameters<typeof customFetch>[1],
+): Promise<deleteTaskResponseSuccess> => {
+  return customFetch<deleteTaskResponseSuccess>(getDeleteTaskUrl(workspaceId, roadmapId, taskId), {
     ...options,
     method: "DELETE",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: deleteTaskResponse["data"] = body ? JSON.parse(body) : undefined;
-  return { data, status: res.status, headers: res.headers } as deleteTaskResponse;
 };
 
 export const getDeleteTaskMutationKey = () => ["deleteTask"] as const;
 
 export const getDeleteTaskMutationOptions = <
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -934,7 +926,7 @@ export const getDeleteTaskMutationOptions = <
     DeleteTaskMutationVariables,
     TContext
   >;
-  fetch?: RequestInit;
+  request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof deleteTask>>,
   TError,
@@ -942,11 +934,11 @@ export const getDeleteTaskMutationOptions = <
   TContext
 > => {
   const mutationKey = getDeleteTaskMutationKey();
-  const { mutation: mutationOptions, fetch: fetchOptions } = options
+  const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, fetch: undefined };
+    : { mutation: { mutationKey }, request: undefined };
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof deleteTask>>,
@@ -954,7 +946,7 @@ export const getDeleteTaskMutationOptions = <
   > = (props) => {
     const { workspaceId, roadmapId, taskId } = props ?? {};
 
-    return deleteTask(workspaceId, roadmapId, taskId, fetchOptions);
+    return deleteTask(workspaceId, roadmapId, taskId, requestOptions);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -962,11 +954,9 @@ export const getDeleteTaskMutationOptions = <
 
 export type DeleteTaskMutationResult = NonNullable<Awaited<ReturnType<typeof deleteTask>>>;
 
-export type DeleteTaskMutationError =
-  | UnauthorizedResponse
-  | ForbiddenResponse
-  | NotFoundResponse
-  | InternalErrorResponse;
+export type DeleteTaskMutationError = ErrorType<
+  UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+>;
 export type DeleteTaskMutationVariables = {
   workspaceId: string;
   roadmapId: string;
@@ -977,7 +967,9 @@ export type DeleteTaskMutationVariables = {
  * @summary タスクを削除する
  */
 export const useDeleteTask = <
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
   TContext = unknown,
 >(
   options?: {
@@ -987,7 +979,7 @@ export const useDeleteTask = <
       DeleteTaskMutationVariables,
       TContext
     >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<

@@ -230,6 +230,9 @@ importers:
       '@google/stitch':
         specifier: ^0.11.1
         version: 0.11.1(@typescript/typescript6@6.0.2)
+      '@redocly/cli':
+        specifier: ^2.65.0
+        version: 2.65.0
       '@tailwindcss/vite':
         specifier: ^4.2.2
         version: 4.3.3(@voidzero-dev/vite-plus-core@1.0.0(@types/node@22.20.5)(@typescript/typescript6@6.0.2)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
@@ -1829,6 +1832,11 @@ packages:
 
   '@poppinss/exception@1.2.3':
     resolution: {integrity: sha512-dCED+QRChTVatE9ibtoaxc+WkdzOSjYTKi/+uacHWIsfodVfpsueo3+DKpgU5Px8qXjgmXkSvhXvSCz3fnP9lw==}
+
+  '@redocly/cli@2.65.0':
+    resolution: {integrity: sha512-Psw1Bf/ErKG/hlprFxtYJgilxxXC+68wji5ZFixzhtDTi9bsn4SpKX7VksgPOoGl93fyVyx/zzvW6rk2j/SnLw==}
+    engines: {node: '>=22.12.0 || >=20.19.0 <21.0.0', npm: '>=10'}
+    hasBin: true
 
   '@rolldown/binding-android-arm-eabi@1.2.14':
     resolution: {integrity: sha512-aWR+XKH9+rW7m5fWq/5360J3mHycrx/o6xZM2DQFdJnTMdyP7/WzxPjhtLbVWdKo2y612/4U1bWqb3HQhiF7vg==}
@@ -6212,6 +6220,8 @@ snapshots:
       supports-color: 10.2.2
 
   '@poppinss/exception@1.2.3': {}
+
+  '@redocly/cli@2.65.0': {}
 
   '@rolldown/binding-android-arm-eabi@1.2.14':
     optional: true

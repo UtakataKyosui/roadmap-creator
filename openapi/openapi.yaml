@@ -7,10 +7,15 @@ servers:
   - url: http://localhost:3000/api
 tags:
   - name: Workspaces
+    description: 共有境界となるWorkspaceとそのメンバー。
   - name: Projects
+    description: Workspace配下のプロジェクト。
   - name: Roadmaps
+    description: プロジェクト配下のロードマップ。
   - name: Tasks
+    description: ロードマップに属するタスク。ボードとタイムラインが共有する。
   - name: Labels
+    description: Workspaceに属するラベル。
 security:
   - sessionCookie: []
 paths:
