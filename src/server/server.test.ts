@@ -75,6 +75,12 @@ describe("エラー応答", () => {
     expect(response.status).toBe(404);
   });
 
+  test("handleは結果がundefinedなら本文のない応答を返す", async () => {
+    const response = await handle(async () => undefined, 204);
+    expect(response.status).toBe(204);
+    expect(await response.text()).toBe("");
+  });
+
   test("不正なJSON本文は422になる", async () => {
     const request = new Request("http://x.test", { method: "POST", body: "{" });
     await expect(readJson(request)).rejects.toMatchObject({ status: 422 });
