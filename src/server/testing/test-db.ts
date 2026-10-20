@@ -35,7 +35,8 @@ export const createTestDb = (options: { failOn?: RegExp } = {}) => {
     }
     statement.setReturnArrays(true);
     const rows = statement.all(...values) as unknown as unknown[][];
-    return { rows: method === "get" ? (rows[0] ?? []) : rows };
+    // drizzleのproxyは、get()で該当なしの場合にundefinedを期待する。
+    return { rows: (method === "get" ? rows[0] : rows) as unknown[] };
   };
 
   const db = drizzle(
@@ -126,6 +127,26 @@ export const seedTestDb = (sqlite: DatabaseSync) => {
     otherWorkspaceProjectId,
     otherWorkspaceId,
     "別",
+    now,
+    now,
+  );
+  exec(
+    "INSERT INTO roadmaps (id,project_id,workspace_id,name,description,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)",
+    devFixtures.roadmapId,
+    devFixtures.projectId,
+    devFixtures.workspaceId,
+    "はじめてのロードマップ",
+    null,
+    devFixtures.userId,
+    now,
+    now,
+  );
+  exec(
+    "INSERT INTO labels (id,workspace_id,name,color,created_at,updated_at) VALUES (?,?,?,?,?,?)",
+    devFixtures.labelId,
+    devFixtures.workspaceId,
+    "基礎",
+    "#3B82F6",
     now,
     now,
   );

@@ -1,6 +1,8 @@
 import { describe, expect, test } from "vite-plus/test";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { devFixtures } from "../../db/dev-fixtures";
+import { labels, roadmaps } from "../../db/schema";
 import { resolveActorId } from "./auth";
 import { HttpError, parseInput, toErrorResponse, toPointer } from "./errors";
 import { handle, readJson } from "./http";
@@ -96,5 +98,18 @@ describe("テスト用DB", () => {
         )
         .run(devFixtures.userId),
     ).toThrow();
+  });
+
+  test("開発用のロードマップとラベルが入り、該当なしの検索は空配列になる", async () => {
+    const { db, sqlite } = createTestDb();
+    seedTestDb(sqlite);
+    const found = await db.select().from(roadmaps).where(eq(roadmaps.id, devFixtures.roadmapId));
+    expect(found).toHaveLength(1);
+    expect(await db.select().from(labels).where(eq(labels.id, devFixtures.labelId))).toHaveLength(
+      1,
+    );
+    expect(await db.select().from(roadmaps).where(eq(roadmaps.id, "missing"))).toEqual([]);
+    const [one] = await db.select().from(roadmaps).where(eq(roadmaps.id, "missing")).limit(1);
+    expect(one).toBeUndefined();
   });
 });
