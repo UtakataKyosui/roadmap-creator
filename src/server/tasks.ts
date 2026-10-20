@@ -3,6 +3,7 @@ import {
   and,
   asc,
   desc,
+  count,
   eq,
   getTableColumns,
   inArray,
@@ -225,6 +226,27 @@ const edgeKey = async (db: Db, column: Column, side: "below" | "above", bound?: 
   return row?.key ?? null;
 };
 
+// 列の中に、2つの境界の間（どちらも含まない）にあるタスクが残っているかを返す。nullは境界なし。
+const hasSiblingBetween = async (
+  db: Db,
+  column: Column,
+  lower: string | null,
+  upper: string | null,
+) => {
+  const conditions: SQL[] = [
+    eq(tasks.roadmapId, column.roadmapId),
+    eq(tasks.status, column.status as (typeof tasks.status.enumValues)[number]),
+  ];
+  if (column.excludeId) conditions.push(ne(tasks.id, column.excludeId));
+  if (lower !== null) conditions.push(sql`${tasks.sortOrder} > ${lower}`);
+  if (upper !== null) conditions.push(sql`${tasks.sortOrder} < ${upper}`);
+  const [row] = await db
+    .select({ total: count() })
+    .from(tasks)
+    .where(and(...conditions));
+  return (row?.total ?? 0) > 0;
+};
+
 const keyBetween = (lower: string | null, upper: string | null, path: string) => {
   if (lower !== null && upper !== null && lower >= upper) {
     throw validationFailed([{ path, message: "指定した位置には並べ替えできません" }]);
@@ -289,11 +311,11 @@ const sortOrderForMove = async (
   } else {
     lower = beforeKey;
     upper = afterKey;
-    if (before === null && after === null && (await edgeKey(db, column, "below")) !== null) {
+    if (await hasSiblingBetween(db, column, lower, upper)) {
       throw validationFailed([
         {
           path: "/beforeTaskId",
-          message: "移動先の列にタスクがあるため、先頭かつ末尾にはできません",
+          message: "指定した直前・直後のタスクは隣り合っていません",
         },
       ]);
     }
@@ -339,7 +361,9 @@ export const createTask = async (
       createdAt: now,
       updatedAt: now,
     }),
-    ...labelIds.map((labelId) => db.insert(taskLabels).values({ taskId: id, labelId })),
+    ...labelIds.map((labelId) =>
+      db.insert(taskLabels).values({ taskId: id, labelId, workspaceId }),
+    ),
   ]);
   return (await findTask(db, workspaceId, roadmapId, id))!;
 };
@@ -396,7 +420,9 @@ export const updateTask = async (
       : [
           db.delete(taskLabels).where(and(eq(taskLabels.taskId, taskId), sameVersion)),
           ...labelIds.map((labelId) =>
-            db.insert(taskLabels).select(sql`select ${taskId}, ${labelId} where ${sameVersion}`),
+            db
+              .insert(taskLabels)
+              .select(sql`select ${taskId}, ${labelId}, ${workspaceId} where ${sameVersion}`),
           ),
         ];
 

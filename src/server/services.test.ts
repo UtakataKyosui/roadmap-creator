@@ -431,6 +431,32 @@ describe("並べ替えと列間移動", () => {
     expect((await getTask(db, userId, workspaceId, roadmapId, a.id)).version).toBe(1);
   });
 
+  test("間に別のタスクがある直前・直後の指定は422", async () => {
+    const a = await makeTask({ title: "a" });
+    await makeTask({ title: "b" });
+    const c = await makeTask({ title: "c" });
+    const d = await makeTask({ title: "d" });
+    expect(
+      await details(
+        updateTask(db, userId, workspaceId, roadmapId, d.id, {
+          version: 1,
+          beforeTaskId: a.id,
+          afterTaskId: c.id,
+        }),
+      ),
+    ).toEqual(["/beforeTaskId"]);
+    expect(
+      await details(
+        updateTask(db, userId, workspaceId, roadmapId, d.id, {
+          version: 1,
+          beforeTaskId: null,
+          afterTaskId: c.id,
+        }),
+      ),
+    ).toEqual(["/beforeTaskId"]);
+    expect(await titles()).toEqual(["a", "b", "c", "d"]);
+  });
+
   test("順序が逆転した指定や、列が空でないのに先頭かつ末尾の指定は422", async () => {
     const a = await makeTask({ title: "a" });
     const b = await makeTask({ title: "b" });
@@ -558,21 +584,42 @@ describe("DBの失敗", () => {
     const response = await handle(() =>
       listTasks(failing.db, userId, workspaceId, devFixtures.roadmapId, new URLSearchParams()),
     );
-    // ロードマップが無い場合は404になるため、先に作成してから失敗を起こす。
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(500);
+    const body = (await response.json()) as { code: string; message: string };
+    expect(body.code).toBe("internal");
+    expect(JSON.stringify(body)).not.toContain("simulated");
+  });
+});
 
-    failing.sqlite
+describe("データベースの制約", () => {
+  const now = "t";
+  const insertRoadmap = (projectId: string, workspaceId: string) =>
+    sqlite
       .prepare(
         "INSERT INTO roadmaps (id,project_id,workspace_id,name,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?)",
       )
-      .run(devFixtures.roadmapId, projectId, workspaceId, "r", userId, "t", "t");
-    const failed = await handle(() =>
-      listTasks(failing.db, userId, workspaceId, devFixtures.roadmapId, new URLSearchParams()),
-    );
-    expect(failed.status).toBe(500);
-    const body = (await failed.json()) as { code: string; message: string };
-    expect(body.code).toBe("internal");
-    expect(JSON.stringify(body)).not.toContain("simulated");
+      .run("0190a000-0000-7000-8000-0000000000d1", projectId, workspaceId, "r", userId, now, now);
+
+  test("プロジェクトと別のWorkspaceを持つロードマップは作れない", () => {
+    expect(() => insertRoadmap(projectId, otherWorkspaceId)).toThrow(/FOREIGN KEY/);
+    expect(() => insertRoadmap(projectId, workspaceId)).not.toThrow();
+  });
+
+  test("Workspaceのメンバーでない担当者や、別Workspaceのラベルは保存できない", async () => {
+    const task = await makeTask({ title: "t" });
+    expect(() =>
+      sqlite.prepare("UPDATE tasks SET assignee_id = ? WHERE id = ?").run(otherUserId, task.id),
+    ).toThrow(/FOREIGN KEY/);
+    expect(() =>
+      sqlite
+        .prepare("INSERT INTO task_labels (task_id,label_id,workspace_id) VALUES (?,?,?)")
+        .run(task.id, foreignLabel, workspaceId),
+    ).toThrow(/FOREIGN KEY/);
+    expect(() =>
+      sqlite
+        .prepare("INSERT INTO task_labels (task_id,label_id,workspace_id) VALUES (?,?,?)")
+        .run(task.id, labelA, otherWorkspaceId),
+    ).toThrow(/FOREIGN KEY/);
   });
 });
 
