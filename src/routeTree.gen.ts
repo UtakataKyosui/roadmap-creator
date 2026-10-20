@@ -10,120 +10,28 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PathlessLayoutRouteImport } from './routes/_pathlessLayout'
-import { Route as CustomScriptDotjsRouteImport } from './routes/customScript[.]js'
-import { Route as DeferredRouteImport } from './routes/deferred'
-import { Route as PostsRouteImport } from './routes/posts'
-import { Route as RedirectRouteImport } from './routes/redirect'
-import { Route as UsersRouteImport } from './routes/users'
-import { Route as PathlessLayoutNestedLayoutRouteImport } from './routes/_pathlessLayout/_nested-layout'
-import { Route as ApiUsersRouteImport } from './routes/api/users'
 import { Route as ApiWorkspacesRouteImport } from './routes/api/workspaces'
-import { Route as PostsIndexRouteImport } from './routes/posts.index'
-import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
-import { Route as UsersIndexRouteImport } from './routes/users.index'
-import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
-import { Route as PathlessLayoutNestedLayoutRouteARouteImport } from './routes/_pathlessLayout/_nested-layout/route-a'
-import { Route as PathlessLayoutNestedLayoutRouteBRouteImport } from './routes/_pathlessLayout/_nested-layout/route-b'
-import { Route as ApiUsersUserIdRouteImport } from './routes/api/users.$userId'
-import { Route as PostsPostIdDeepRouteImport } from './routes/posts_.$postId.deep'
 import { Route as ApiWorkspacesWorkspaceIdLabelsRouteImport } from './routes/api/workspaces.$workspaceId.labels'
 import { Route as ApiWorkspacesWorkspaceIdMembersRouteImport } from './routes/api/workspaces.$workspaceId.members'
 import { Route as ApiWorkspacesWorkspaceIdProjectsRouteImport } from './routes/api/workspaces.$workspaceId.projects'
+import { Route as WWorkspaceIdPProjectIdRouteImport } from './routes/w.$workspaceId.p.$projectId'
 import { Route as ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteImport } from './routes/api/workspaces.$workspaceId.roadmaps.$roadmapId'
+import { Route as WWorkspaceIdPProjectIdIndexRouteImport } from './routes/w.$workspaceId.p.$projectId.index'
 import { Route as ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRouteImport } from './routes/api/workspaces.$workspaceId.projects.$projectId.roadmaps'
 import { Route as ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRouteImport } from './routes/api/workspaces.$workspaceId.roadmaps.$roadmapId.tasks'
+import { Route as WWorkspaceIdPProjectIdRRoadmapIdRouteImport } from './routes/w.$workspaceId.p.$projectId.r.$roadmapId'
 import { Route as ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksTaskIdRouteImport } from './routes/api/workspaces.$workspaceId.roadmaps.$roadmapId.tasks.$taskId'
+import { Route as WWorkspaceIdPProjectIdRRoadmapIdBoardRouteImport } from './routes/w.$workspaceId.p.$projectId.r.$roadmapId.board'
+import { Route as WWorkspaceIdPProjectIdRRoadmapIdTimelineRouteImport } from './routes/w.$workspaceId.p.$projectId.r.$roadmapId.timeline'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PathlessLayoutRoute = PathlessLayoutRouteImport.update({
-  id: '/_pathlessLayout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CustomScriptDotjsRoute = CustomScriptDotjsRouteImport.update({
-  id: '/customScript.js',
-  path: '/customScript.js',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DeferredRoute = DeferredRouteImport.update({
-  id: '/deferred',
-  path: '/deferred',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PostsRoute = PostsRouteImport.update({
-  id: '/posts',
-  path: '/posts',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RedirectRoute = RedirectRouteImport.update({
-  id: '/redirect',
-  path: '/redirect',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const UsersRoute = UsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PathlessLayoutNestedLayoutRoute =
-  PathlessLayoutNestedLayoutRouteImport.update({
-    id: '/_nested-layout',
-    getParentRoute: () => PathlessLayoutRoute,
-  } as any)
-const ApiUsersRoute = ApiUsersRouteImport.update({
-  id: '/api/users',
-  path: '/api/users',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiWorkspacesRoute = ApiWorkspacesRouteImport.update({
   id: '/api/workspaces',
   path: '/api/workspaces',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PostsIndexRoute = PostsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => PostsRoute,
-} as any)
-const PostsPostIdRoute = PostsPostIdRouteImport.update({
-  id: '/$postId',
-  path: '/$postId',
-  getParentRoute: () => PostsRoute,
-} as any)
-const UsersIndexRoute = UsersIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => UsersRoute,
-} as any)
-const UsersUserIdRoute = UsersUserIdRouteImport.update({
-  id: '/$userId',
-  path: '/$userId',
-  getParentRoute: () => UsersRoute,
-} as any)
-const PathlessLayoutNestedLayoutRouteARoute =
-  PathlessLayoutNestedLayoutRouteARouteImport.update({
-    id: '/route-a',
-    path: '/route-a',
-    getParentRoute: () => PathlessLayoutNestedLayoutRoute,
-  } as any)
-const PathlessLayoutNestedLayoutRouteBRoute =
-  PathlessLayoutNestedLayoutRouteBRouteImport.update({
-    id: '/route-b',
-    path: '/route-b',
-    getParentRoute: () => PathlessLayoutNestedLayoutRoute,
-  } as any)
-const ApiUsersUserIdRoute = ApiUsersUserIdRouteImport.update({
-  id: '/$userId',
-  path: '/$userId',
-  getParentRoute: () => ApiUsersRoute,
-} as any)
-const PostsPostIdDeepRoute = PostsPostIdDeepRouteImport.update({
-  id: '/posts_/$postId/deep',
-  path: '/posts/$postId/deep',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiWorkspacesWorkspaceIdLabelsRoute =
@@ -144,11 +52,22 @@ const ApiWorkspacesWorkspaceIdProjectsRoute =
     path: '/$workspaceId/projects',
     getParentRoute: () => ApiWorkspacesRoute,
   } as any)
+const WWorkspaceIdPProjectIdRoute = WWorkspaceIdPProjectIdRouteImport.update({
+  id: '/w/$workspaceId/p/$projectId',
+  path: '/w/$workspaceId/p/$projectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRoute =
   ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteImport.update({
     id: '/$workspaceId/roadmaps/$roadmapId',
     path: '/$workspaceId/roadmaps/$roadmapId',
     getParentRoute: () => ApiWorkspacesRoute,
+  } as any)
+const WWorkspaceIdPProjectIdIndexRoute =
+  WWorkspaceIdPProjectIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => WWorkspaceIdPProjectIdRoute,
   } as any)
 const ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute =
   ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRouteImport.update({
@@ -162,178 +81,133 @@ const ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRoute =
     path: '/tasks',
     getParentRoute: () => ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRoute,
   } as any)
+const WWorkspaceIdPProjectIdRRoadmapIdRoute =
+  WWorkspaceIdPProjectIdRRoadmapIdRouteImport.update({
+    id: '/r/$roadmapId',
+    path: '/r/$roadmapId',
+    getParentRoute: () => WWorkspaceIdPProjectIdRoute,
+  } as any)
 const ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksTaskIdRoute =
   ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksTaskIdRouteImport.update({
     id: '/$taskId',
     path: '/$taskId',
     getParentRoute: () => ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRoute,
   } as any)
+const WWorkspaceIdPProjectIdRRoadmapIdBoardRoute =
+  WWorkspaceIdPProjectIdRRoadmapIdBoardRouteImport.update({
+    id: '/board',
+    path: '/board',
+    getParentRoute: () => WWorkspaceIdPProjectIdRRoadmapIdRoute,
+  } as any)
+const WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute =
+  WWorkspaceIdPProjectIdRRoadmapIdTimelineRouteImport.update({
+    id: '/timeline',
+    path: '/timeline',
+    getParentRoute: () => WWorkspaceIdPProjectIdRRoadmapIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/customScript.js': typeof CustomScriptDotjsRoute
-  '/deferred': typeof DeferredRoute
-  '/posts': typeof PostsRouteWithChildren
-  '/redirect': typeof RedirectRoute
-  '/users': typeof UsersRouteWithChildren
-  '/api/users': typeof ApiUsersRouteWithChildren
   '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
-  '/posts/$postId': typeof PostsPostIdRoute
-  '/users/$userId': typeof UsersUserIdRoute
-  '/posts/': typeof PostsIndexRoute
-  '/users/': typeof UsersIndexRoute
-  '/route-a': typeof PathlessLayoutNestedLayoutRouteARoute
-  '/route-b': typeof PathlessLayoutNestedLayoutRouteBRoute
-  '/api/users/$userId': typeof ApiUsersUserIdRoute
-  '/posts/$postId/deep': typeof PostsPostIdDeepRoute
   '/api/workspaces/$workspaceId/labels': typeof ApiWorkspacesWorkspaceIdLabelsRoute
   '/api/workspaces/$workspaceId/members': typeof ApiWorkspacesWorkspaceIdMembersRoute
   '/api/workspaces/$workspaceId/projects': typeof ApiWorkspacesWorkspaceIdProjectsRouteWithChildren
+  '/w/$workspaceId/p/$projectId': typeof WWorkspaceIdPProjectIdRouteWithChildren
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteWithChildren
+  '/w/$workspaceId/p/$projectId/': typeof WWorkspaceIdPProjectIdIndexRoute
   '/api/workspaces/$workspaceId/projects/$projectId/roadmaps': typeof ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRouteWithChildren
+  '/w/$workspaceId/p/$projectId/r/$roadmapId': typeof WWorkspaceIdPProjectIdRRoadmapIdRouteWithChildren
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks/$taskId': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksTaskIdRoute
+  '/w/$workspaceId/p/$projectId/r/$roadmapId/board': typeof WWorkspaceIdPProjectIdRRoadmapIdBoardRoute
+  '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline': typeof WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/customScript.js': typeof CustomScriptDotjsRoute
-  '/deferred': typeof DeferredRoute
-  '/redirect': typeof RedirectRoute
-  '/api/users': typeof ApiUsersRouteWithChildren
   '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
-  '/posts/$postId': typeof PostsPostIdRoute
-  '/users/$userId': typeof UsersUserIdRoute
-  '/posts': typeof PostsIndexRoute
-  '/users': typeof UsersIndexRoute
-  '/route-a': typeof PathlessLayoutNestedLayoutRouteARoute
-  '/route-b': typeof PathlessLayoutNestedLayoutRouteBRoute
-  '/api/users/$userId': typeof ApiUsersUserIdRoute
-  '/posts/$postId/deep': typeof PostsPostIdDeepRoute
   '/api/workspaces/$workspaceId/labels': typeof ApiWorkspacesWorkspaceIdLabelsRoute
   '/api/workspaces/$workspaceId/members': typeof ApiWorkspacesWorkspaceIdMembersRoute
   '/api/workspaces/$workspaceId/projects': typeof ApiWorkspacesWorkspaceIdProjectsRouteWithChildren
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteWithChildren
+  '/w/$workspaceId/p/$projectId': typeof WWorkspaceIdPProjectIdIndexRoute
   '/api/workspaces/$workspaceId/projects/$projectId/roadmaps': typeof ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRouteWithChildren
+  '/w/$workspaceId/p/$projectId/r/$roadmapId': typeof WWorkspaceIdPProjectIdRRoadmapIdRouteWithChildren
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks/$taskId': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksTaskIdRoute
+  '/w/$workspaceId/p/$projectId/r/$roadmapId/board': typeof WWorkspaceIdPProjectIdRRoadmapIdBoardRoute
+  '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline': typeof WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_pathlessLayout': typeof PathlessLayoutRouteWithChildren
-  '/customScript.js': typeof CustomScriptDotjsRoute
-  '/deferred': typeof DeferredRoute
-  '/posts': typeof PostsRouteWithChildren
-  '/redirect': typeof RedirectRoute
-  '/users': typeof UsersRouteWithChildren
-  '/_pathlessLayout/_nested-layout': typeof PathlessLayoutNestedLayoutRouteWithChildren
-  '/api/users': typeof ApiUsersRouteWithChildren
   '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
-  '/posts/$postId': typeof PostsPostIdRoute
-  '/users/$userId': typeof UsersUserIdRoute
-  '/posts/': typeof PostsIndexRoute
-  '/users/': typeof UsersIndexRoute
-  '/_pathlessLayout/_nested-layout/route-a': typeof PathlessLayoutNestedLayoutRouteARoute
-  '/_pathlessLayout/_nested-layout/route-b': typeof PathlessLayoutNestedLayoutRouteBRoute
-  '/api/users/$userId': typeof ApiUsersUserIdRoute
-  '/posts_/$postId/deep': typeof PostsPostIdDeepRoute
   '/api/workspaces/$workspaceId/labels': typeof ApiWorkspacesWorkspaceIdLabelsRoute
   '/api/workspaces/$workspaceId/members': typeof ApiWorkspacesWorkspaceIdMembersRoute
   '/api/workspaces/$workspaceId/projects': typeof ApiWorkspacesWorkspaceIdProjectsRouteWithChildren
+  '/w/$workspaceId/p/$projectId': typeof WWorkspaceIdPProjectIdRouteWithChildren
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteWithChildren
+  '/w/$workspaceId/p/$projectId/': typeof WWorkspaceIdPProjectIdIndexRoute
   '/api/workspaces/$workspaceId/projects/$projectId/roadmaps': typeof ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRouteWithChildren
+  '/w/$workspaceId/p/$projectId/r/$roadmapId': typeof WWorkspaceIdPProjectIdRRoadmapIdRouteWithChildren
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks/$taskId': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksTaskIdRoute
+  '/w/$workspaceId/p/$projectId/r/$roadmapId/board': typeof WWorkspaceIdPProjectIdRRoadmapIdBoardRoute
+  '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline': typeof WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/customScript.js'
-    | '/deferred'
-    | '/posts'
-    | '/redirect'
-    | '/users'
-    | '/api/users'
     | '/api/workspaces'
-    | '/posts/$postId'
-    | '/users/$userId'
-    | '/posts/'
-    | '/users/'
-    | '/route-a'
-    | '/route-b'
-    | '/api/users/$userId'
-    | '/posts/$postId/deep'
     | '/api/workspaces/$workspaceId/labels'
     | '/api/workspaces/$workspaceId/members'
     | '/api/workspaces/$workspaceId/projects'
+    | '/w/$workspaceId/p/$projectId'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId'
+    | '/w/$workspaceId/p/$projectId/'
     | '/api/workspaces/$workspaceId/projects/$projectId/roadmaps'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks'
+    | '/w/$workspaceId/p/$projectId/r/$roadmapId'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks/$taskId'
+    | '/w/$workspaceId/p/$projectId/r/$roadmapId/board'
+    | '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/customScript.js'
-    | '/deferred'
-    | '/redirect'
-    | '/api/users'
     | '/api/workspaces'
-    | '/posts/$postId'
-    | '/users/$userId'
-    | '/posts'
-    | '/users'
-    | '/route-a'
-    | '/route-b'
-    | '/api/users/$userId'
-    | '/posts/$postId/deep'
     | '/api/workspaces/$workspaceId/labels'
     | '/api/workspaces/$workspaceId/members'
     | '/api/workspaces/$workspaceId/projects'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId'
+    | '/w/$workspaceId/p/$projectId'
     | '/api/workspaces/$workspaceId/projects/$projectId/roadmaps'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks'
+    | '/w/$workspaceId/p/$projectId/r/$roadmapId'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks/$taskId'
+    | '/w/$workspaceId/p/$projectId/r/$roadmapId/board'
+    | '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline'
   id:
     | '__root__'
     | '/'
-    | '/_pathlessLayout'
-    | '/customScript.js'
-    | '/deferred'
-    | '/posts'
-    | '/redirect'
-    | '/users'
-    | '/_pathlessLayout/_nested-layout'
-    | '/api/users'
     | '/api/workspaces'
-    | '/posts/$postId'
-    | '/users/$userId'
-    | '/posts/'
-    | '/users/'
-    | '/_pathlessLayout/_nested-layout/route-a'
-    | '/_pathlessLayout/_nested-layout/route-b'
-    | '/api/users/$userId'
-    | '/posts_/$postId/deep'
     | '/api/workspaces/$workspaceId/labels'
     | '/api/workspaces/$workspaceId/members'
     | '/api/workspaces/$workspaceId/projects'
+    | '/w/$workspaceId/p/$projectId'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId'
+    | '/w/$workspaceId/p/$projectId/'
     | '/api/workspaces/$workspaceId/projects/$projectId/roadmaps'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks'
+    | '/w/$workspaceId/p/$projectId/r/$roadmapId'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks/$taskId'
+    | '/w/$workspaceId/p/$projectId/r/$roadmapId/board'
+    | '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  PathlessLayoutRoute: typeof PathlessLayoutRouteWithChildren
-  CustomScriptDotjsRoute: typeof CustomScriptDotjsRoute
-  DeferredRoute: typeof DeferredRoute
-  PostsRoute: typeof PostsRouteWithChildren
-  RedirectRoute: typeof RedirectRoute
-  UsersRoute: typeof UsersRouteWithChildren
-  ApiUsersRoute: typeof ApiUsersRouteWithChildren
   ApiWorkspacesRoute: typeof ApiWorkspacesRouteWithChildren
-  PostsPostIdDeepRoute: typeof PostsPostIdDeepRoute
+  WWorkspaceIdPProjectIdRoute: typeof WWorkspaceIdPProjectIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -345,123 +219,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_pathlessLayout': {
-      id: '/_pathlessLayout'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof PathlessLayoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/customScript.js': {
-      id: '/customScript.js'
-      path: '/customScript.js'
-      fullPath: '/customScript.js'
-      preLoaderRoute: typeof CustomScriptDotjsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/deferred': {
-      id: '/deferred'
-      path: '/deferred'
-      fullPath: '/deferred'
-      preLoaderRoute: typeof DeferredRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/posts': {
-      id: '/posts'
-      path: '/posts'
-      fullPath: '/posts'
-      preLoaderRoute: typeof PostsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/redirect': {
-      id: '/redirect'
-      path: '/redirect'
-      fullPath: '/redirect'
-      preLoaderRoute: typeof RedirectRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/users': {
-      id: '/users'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof UsersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_pathlessLayout/_nested-layout': {
-      id: '/_pathlessLayout/_nested-layout'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof PathlessLayoutNestedLayoutRouteImport
-      parentRoute: typeof PathlessLayoutRoute
-    }
-    '/api/users': {
-      id: '/api/users'
-      path: '/api/users'
-      fullPath: '/api/users'
-      preLoaderRoute: typeof ApiUsersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/workspaces': {
       id: '/api/workspaces'
       path: '/api/workspaces'
       fullPath: '/api/workspaces'
       preLoaderRoute: typeof ApiWorkspacesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/posts/': {
-      id: '/posts/'
-      path: '/'
-      fullPath: '/posts/'
-      preLoaderRoute: typeof PostsIndexRouteImport
-      parentRoute: typeof PostsRoute
-    }
-    '/posts/$postId': {
-      id: '/posts/$postId'
-      path: '/$postId'
-      fullPath: '/posts/$postId'
-      preLoaderRoute: typeof PostsPostIdRouteImport
-      parentRoute: typeof PostsRoute
-    }
-    '/users/': {
-      id: '/users/'
-      path: '/'
-      fullPath: '/users/'
-      preLoaderRoute: typeof UsersIndexRouteImport
-      parentRoute: typeof UsersRoute
-    }
-    '/users/$userId': {
-      id: '/users/$userId'
-      path: '/$userId'
-      fullPath: '/users/$userId'
-      preLoaderRoute: typeof UsersUserIdRouteImport
-      parentRoute: typeof UsersRoute
-    }
-    '/_pathlessLayout/_nested-layout/route-a': {
-      id: '/_pathlessLayout/_nested-layout/route-a'
-      path: '/route-a'
-      fullPath: '/route-a'
-      preLoaderRoute: typeof PathlessLayoutNestedLayoutRouteARouteImport
-      parentRoute: typeof PathlessLayoutNestedLayoutRoute
-    }
-    '/_pathlessLayout/_nested-layout/route-b': {
-      id: '/_pathlessLayout/_nested-layout/route-b'
-      path: '/route-b'
-      fullPath: '/route-b'
-      preLoaderRoute: typeof PathlessLayoutNestedLayoutRouteBRouteImport
-      parentRoute: typeof PathlessLayoutNestedLayoutRoute
-    }
-    '/api/users/$userId': {
-      id: '/api/users/$userId'
-      path: '/$userId'
-      fullPath: '/api/users/$userId'
-      preLoaderRoute: typeof ApiUsersUserIdRouteImport
-      parentRoute: typeof ApiUsersRoute
-    }
-    '/posts_/$postId/deep': {
-      id: '/posts_/$postId/deep'
-      path: '/posts/$postId/deep'
-      fullPath: '/posts/$postId/deep'
-      preLoaderRoute: typeof PostsPostIdDeepRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/workspaces/$workspaceId/labels': {
@@ -485,12 +247,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWorkspacesWorkspaceIdProjectsRouteImport
       parentRoute: typeof ApiWorkspacesRoute
     }
+    '/w/$workspaceId/p/$projectId': {
+      id: '/w/$workspaceId/p/$projectId'
+      path: '/w/$workspaceId/p/$projectId'
+      fullPath: '/w/$workspaceId/p/$projectId'
+      preLoaderRoute: typeof WWorkspaceIdPProjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/workspaces/$workspaceId/roadmaps/$roadmapId': {
       id: '/api/workspaces/$workspaceId/roadmaps/$roadmapId'
       path: '/$workspaceId/roadmaps/$roadmapId'
       fullPath: '/api/workspaces/$workspaceId/roadmaps/$roadmapId'
       preLoaderRoute: typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteImport
       parentRoute: typeof ApiWorkspacesRoute
+    }
+    '/w/$workspaceId/p/$projectId/': {
+      id: '/w/$workspaceId/p/$projectId/'
+      path: '/'
+      fullPath: '/w/$workspaceId/p/$projectId/'
+      preLoaderRoute: typeof WWorkspaceIdPProjectIdIndexRouteImport
+      parentRoute: typeof WWorkspaceIdPProjectIdRoute
     }
     '/api/workspaces/$workspaceId/projects/$projectId/roadmaps': {
       id: '/api/workspaces/$workspaceId/projects/$projectId/roadmaps'
@@ -506,6 +282,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRouteImport
       parentRoute: typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRoute
     }
+    '/w/$workspaceId/p/$projectId/r/$roadmapId': {
+      id: '/w/$workspaceId/p/$projectId/r/$roadmapId'
+      path: '/r/$roadmapId'
+      fullPath: '/w/$workspaceId/p/$projectId/r/$roadmapId'
+      preLoaderRoute: typeof WWorkspaceIdPProjectIdRRoadmapIdRouteImport
+      parentRoute: typeof WWorkspaceIdPProjectIdRoute
+    }
     '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks/$taskId': {
       id: '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks/$taskId'
       path: '/$taskId'
@@ -513,74 +296,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksTaskIdRouteImport
       parentRoute: typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRoute
     }
+    '/w/$workspaceId/p/$projectId/r/$roadmapId/board': {
+      id: '/w/$workspaceId/p/$projectId/r/$roadmapId/board'
+      path: '/board'
+      fullPath: '/w/$workspaceId/p/$projectId/r/$roadmapId/board'
+      preLoaderRoute: typeof WWorkspaceIdPProjectIdRRoadmapIdBoardRouteImport
+      parentRoute: typeof WWorkspaceIdPProjectIdRRoadmapIdRoute
+    }
+    '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline': {
+      id: '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline'
+      path: '/timeline'
+      fullPath: '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline'
+      preLoaderRoute: typeof WWorkspaceIdPProjectIdRRoadmapIdTimelineRouteImport
+      parentRoute: typeof WWorkspaceIdPProjectIdRRoadmapIdRoute
+    }
   }
 }
-
-interface PathlessLayoutNestedLayoutRouteChildren {
-  PathlessLayoutNestedLayoutRouteARoute: typeof PathlessLayoutNestedLayoutRouteARoute
-  PathlessLayoutNestedLayoutRouteBRoute: typeof PathlessLayoutNestedLayoutRouteBRoute
-}
-
-const PathlessLayoutNestedLayoutRouteChildren: PathlessLayoutNestedLayoutRouteChildren =
-  {
-    PathlessLayoutNestedLayoutRouteARoute:
-      PathlessLayoutNestedLayoutRouteARoute,
-    PathlessLayoutNestedLayoutRouteBRoute:
-      PathlessLayoutNestedLayoutRouteBRoute,
-  }
-
-const PathlessLayoutNestedLayoutRouteWithChildren =
-  PathlessLayoutNestedLayoutRoute._addFileChildren(
-    PathlessLayoutNestedLayoutRouteChildren,
-  )
-
-interface PathlessLayoutRouteChildren {
-  PathlessLayoutNestedLayoutRoute: typeof PathlessLayoutNestedLayoutRouteWithChildren
-}
-
-const PathlessLayoutRouteChildren: PathlessLayoutRouteChildren = {
-  PathlessLayoutNestedLayoutRoute: PathlessLayoutNestedLayoutRouteWithChildren,
-}
-
-const PathlessLayoutRouteWithChildren = PathlessLayoutRoute._addFileChildren(
-  PathlessLayoutRouteChildren,
-)
-
-interface PostsRouteChildren {
-  PostsPostIdRoute: typeof PostsPostIdRoute
-  PostsIndexRoute: typeof PostsIndexRoute
-}
-
-const PostsRouteChildren: PostsRouteChildren = {
-  PostsPostIdRoute: PostsPostIdRoute,
-  PostsIndexRoute: PostsIndexRoute,
-}
-
-const PostsRouteWithChildren = PostsRoute._addFileChildren(PostsRouteChildren)
-
-interface UsersRouteChildren {
-  UsersUserIdRoute: typeof UsersUserIdRoute
-  UsersIndexRoute: typeof UsersIndexRoute
-}
-
-const UsersRouteChildren: UsersRouteChildren = {
-  UsersUserIdRoute: UsersUserIdRoute,
-  UsersIndexRoute: UsersIndexRoute,
-}
-
-const UsersRouteWithChildren = UsersRoute._addFileChildren(UsersRouteChildren)
-
-interface ApiUsersRouteChildren {
-  ApiUsersUserIdRoute: typeof ApiUsersUserIdRoute
-}
-
-const ApiUsersRouteChildren: ApiUsersRouteChildren = {
-  ApiUsersUserIdRoute: ApiUsersUserIdRoute,
-}
-
-const ApiUsersRouteWithChildren = ApiUsersRoute._addFileChildren(
-  ApiUsersRouteChildren,
-)
 
 interface ApiWorkspacesWorkspaceIdProjectsRouteChildren {
   ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute: typeof ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute
@@ -647,17 +378,45 @@ const ApiWorkspacesRouteWithChildren = ApiWorkspacesRoute._addFileChildren(
   ApiWorkspacesRouteChildren,
 )
 
+interface WWorkspaceIdPProjectIdRRoadmapIdRouteChildren {
+  WWorkspaceIdPProjectIdRRoadmapIdBoardRoute: typeof WWorkspaceIdPProjectIdRRoadmapIdBoardRoute
+  WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute: typeof WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute
+}
+
+const WWorkspaceIdPProjectIdRRoadmapIdRouteChildren: WWorkspaceIdPProjectIdRRoadmapIdRouteChildren =
+  {
+    WWorkspaceIdPProjectIdRRoadmapIdBoardRoute:
+      WWorkspaceIdPProjectIdRRoadmapIdBoardRoute,
+    WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute:
+      WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute,
+  }
+
+const WWorkspaceIdPProjectIdRRoadmapIdRouteWithChildren =
+  WWorkspaceIdPProjectIdRRoadmapIdRoute._addFileChildren(
+    WWorkspaceIdPProjectIdRRoadmapIdRouteChildren,
+  )
+
+interface WWorkspaceIdPProjectIdRouteChildren {
+  WWorkspaceIdPProjectIdIndexRoute: typeof WWorkspaceIdPProjectIdIndexRoute
+  WWorkspaceIdPProjectIdRRoadmapIdRoute: typeof WWorkspaceIdPProjectIdRRoadmapIdRouteWithChildren
+}
+
+const WWorkspaceIdPProjectIdRouteChildren: WWorkspaceIdPProjectIdRouteChildren =
+  {
+    WWorkspaceIdPProjectIdIndexRoute: WWorkspaceIdPProjectIdIndexRoute,
+    WWorkspaceIdPProjectIdRRoadmapIdRoute:
+      WWorkspaceIdPProjectIdRRoadmapIdRouteWithChildren,
+  }
+
+const WWorkspaceIdPProjectIdRouteWithChildren =
+  WWorkspaceIdPProjectIdRoute._addFileChildren(
+    WWorkspaceIdPProjectIdRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  PathlessLayoutRoute: PathlessLayoutRouteWithChildren,
-  CustomScriptDotjsRoute: CustomScriptDotjsRoute,
-  DeferredRoute: DeferredRoute,
-  PostsRoute: PostsRouteWithChildren,
-  RedirectRoute: RedirectRoute,
-  UsersRoute: UsersRouteWithChildren,
-  ApiUsersRoute: ApiUsersRouteWithChildren,
   ApiWorkspacesRoute: ApiWorkspacesRouteWithChildren,
-  PostsPostIdDeepRoute: PostsPostIdDeepRoute,
+  WWorkspaceIdPProjectIdRoute: WWorkspaceIdPProjectIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
