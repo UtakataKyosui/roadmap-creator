@@ -26,6 +26,11 @@ import type {
   UnauthorizedResponse,
 } from "../../models";
 
+import { customFetch } from "../../../http";
+import type { ErrorType } from "../../../http";
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
   const result = { queryKey } as T & { queryKey: K };
   for (const key of Object.keys(query)) {
@@ -78,8 +83,6 @@ export type listProjectsResponseError = (
   headers: Headers;
 };
 
-export type listProjectsResponse = listProjectsResponseSuccess | listProjectsResponseError;
-
 export const getListProjectsUrl = (workspaceId: string) => {
   return `/api/workspaces/${workspaceId}/projects`;
 };
@@ -89,17 +92,12 @@ export const getListProjectsUrl = (workspaceId: string) => {
  */
 export const listProjects = async (
   workspaceId: string,
-  options?: RequestInit,
-): Promise<listProjectsResponse> => {
-  const res = await fetch(getListProjectsUrl(workspaceId), {
+  options?: Parameters<typeof customFetch>[1],
+): Promise<listProjectsResponseSuccess> => {
+  return customFetch<listProjectsResponseSuccess>(getListProjectsUrl(workspaceId), {
     ...options,
     method: "GET",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: listProjectsResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as listProjectsResponse;
 };
 
 export const getListProjectsQueryKey = (workspaceId: string) => {
@@ -108,20 +106,22 @@ export const getListProjectsQueryKey = (workspaceId: string) => {
 
 export const getListProjectsQueryOptions = <
   TData = Awaited<ReturnType<typeof listProjects>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listProjects>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getListProjectsQueryKey(workspaceId);
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof listProjects>>> = ({ signal }) =>
-    listProjects(workspaceId, { signal, ...fetchOptions });
+    listProjects(workspaceId, { signal, ...requestOptions });
 
   return {
     queryKey,
@@ -134,15 +134,15 @@ export const getListProjectsQueryOptions = <
 };
 
 export type ListProjectsQueryResult = NonNullable<Awaited<ReturnType<typeof listProjects>>>;
-export type ListProjectsQueryError =
-  | UnauthorizedResponse
-  | ForbiddenResponse
-  | NotFoundResponse
-  | InternalErrorResponse;
+export type ListProjectsQueryError = ErrorType<
+  UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+>;
 
 export function useListProjects<
   TData = Awaited<ReturnType<typeof listProjects>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   options: {
@@ -155,13 +155,15 @@ export function useListProjects<
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useListProjects<
   TData = Awaited<ReturnType<typeof listProjects>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   options?: {
@@ -174,18 +176,20 @@ export function useListProjects<
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useListProjects<
   TData = Awaited<ReturnType<typeof listProjects>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listProjects>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
@@ -195,12 +199,14 @@ export function useListProjects<
 
 export function useListProjects<
   TData = Awaited<ReturnType<typeof listProjects>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listProjects>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {

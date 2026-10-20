@@ -26,6 +26,11 @@ import type {
   UnauthorizedResponse,
 } from "../../models";
 
+import { customFetch } from "../../../http";
+import type { ErrorType } from "../../../http";
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
   const result = { queryKey } as T & { queryKey: K };
   for (const key of Object.keys(query)) {
@@ -78,8 +83,6 @@ export type listLabelsResponseError = (
   headers: Headers;
 };
 
-export type listLabelsResponse = listLabelsResponseSuccess | listLabelsResponseError;
-
 export const getListLabelsUrl = (workspaceId: string) => {
   return `/api/workspaces/${workspaceId}/labels`;
 };
@@ -89,17 +92,12 @@ export const getListLabelsUrl = (workspaceId: string) => {
  */
 export const listLabels = async (
   workspaceId: string,
-  options?: RequestInit,
-): Promise<listLabelsResponse> => {
-  const res = await fetch(getListLabelsUrl(workspaceId), {
+  options?: Parameters<typeof customFetch>[1],
+): Promise<listLabelsResponseSuccess> => {
+  return customFetch<listLabelsResponseSuccess>(getListLabelsUrl(workspaceId), {
     ...options,
     method: "GET",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: listLabelsResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as listLabelsResponse;
 };
 
 export const getListLabelsQueryKey = (workspaceId: string) => {
@@ -108,20 +106,22 @@ export const getListLabelsQueryKey = (workspaceId: string) => {
 
 export const getListLabelsQueryOptions = <
   TData = Awaited<ReturnType<typeof listLabels>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listLabels>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getListLabelsQueryKey(workspaceId);
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof listLabels>>> = ({ signal }) =>
-    listLabels(workspaceId, { signal, ...fetchOptions });
+    listLabels(workspaceId, { signal, ...requestOptions });
 
   return {
     queryKey,
@@ -134,15 +134,15 @@ export const getListLabelsQueryOptions = <
 };
 
 export type ListLabelsQueryResult = NonNullable<Awaited<ReturnType<typeof listLabels>>>;
-export type ListLabelsQueryError =
-  | UnauthorizedResponse
-  | ForbiddenResponse
-  | NotFoundResponse
-  | InternalErrorResponse;
+export type ListLabelsQueryError = ErrorType<
+  UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+>;
 
 export function useListLabels<
   TData = Awaited<ReturnType<typeof listLabels>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   options: {
@@ -155,13 +155,15 @@ export function useListLabels<
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useListLabels<
   TData = Awaited<ReturnType<typeof listLabels>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   options?: {
@@ -174,18 +176,20 @@ export function useListLabels<
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useListLabels<
   TData = Awaited<ReturnType<typeof listLabels>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listLabels>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
@@ -195,12 +199,14 @@ export function useListLabels<
 
 export function useListLabels<
   TData = Awaited<ReturnType<typeof listLabels>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listLabels>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {

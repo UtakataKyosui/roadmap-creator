@@ -33,6 +33,11 @@ import type {
   VersionConflictResponse,
 } from "../../models";
 
+import { customFetch } from "../../../http";
+import type { ErrorType } from "../../../http";
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
   const result = { queryKey } as T & { queryKey: K };
   for (const key of Object.keys(query)) {
@@ -85,8 +90,6 @@ export type listRoadmapsResponseError = (
   headers: Headers;
 };
 
-export type listRoadmapsResponse = listRoadmapsResponseSuccess | listRoadmapsResponseError;
-
 export const getListRoadmapsUrl = (workspaceId: string, projectId: string) => {
   return `/api/workspaces/${workspaceId}/projects/${projectId}/roadmaps`;
 };
@@ -97,17 +100,12 @@ export const getListRoadmapsUrl = (workspaceId: string, projectId: string) => {
 export const listRoadmaps = async (
   workspaceId: string,
   projectId: string,
-  options?: RequestInit,
-): Promise<listRoadmapsResponse> => {
-  const res = await fetch(getListRoadmapsUrl(workspaceId, projectId), {
+  options?: Parameters<typeof customFetch>[1],
+): Promise<listRoadmapsResponseSuccess> => {
+  return customFetch<listRoadmapsResponseSuccess>(getListRoadmapsUrl(workspaceId, projectId), {
     ...options,
     method: "GET",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: listRoadmapsResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as listRoadmapsResponse;
 };
 
 export const getListRoadmapsQueryKey = (workspaceId: string, projectId: string) => {
@@ -116,21 +114,23 @@ export const getListRoadmapsQueryKey = (workspaceId: string, projectId: string) 
 
 export const getListRoadmapsQueryOptions = <
   TData = Awaited<ReturnType<typeof listRoadmaps>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   projectId: string,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listRoadmaps>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getListRoadmapsQueryKey(workspaceId, projectId);
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof listRoadmaps>>> = ({ signal }) =>
-    listRoadmaps(workspaceId, projectId, { signal, ...fetchOptions });
+    listRoadmaps(workspaceId, projectId, { signal, ...requestOptions });
 
   return {
     queryKey,
@@ -147,15 +147,15 @@ export const getListRoadmapsQueryOptions = <
 };
 
 export type ListRoadmapsQueryResult = NonNullable<Awaited<ReturnType<typeof listRoadmaps>>>;
-export type ListRoadmapsQueryError =
-  | UnauthorizedResponse
-  | ForbiddenResponse
-  | NotFoundResponse
-  | InternalErrorResponse;
+export type ListRoadmapsQueryError = ErrorType<
+  UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+>;
 
 export function useListRoadmaps<
   TData = Awaited<ReturnType<typeof listRoadmaps>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   projectId: string,
@@ -169,13 +169,15 @@ export function useListRoadmaps<
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useListRoadmaps<
   TData = Awaited<ReturnType<typeof listRoadmaps>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   projectId: string,
@@ -189,19 +191,21 @@ export function useListRoadmaps<
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useListRoadmaps<
   TData = Awaited<ReturnType<typeof listRoadmaps>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   projectId: string,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listRoadmaps>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
@@ -211,13 +215,15 @@ export function useListRoadmaps<
 
 export function useListRoadmaps<
   TData = Awaited<ReturnType<typeof listRoadmaps>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   projectId: string,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listRoadmaps>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -273,8 +279,6 @@ export type createRoadmapResponseError = (
   headers: Headers;
 };
 
-export type createRoadmapResponse = createRoadmapResponseSuccess | createRoadmapResponseError;
-
 export const getCreateRoadmapUrl = (workspaceId: string, projectId: string) => {
   return `/api/workspaces/${workspaceId}/projects/${projectId}/roadmaps`;
 };
@@ -286,8 +290,8 @@ export const createRoadmap = async (
   workspaceId: string,
   projectId: string,
   roadmapCreate: RoadmapCreate,
-  options?: RequestInit,
-): Promise<createRoadmapResponse> => {
+  options?: Parameters<typeof customFetch>[1],
+): Promise<createRoadmapResponseSuccess> => {
   const getHeaders = (
     h?: NonNullable<RequestInit["headers"]>,
   ): Record<string, string | readonly string[]> => {
@@ -307,28 +311,24 @@ export const createRoadmap = async (
     }
     return headers;
   };
-  const res = await fetch(getCreateRoadmapUrl(workspaceId, projectId), {
+  return customFetch<createRoadmapResponseSuccess>(getCreateRoadmapUrl(workspaceId, projectId), {
     ...options,
     method: "POST",
     headers: { "Content-Type": "application/json", ...getHeaders(options?.headers) },
     body: JSON.stringify(roadmapCreate),
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: createRoadmapResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as createRoadmapResponse;
 };
 
 export const getCreateRoadmapMutationKey = () => ["createRoadmap"] as const;
 
 export const getCreateRoadmapMutationOptions = <
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
     | ValidationFailedResponse
-    | InternalErrorResponse,
+    | InternalErrorResponse
+  >,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -337,7 +337,7 @@ export const getCreateRoadmapMutationOptions = <
     CreateRoadmapMutationVariables,
     TContext
   >;
-  fetch?: RequestInit;
+  request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof createRoadmap>>,
   TError,
@@ -345,11 +345,11 @@ export const getCreateRoadmapMutationOptions = <
   TContext
 > => {
   const mutationKey = getCreateRoadmapMutationKey();
-  const { mutation: mutationOptions, fetch: fetchOptions } = options
+  const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, fetch: undefined };
+    : { mutation: { mutationKey }, request: undefined };
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof createRoadmap>>,
@@ -357,7 +357,7 @@ export const getCreateRoadmapMutationOptions = <
   > = (props) => {
     const { workspaceId, projectId, data } = props ?? {};
 
-    return createRoadmap(workspaceId, projectId, data, fetchOptions);
+    return createRoadmap(workspaceId, projectId, data, requestOptions);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -365,12 +365,13 @@ export const getCreateRoadmapMutationOptions = <
 
 export type CreateRoadmapMutationResult = NonNullable<Awaited<ReturnType<typeof createRoadmap>>>;
 export type CreateRoadmapMutationBody = RoadmapCreate;
-export type CreateRoadmapMutationError =
+export type CreateRoadmapMutationError = ErrorType<
   | UnauthorizedResponse
   | ForbiddenResponse
   | NotFoundResponse
   | ValidationFailedResponse
-  | InternalErrorResponse;
+  | InternalErrorResponse
+>;
 export type CreateRoadmapMutationVariables = {
   workspaceId: string;
   projectId: string;
@@ -381,12 +382,13 @@ export type CreateRoadmapMutationVariables = {
  * @summary ロードマップを作成する
  */
 export const useCreateRoadmap = <
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
     | ValidationFailedResponse
-    | InternalErrorResponse,
+    | InternalErrorResponse
+  >,
   TContext = unknown,
 >(
   options?: {
@@ -396,7 +398,7 @@ export const useCreateRoadmap = <
       CreateRoadmapMutationVariables,
       TContext
     >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
@@ -444,8 +446,6 @@ export type getRoadmapResponseError = (
   headers: Headers;
 };
 
-export type getRoadmapResponse = getRoadmapResponseSuccess | getRoadmapResponseError;
-
 export const getGetRoadmapUrl = (workspaceId: string, roadmapId: string) => {
   return `/api/workspaces/${workspaceId}/roadmaps/${roadmapId}`;
 };
@@ -456,17 +456,12 @@ export const getGetRoadmapUrl = (workspaceId: string, roadmapId: string) => {
 export const getRoadmap = async (
   workspaceId: string,
   roadmapId: string,
-  options?: RequestInit,
-): Promise<getRoadmapResponse> => {
-  const res = await fetch(getGetRoadmapUrl(workspaceId, roadmapId), {
+  options?: Parameters<typeof customFetch>[1],
+): Promise<getRoadmapResponseSuccess> => {
+  return customFetch<getRoadmapResponseSuccess>(getGetRoadmapUrl(workspaceId, roadmapId), {
     ...options,
     method: "GET",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: getRoadmapResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as getRoadmapResponse;
 };
 
 export const getGetRoadmapQueryKey = (workspaceId: string, roadmapId: string) => {
@@ -475,21 +470,23 @@ export const getGetRoadmapQueryKey = (workspaceId: string, roadmapId: string) =>
 
 export const getGetRoadmapQueryOptions = <
   TData = Awaited<ReturnType<typeof getRoadmap>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   roadmapId: string,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getRoadmap>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getGetRoadmapQueryKey(workspaceId, roadmapId);
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getRoadmap>>> = ({ signal }) =>
-    getRoadmap(workspaceId, roadmapId, { signal, ...fetchOptions });
+    getRoadmap(workspaceId, roadmapId, { signal, ...requestOptions });
 
   return {
     queryKey,
@@ -506,15 +503,15 @@ export const getGetRoadmapQueryOptions = <
 };
 
 export type GetRoadmapQueryResult = NonNullable<Awaited<ReturnType<typeof getRoadmap>>>;
-export type GetRoadmapQueryError =
-  | UnauthorizedResponse
-  | ForbiddenResponse
-  | NotFoundResponse
-  | InternalErrorResponse;
+export type GetRoadmapQueryError = ErrorType<
+  UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+>;
 
 export function useGetRoadmap<
   TData = Awaited<ReturnType<typeof getRoadmap>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   roadmapId: string,
@@ -528,13 +525,15 @@ export function useGetRoadmap<
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetRoadmap<
   TData = Awaited<ReturnType<typeof getRoadmap>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   roadmapId: string,
@@ -548,19 +547,21 @@ export function useGetRoadmap<
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetRoadmap<
   TData = Awaited<ReturnType<typeof getRoadmap>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   roadmapId: string,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getRoadmap>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
@@ -570,13 +571,15 @@ export function useGetRoadmap<
 
 export function useGetRoadmap<
   TData = Awaited<ReturnType<typeof getRoadmap>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   roadmapId: string,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getRoadmap>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -638,8 +641,6 @@ export type updateRoadmapResponseError = (
   headers: Headers;
 };
 
-export type updateRoadmapResponse = updateRoadmapResponseSuccess | updateRoadmapResponseError;
-
 export const getUpdateRoadmapUrl = (workspaceId: string, roadmapId: string) => {
   return `/api/workspaces/${workspaceId}/roadmaps/${roadmapId}`;
 };
@@ -651,8 +652,8 @@ export const updateRoadmap = async (
   workspaceId: string,
   roadmapId: string,
   roadmapUpdate: RoadmapUpdate,
-  options?: RequestInit,
-): Promise<updateRoadmapResponse> => {
+  options?: Parameters<typeof customFetch>[1],
+): Promise<updateRoadmapResponseSuccess> => {
   const getHeaders = (
     h?: NonNullable<RequestInit["headers"]>,
   ): Record<string, string | readonly string[]> => {
@@ -672,29 +673,25 @@ export const updateRoadmap = async (
     }
     return headers;
   };
-  const res = await fetch(getUpdateRoadmapUrl(workspaceId, roadmapId), {
+  return customFetch<updateRoadmapResponseSuccess>(getUpdateRoadmapUrl(workspaceId, roadmapId), {
     ...options,
     method: "PATCH",
     headers: { "Content-Type": "application/json", ...getHeaders(options?.headers) },
     body: JSON.stringify(roadmapUpdate),
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: updateRoadmapResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as updateRoadmapResponse;
 };
 
 export const getUpdateRoadmapMutationKey = () => ["updateRoadmap"] as const;
 
 export const getUpdateRoadmapMutationOptions = <
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
     | VersionConflictResponse
     | ValidationFailedResponse
-    | InternalErrorResponse,
+    | InternalErrorResponse
+  >,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -703,7 +700,7 @@ export const getUpdateRoadmapMutationOptions = <
     UpdateRoadmapMutationVariables,
     TContext
   >;
-  fetch?: RequestInit;
+  request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof updateRoadmap>>,
   TError,
@@ -711,11 +708,11 @@ export const getUpdateRoadmapMutationOptions = <
   TContext
 > => {
   const mutationKey = getUpdateRoadmapMutationKey();
-  const { mutation: mutationOptions, fetch: fetchOptions } = options
+  const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, fetch: undefined };
+    : { mutation: { mutationKey }, request: undefined };
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof updateRoadmap>>,
@@ -723,7 +720,7 @@ export const getUpdateRoadmapMutationOptions = <
   > = (props) => {
     const { workspaceId, roadmapId, data } = props ?? {};
 
-    return updateRoadmap(workspaceId, roadmapId, data, fetchOptions);
+    return updateRoadmap(workspaceId, roadmapId, data, requestOptions);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -731,13 +728,14 @@ export const getUpdateRoadmapMutationOptions = <
 
 export type UpdateRoadmapMutationResult = NonNullable<Awaited<ReturnType<typeof updateRoadmap>>>;
 export type UpdateRoadmapMutationBody = RoadmapUpdate;
-export type UpdateRoadmapMutationError =
+export type UpdateRoadmapMutationError = ErrorType<
   | UnauthorizedResponse
   | ForbiddenResponse
   | NotFoundResponse
   | VersionConflictResponse
   | ValidationFailedResponse
-  | InternalErrorResponse;
+  | InternalErrorResponse
+>;
 export type UpdateRoadmapMutationVariables = {
   workspaceId: string;
   roadmapId: string;
@@ -748,13 +746,14 @@ export type UpdateRoadmapMutationVariables = {
  * @summary ロードマップを更新する
  */
 export const useUpdateRoadmap = <
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
     | VersionConflictResponse
     | ValidationFailedResponse
-    | InternalErrorResponse,
+    | InternalErrorResponse
+  >,
   TContext = unknown,
 >(
   options?: {
@@ -764,7 +763,7 @@ export const useUpdateRoadmap = <
       UpdateRoadmapMutationVariables,
       TContext
     >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<

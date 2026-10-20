@@ -12,7 +12,9 @@
     "void:connect": "void connect",
     "void:deploy": "vp build && void deploy",
     "stitch": "stitch",
-    "api:generate": "orval"
+    "api:generate": "orval",
+    "api:lint": "redocly lint openapi/openapi.yaml",
+    "api:check": "orval && git add -N src/api/generated && git diff --exit-code -- src/api/generated"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -34,6 +36,7 @@
   },
   "devDependencies": {
     "@google/stitch": "^0.11.1",
+    "@redocly/cli": "^2.65.0",
     "@tailwindcss/vite": "^4.2.2",
     "@types/node": "^22.5.4",
     "@types/react": "^19.0.8",

@@ -27,6 +27,11 @@ import type {
   Workspace,
 } from "../../models";
 
+import { customFetch } from "../../../http";
+import type { ErrorType } from "../../../http";
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
   const result = { queryKey } as T & { queryKey: K };
   for (const key of Object.keys(query)) {
@@ -67,8 +72,6 @@ export type listWorkspacesResponseError = (
   headers: Headers;
 };
 
-export type listWorkspacesResponse = listWorkspacesResponseSuccess | listWorkspacesResponseError;
-
 export const getListWorkspacesUrl = () => {
   return `/api/workspaces`;
 };
@@ -76,16 +79,13 @@ export const getListWorkspacesUrl = () => {
 /**
  * @summary ログイン中のユーザーが所属するWorkspace一覧
  */
-export const listWorkspaces = async (options?: RequestInit): Promise<listWorkspacesResponse> => {
-  const res = await fetch(getListWorkspacesUrl(), {
+export const listWorkspaces = async (
+  options?: Parameters<typeof customFetch>[1],
+): Promise<listWorkspacesResponseSuccess> => {
+  return customFetch<listWorkspacesResponseSuccess>(getListWorkspacesUrl(), {
     ...options,
     method: "GET",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: listWorkspacesResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as listWorkspacesResponse;
 };
 
 export const getListWorkspacesQueryKey = () => {
@@ -94,17 +94,17 @@ export const getListWorkspacesQueryKey = () => {
 
 export const getListWorkspacesQueryOptions = <
   TData = Awaited<ReturnType<typeof listWorkspaces>>,
-  TError = UnauthorizedResponse | InternalErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalErrorResponse>,
 >(options?: {
   query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listWorkspaces>>, TError, TData>>;
-  fetch?: RequestInit;
+  request?: SecondParameter<typeof customFetch>;
 }) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getListWorkspacesQueryKey();
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof listWorkspaces>>> = ({ signal }) =>
-    listWorkspaces({ signal, ...fetchOptions });
+    listWorkspaces({ signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof listWorkspaces>>,
@@ -114,11 +114,11 @@ export const getListWorkspacesQueryOptions = <
 };
 
 export type ListWorkspacesQueryResult = NonNullable<Awaited<ReturnType<typeof listWorkspaces>>>;
-export type ListWorkspacesQueryError = UnauthorizedResponse | InternalErrorResponse;
+export type ListWorkspacesQueryError = ErrorType<UnauthorizedResponse | InternalErrorResponse>;
 
 export function useListWorkspaces<
   TData = Awaited<ReturnType<typeof listWorkspaces>>,
-  TError = UnauthorizedResponse | InternalErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalErrorResponse>,
 >(
   options: {
     query: Partial<UseQueryOptions<Awaited<ReturnType<typeof listWorkspaces>>, TError, TData>> &
@@ -130,13 +130,13 @@ export function useListWorkspaces<
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useListWorkspaces<
   TData = Awaited<ReturnType<typeof listWorkspaces>>,
-  TError = UnauthorizedResponse | InternalErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalErrorResponse>,
 >(
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listWorkspaces>>, TError, TData>> &
@@ -148,17 +148,17 @@ export function useListWorkspaces<
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useListWorkspaces<
   TData = Awaited<ReturnType<typeof listWorkspaces>>,
-  TError = UnauthorizedResponse | InternalErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalErrorResponse>,
 >(
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listWorkspaces>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
@@ -168,11 +168,11 @@ export function useListWorkspaces<
 
 export function useListWorkspaces<
   TData = Awaited<ReturnType<typeof listWorkspaces>>,
-  TError = UnauthorizedResponse | InternalErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalErrorResponse>,
 >(
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listWorkspaces>>, TError, TData>>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -222,10 +222,6 @@ export type listWorkspaceMembersResponseError = (
   headers: Headers;
 };
 
-export type listWorkspaceMembersResponse =
-  | listWorkspaceMembersResponseSuccess
-  | listWorkspaceMembersResponseError;
-
 export const getListWorkspaceMembersUrl = (workspaceId: string) => {
   return `/api/workspaces/${workspaceId}/members`;
 };
@@ -235,17 +231,12 @@ export const getListWorkspaceMembersUrl = (workspaceId: string) => {
  */
 export const listWorkspaceMembers = async (
   workspaceId: string,
-  options?: RequestInit,
-): Promise<listWorkspaceMembersResponse> => {
-  const res = await fetch(getListWorkspaceMembersUrl(workspaceId), {
+  options?: Parameters<typeof customFetch>[1],
+): Promise<listWorkspaceMembersResponseSuccess> => {
+  return customFetch<listWorkspaceMembersResponseSuccess>(getListWorkspaceMembersUrl(workspaceId), {
     ...options,
     method: "GET",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: listWorkspaceMembersResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as listWorkspaceMembersResponse;
 };
 
 export const getListWorkspaceMembersQueryKey = (workspaceId: string) => {
@@ -254,22 +245,24 @@ export const getListWorkspaceMembersQueryKey = (workspaceId: string) => {
 
 export const getListWorkspaceMembersQueryOptions = <
   TData = Awaited<ReturnType<typeof listWorkspaceMembers>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   options?: {
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof listWorkspaceMembers>>, TError, TData>
     >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getListWorkspaceMembersQueryKey(workspaceId);
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof listWorkspaceMembers>>> = ({ signal }) =>
-    listWorkspaceMembers(workspaceId, { signal, ...fetchOptions });
+    listWorkspaceMembers(workspaceId, { signal, ...requestOptions });
 
   return {
     queryKey,
@@ -284,15 +277,15 @@ export const getListWorkspaceMembersQueryOptions = <
 export type ListWorkspaceMembersQueryResult = NonNullable<
   Awaited<ReturnType<typeof listWorkspaceMembers>>
 >;
-export type ListWorkspaceMembersQueryError =
-  | UnauthorizedResponse
-  | ForbiddenResponse
-  | NotFoundResponse
-  | InternalErrorResponse;
+export type ListWorkspaceMembersQueryError = ErrorType<
+  UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+>;
 
 export function useListWorkspaceMembers<
   TData = Awaited<ReturnType<typeof listWorkspaceMembers>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   options: {
@@ -307,13 +300,15 @@ export function useListWorkspaceMembers<
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useListWorkspaceMembers<
   TData = Awaited<ReturnType<typeof listWorkspaceMembers>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   options?: {
@@ -328,20 +323,22 @@ export function useListWorkspaceMembers<
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useListWorkspaceMembers<
   TData = Awaited<ReturnType<typeof listWorkspaceMembers>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   options?: {
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof listWorkspaceMembers>>, TError, TData>
     >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
@@ -351,14 +348,16 @@ export function useListWorkspaceMembers<
 
 export function useListWorkspaceMembers<
   TData = Awaited<ReturnType<typeof listWorkspaceMembers>>,
-  TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
 >(
   workspaceId: string,
   options?: {
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof listWorkspaceMembers>>, TError, TData>
     >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
