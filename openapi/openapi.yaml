@@ -28,6 +28,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         "200":
           description: OK
@@ -43,17 +44,340 @@ paths:
                 $ref: "#/components/schemas/Error"
 components:
   schemas:
+    Id:
+      type: string
+      format: uuid
+      description: サーバーが採番するUUID v7。クライアントは指定しない。
+    Timestamp:
+      type: string
+      format: date-time
+      description: UTCのRFC 3339 date-time。表示時のみ閲覧者のブラウザのタイムゾーンへ変換する。
+    CalendarDate:
+      type: string
+      format: date
+      description: タイムゾーンを持たない日付（YYYY-MM-DD）。
+    Version:
+      type: integer
+      minimum: 1
+      description: 更新競合検出用。作成時1、更新ごとに+1。更新要求で不一致なら409を返す。
     User:
       type: object
-      required: [id, name, email]
+      description: 内部User。Google認証主体（AuthAccount.providerAccountId）とは別のIDで、メール変更で別Userを作らない。
+      required: [id, name, email, createdAt, updatedAt]
       properties:
         id:
-          type: integer
+          $ref: "#/components/schemas/Id"
         name:
           type: string
+          minLength: 1
+          maxLength: 100
         email:
           type: string
           format: email
+        avatarUrl:
+          type: [string, "null"]
+          format: uri
+        createdAt:
+          $ref: "#/components/schemas/Timestamp"
+        updatedAt:
+          $ref: "#/components/schemas/Timestamp"
+    Workspace:
+      type: object
+      description: チームが共有する作業領域。共有境界であり、Label・Project・Membershipが属する。
+      required: [id, name, createdAt, updatedAt, version]
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        createdAt:
+          $ref: "#/components/schemas/Timestamp"
+        updatedAt:
+          $ref: "#/components/schemas/Timestamp"
+        version:
+          $ref: "#/components/schemas/Version"
+    MembershipRole:
+      type: string
+      enum: [owner, admin, member]
+      description: オーナー / 管理者 / メンバー。Workspaceには最低1人のownerを保つ。
+    Membership:
+      type: object
+      description: "(workspaceId, userId) は一意。User削除時とWorkspace削除時は削除される。"
+      required: [id, workspaceId, userId, role, createdAt, updatedAt]
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        workspaceId:
+          $ref: "#/components/schemas/Id"
+        userId:
+          $ref: "#/components/schemas/Id"
+        role:
+          $ref: "#/components/schemas/MembershipRole"
+        createdAt:
+          $ref: "#/components/schemas/Timestamp"
+        updatedAt:
+          $ref: "#/components/schemas/Timestamp"
+    Project:
+      type: object
+      required: [id, workspaceId, name, createdAt, updatedAt, version]
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        workspaceId:
+          $ref: "#/components/schemas/Id"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        archivedAt:
+          oneOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - type: "null"
+        createdAt:
+          $ref: "#/components/schemas/Timestamp"
+        updatedAt:
+          $ref: "#/components/schemas/Timestamp"
+        version:
+          $ref: "#/components/schemas/Version"
+    Roadmap:
+      type: object
+      description: Project配下のロードマップ。パンくずはWorkspace > Project > Roadmap > 画面の順。
+      required: [id, projectId, workspaceId, name, createdBy, createdAt, updatedAt, version]
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        projectId:
+          $ref: "#/components/schemas/Id"
+        workspaceId:
+          $ref: "#/components/schemas/Id"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: [string, "null"]
+          maxLength: 2000
+        archivedAt:
+          oneOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - type: "null"
+        createdBy:
+          $ref: "#/components/schemas/Id"
+        createdAt:
+          $ref: "#/components/schemas/Timestamp"
+        updatedAt:
+          $ref: "#/components/schemas/Timestamp"
+        version:
+          $ref: "#/components/schemas/Version"
+    Label:
+      type: object
+      description: 所属範囲はWorkspace。(workspaceId, name) は一意。別Workspaceのラベルはタスクに付与できない。
+      required: [id, workspaceId, name, color, createdAt, updatedAt]
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        workspaceId:
+          $ref: "#/components/schemas/Id"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        color:
+          type: string
+          pattern: "^#[0-9A-Fa-f]{6}$"
+        createdAt:
+          $ref: "#/components/schemas/Timestamp"
+        updatedAt:
+          $ref: "#/components/schemas/Timestamp"
+    TaskStatus:
+      type: string
+      enum: [todo, in_progress, review, done]
+      description: 表示名は todo=未着手、in_progress=進行中、review=レビュー、done=完了。ボードの列順もこの順。
+    TaskPriority:
+      type: string
+      enum: [low, medium, high, urgent]
+      description: 表示名は low=低、medium=中、high=高、urgent=緊急。
+    Task:
+      type: object
+      description: |
+        ボード・タイムライン・マイタスクが共有するTask。
+        - 進捗率は保存せず、statusから共通関数で算出する（todo=0、in_progress=33、review=67、done=100）。
+        - commentCountは保存せず、Commentの件数から算出する（未作成なら0）。
+        - startDateとdueDateは両方ある場合 startDate <= dueDate。片方のみ・未設定を許容する。
+        - assigneeIdは同じWorkspaceのMembershipを持つUserに限る。labelIdsは同じWorkspaceのLabelに限る。
+        - 一覧はsortOrder昇順、同値はid昇順で並べる。
+      required:
+        - id
+        - roadmapId
+        - workspaceId
+        - title
+        - description
+        - status
+        - priority
+        - assigneeId
+        - startDate
+        - dueDate
+        - labelIds
+        - sortOrder
+        - commentCount
+        - createdBy
+        - createdAt
+        - updatedAt
+        - version
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        roadmapId:
+          $ref: "#/components/schemas/Id"
+        workspaceId:
+          $ref: "#/components/schemas/Id"
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: [string, "null"]
+          maxLength: 10000
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+        priority:
+          $ref: "#/components/schemas/TaskPriority"
+        assigneeId:
+          oneOf:
+            - $ref: "#/components/schemas/Id"
+            - type: "null"
+        startDate:
+          oneOf:
+            - $ref: "#/components/schemas/CalendarDate"
+            - type: "null"
+        dueDate:
+          oneOf:
+            - $ref: "#/components/schemas/CalendarDate"
+            - type: "null"
+        labelIds:
+          type: array
+          items:
+            $ref: "#/components/schemas/Id"
+          uniqueItems: true
+        sortOrder:
+          type: string
+          minLength: 1
+          description: 同一Roadmap・同一status内の表示順を表す辞書順キー（fractional indexing）。サーバーが採番する。
+        commentCount:
+          type: integer
+          minimum: 0
+          readOnly: true
+        createdBy:
+          $ref: "#/components/schemas/Id"
+        createdAt:
+          $ref: "#/components/schemas/Timestamp"
+        updatedAt:
+          $ref: "#/components/schemas/Timestamp"
+        version:
+          $ref: "#/components/schemas/Version"
+    TaskCreate:
+      type: object
+      description: ID・作成者・監査日時・version・sortOrderは含まない。sortOrderは当該status列の末尾へサーバーが採番する。
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: [string, "null"]
+          maxLength: 10000
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+          default: todo
+        priority:
+          $ref: "#/components/schemas/TaskPriority"
+          default: medium
+        assigneeId:
+          oneOf:
+            - $ref: "#/components/schemas/Id"
+            - type: "null"
+        startDate:
+          oneOf:
+            - $ref: "#/components/schemas/CalendarDate"
+            - type: "null"
+        dueDate:
+          oneOf:
+            - $ref: "#/components/schemas/CalendarDate"
+            - type: "null"
+        labelIds:
+          type: array
+          items:
+            $ref: "#/components/schemas/Id"
+          uniqueItems: true
+    TaskUpdate:
+      type: object
+      description: |
+        部分更新。未指定の項目は据え置き、nullは未設定化。versionが現在値と異なれば409を返す。
+        列内の並べ替えと列間移動は、移動先の直前・直後のTask IDを送り、statusとsortOrderを1回で原子的に更新する。
+      required: [version]
+      properties:
+        version:
+          $ref: "#/components/schemas/Version"
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: [string, "null"]
+          maxLength: 10000
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+        priority:
+          $ref: "#/components/schemas/TaskPriority"
+        assigneeId:
+          oneOf:
+            - $ref: "#/components/schemas/Id"
+            - type: "null"
+        startDate:
+          oneOf:
+            - $ref: "#/components/schemas/CalendarDate"
+            - type: "null"
+        dueDate:
+          oneOf:
+            - $ref: "#/components/schemas/CalendarDate"
+            - type: "null"
+        labelIds:
+          type: array
+          items:
+            $ref: "#/components/schemas/Id"
+          uniqueItems: true
+        beforeTaskId:
+          oneOf:
+            - $ref: "#/components/schemas/Id"
+            - type: "null"
+          description: 移動後に直前となるTask。先頭ならnull。
+        afterTaskId:
+          oneOf:
+            - $ref: "#/components/schemas/Id"
+            - type: "null"
+          description: 移動後に直後となるTask。末尾ならnull。
+    Comment:
+      type: object
+      description: Task本体へ埋め込まず別データとして保持する。Task削除時は削除される。
+      required: [id, taskId, authorId, body, createdAt, updatedAt]
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        taskId:
+          $ref: "#/components/schemas/Id"
+        authorId:
+          $ref: "#/components/schemas/Id"
+        body:
+          type: string
+          minLength: 1
+          maxLength: 5000
+        createdAt:
+          $ref: "#/components/schemas/Timestamp"
+        updatedAt:
+          $ref: "#/components/schemas/Timestamp"
     Error:
       type: object
       required: [error]

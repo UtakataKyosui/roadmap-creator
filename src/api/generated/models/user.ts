@@ -4,9 +4,22 @@
  * Roadmap Studio API
  * OpenAPI spec version: 0.1.0
  */
+import type { Id } from "./id";
+import type { Timestamp } from "./timestamp";
 
+/**
+ * 内部User。Google認証主体（AuthAccount.providerAccountId）とは別のIDで、メール変更で別Userを作らない。
+ */
 export interface User {
-  id: number;
+  id: Id;
+  /**
+   * @minLength 1
+   * @maxLength 100
+   */
   name: string;
   email: string;
+  /** @nullable */
+  avatarUrl?: string | null;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 }

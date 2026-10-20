@@ -4,29 +4,53 @@
  * Roadmap Studio API
  * OpenAPI spec version: 0.1.0
  */
-import * as zod from 'zod';
-
+import * as zod from "zod";
 
 /**
  * @summary List users
  */
-export const ListUsersResponseItem = zod.object({
-  "id": zod.int(),
-  "name": zod.string(),
-  "email": zod.email()
-})
-export const ListUsersResponse = zod.array(ListUsersResponseItem)
+export const listUsersResponseNameMax = 100;
+
+export const ListUsersResponseItem = zod
+  .object({
+    id: zod.uuid().describe("サーバーが採番するUUID v7。クライアントは指定しない。"),
+    name: zod.string().min(1).max(listUsersResponseNameMax),
+    email: zod.email(),
+    avatarUrl: zod.url().nullish(),
+    createdAt: zod.iso
+      .datetime({ offset: true })
+      .describe("UTCのRFC 3339 date-time。表示時のみ閲覧者のブラウザのタイムゾーンへ変換する。"),
+    updatedAt: zod.iso
+      .datetime({ offset: true })
+      .describe("UTCのRFC 3339 date-time。表示時のみ閲覧者のブラウザのタイムゾーンへ変換する。"),
+  })
+  .describe(
+    "内部User。Google認証主体（AuthAccount.providerAccountId）とは別のIDで、メール変更で別Userを作らない。",
+  );
+export const ListUsersResponse = zod.array(ListUsersResponseItem);
 
 /**
  * @summary Get a user
  */
 export const GetUserParams = zod.object({
-  "userId": zod.string()
-})
+  userId: zod.uuid(),
+});
 
-export const GetUserResponse = zod.object({
-  "id": zod.int(),
-  "name": zod.string(),
-  "email": zod.email()
-})
+export const getUserResponseNameMax = 100;
 
+export const GetUserResponse = zod
+  .object({
+    id: zod.uuid().describe("サーバーが採番するUUID v7。クライアントは指定しない。"),
+    name: zod.string().min(1).max(getUserResponseNameMax),
+    email: zod.email(),
+    avatarUrl: zod.url().nullish(),
+    createdAt: zod.iso
+      .datetime({ offset: true })
+      .describe("UTCのRFC 3339 date-time。表示時のみ閲覧者のブラウザのタイムゾーンへ変換する。"),
+    updatedAt: zod.iso
+      .datetime({ offset: true })
+      .describe("UTCのRFC 3339 date-time。表示時のみ閲覧者のブラウザのタイムゾーンへ変換する。"),
+  })
+  .describe(
+    "内部User。Google認証主体（AuthAccount.providerAccountId）とは別のIDで、メール変更で別Userを作らない。",
+  );
