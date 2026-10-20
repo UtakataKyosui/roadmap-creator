@@ -12,6 +12,7 @@
     "void:connect": "void connect",
     "void:deploy": "vp build && void deploy",
     "stitch": "stitch",
+    "test": "vp test --config vitest.config.ts",
     "api:generate": "orval",
     "api:lint": "redocly lint openapi/openapi.yaml",
     "api:check": "orval && git add -N src/api/generated && git diff --exit-code -- src/api/generated"
@@ -22,6 +23,7 @@
     "@tanstack/react-query": "^5.104.4",
     "@tanstack/react-router": "^1.170.45",
     "@tanstack/react-router-devtools": "^1.167.2",
+    "@tanstack/react-router-ssr-query": "^1.167.3",
     "@tanstack/react-start": "^1.169.3",
     "@xyflow/react": "^12.12.0",
     "class-variance-authority": "^0.7.1",
