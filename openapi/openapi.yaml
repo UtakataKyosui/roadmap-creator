@@ -35,6 +35,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     User:
@@ -42,9 +48,15 @@ components:
       required: [id, name, email]
       properties:
         id:
-          type: string
+          type: integer
         name:
           type: string
         email:
           type: string
           format: email
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string

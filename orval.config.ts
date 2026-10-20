@@ -11,6 +11,7 @@ export default defineConfig({
       schemas: "./src/api/generated/models",
       client: "react-query",
       httpClient: "fetch",
+      baseUrl: "/api",
       clean: true,
     },
   },

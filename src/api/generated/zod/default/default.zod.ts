@@ -11,7 +11,7 @@ import * as zod from 'zod';
  * @summary List users
  */
 export const ListUsersResponseItem = zod.object({
-  "id": zod.string(),
+  "id": zod.int(),
   "name": zod.string(),
   "email": zod.email()
 })
@@ -25,7 +25,7 @@ export const GetUserParams = zod.object({
 })
 
 export const GetUserResponse = zod.object({
-  "id": zod.string(),
+  "id": zod.int(),
   "name": zod.string(),
   "email": zod.email()
 })
