@@ -1,4 +1,14 @@
 import { useQueryClient } from "@tanstack/react-query";
+import {
+  ChevronDown,
+  CircleAlert,
+  CircleDot,
+  Flag,
+  RefreshCw,
+  TriangleAlert,
+  User,
+  X,
+} from "lucide-react";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { invalidateTasks } from "@/api/cache";
 import { apiErrorMessage } from "@/api/error-message";
@@ -14,17 +24,20 @@ import {
   progressPercent,
 } from "@/domain/task";
 import { useWorkspaceOptions } from "@/hooks/use-workspace-options";
-import { ErrorState, LoadingState } from "@/components/state/StateViews";
+import { ErrorState, LoadingState, Notice } from "@/components/state/StateViews";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export type TaskScope = { workspaceId: string; roadmapId: string };
 export type EditorSelection = { taskId: string } | { status: TaskStatus };
 
 function Modal({
+  title,
   children,
   onClose,
   busy,
 }: {
+  title: string;
   children: ReactNode;
   onClose: () => void;
   busy: boolean;
@@ -44,16 +57,28 @@ function Modal({
     <dialog
       ref={ref}
       aria-labelledby={titleId}
-      className="m-auto max-h-[90dvh] w-[min(42rem,calc(100%-2rem))] overflow-auto rounded-xl border bg-background p-6 text-foreground shadow-xl backdrop:bg-black/45"
+      className="relative m-auto max-h-[90dvh] w-[min(40rem,calc(100%-2rem))] overflow-auto rounded-lg bg-surface p-0 text-foreground shadow-[0_16px_40px_#15181e33] backdrop:bg-[#15181e]/45"
       onCancel={(event) => {
         event.preventDefault();
         if (!busy) onClose();
       }}
     >
-      <h2 id={titleId} className="mb-4 text-xl font-semibold">
-        タスク
+      <h2 id={titleId} className="px-6 pt-5 pr-14 text-lg font-bold">
+        {title}
       </h2>
       {children}
+      {/* 初期フォーカスがタイトル入力に当たるよう、閉じるボタンは内容の後に置く。 */}
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        aria-label="閉じる"
+        className="absolute top-4 right-4"
+        disabled={busy}
+        onClick={onClose}
+      >
+        <X aria-hidden />
+      </Button>
     </dialog>
   );
 }
@@ -69,7 +94,11 @@ export function TaskEditor({
 }) {
   const [busy, setBusy] = useState(false);
   return (
-    <Modal busy={busy} onClose={onClose}>
+    <Modal
+      title={"taskId" in selection ? "タスクを編集" : "新しいアイテムを追加"}
+      busy={busy}
+      onClose={onClose}
+    >
       {"taskId" in selection ? (
         <TaskDetail scope={scope} taskId={selection.taskId} onClose={onClose} onBusy={setBusy} />
       ) : (
@@ -95,10 +124,9 @@ function TaskDetail({
   if (query.isPending) return <LoadingState />;
   if (query.error)
     return (
-      <>
+      <div className="px-6 pb-6">
         <ErrorState error={query.error} onRetry={() => query.refetch()} />
-        <Button onClick={onClose}>閉じる</Button>
-      </>
+      </div>
     );
   if (query.data.status !== 200) return null;
   return (
@@ -157,7 +185,12 @@ function TaskForm({
   });
   const message = (key: keyof TaskCreate) =>
     errors[key] && (
-      <p id={`${formId}-${key}-error`} role="alert" className="text-sm text-destructive">
+      <p
+        id={`${formId}-${key}-error`}
+        role="alert"
+        className="mt-1.5 flex items-start gap-1 text-xs text-danger"
+      >
+        <CircleAlert aria-hidden className="mt-px size-3.5 shrink-0" />
         {errors[key]}
       </p>
     );
@@ -210,190 +243,258 @@ function TaskForm({
       onBusy(false);
     }
   };
-  const inputClass = "mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm";
+  const inputClass =
+    "h-9 w-full rounded-sm border border-border-strong bg-surface-sunken px-3 text-[13px] focus:border-indigo focus:bg-surface focus:outline-none aria-invalid:border-destructive disabled:opacity-60";
+  const labelClass = "mb-1.5 block text-xs font-semibold";
+  const select = (icon: ReactNode, control: ReactNode) => (
+    <span className="relative block [&>svg]:pointer-events-none [&>svg]:absolute [&>svg]:top-1/2 [&>svg]:size-3.5 [&>svg]:-translate-y-1/2 [&>svg]:text-subtle-foreground">
+      {icon}
+      {control}
+      <ChevronDown aria-hidden className="right-3" />
+    </span>
+  );
   return (
     <form
       noValidate
-      className="space-y-4"
       onSubmit={(event) => {
         event.preventDefault();
         void submit();
       }}
     >
-      <p className="text-sm text-muted-foreground">
-        {original
-          ? "タスクの基本情報を編集します。"
-          : "新しいアイテムを追加し、ボードで管理します。"}
-      </p>
-      {options.isPending && <p role="status">選択肢を読み込み中…</p>}
-      {options.error && (
-        <p role="alert">
-          担当者・ラベルを取得できませんでした。
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => {
-              void client.invalidateQueries();
-            }}
-          >
-            再試行
-          </Button>
+      <div className="space-y-3.5 px-6 pt-1 pb-4">
+        <p className="text-xs text-subtle-foreground">
+          {original
+            ? `タスクの基本情報を編集します。進捗 ${progressPercent(input.status ?? "todo")}% · コメント ${original.commentCount}`
+            : `新しいアイテムを追加し、ボードで管理します。進捗 ${progressPercent(input.status ?? "todo")}%`}
         </p>
-      )}
-      <fieldset disabled={pending} className="space-y-4">
-        <div>
-          <label htmlFor={`${formId}-title`}>タイトル（必須）</label>
-          <input
-            {...field("title")}
-            ref={titleRef}
-            className={inputClass}
-            value={input.title}
-            onChange={(e) => change("title", e.target.value)}
-          />
-          {message("title")}
-        </div>
-        <div>
-          <label htmlFor={`${formId}-description`}>説明</label>
-          <textarea
-            {...field("description")}
-            className={inputClass}
-            rows={3}
-            value={input.description ?? ""}
-            onChange={(e) => change("description", e.target.value || null)}
-          />
-          {message("description")}
-        </div>
-        <div>
-          <label htmlFor={`${formId}-assigneeId`}>担当者</label>
-          <select
-            {...field("assigneeId")}
-            className={inputClass}
-            disabled={options.isPending || !!options.error}
-            value={input.assigneeId ?? ""}
-            onChange={(e) => change("assigneeId", e.target.value || null)}
+        {failure && (
+          <div
+            role="alert"
+            className={cn(
+              "flex flex-wrap items-center gap-2.5 rounded-sm border px-3 py-2.5 text-xs",
+              failure instanceof ApiError && failure.isVersionConflict
+                ? "border-[#f3d3a4] bg-amber-tint text-amber"
+                : "border-[#f6c9c5] bg-danger-tint text-danger",
+            )}
           >
-            <option value="">未割当</option>
-            {options.members.map(({ user }) => (
-              <option key={user.id} value={user.id}>
-                {user.name}
-              </option>
-            ))}
-          </select>
-          {message("assigneeId")}
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          {(["startDate", "dueDate"] as const).map((key) => (
-            <div key={key}>
-              <label htmlFor={`${formId}-${key}`}>{key === "startDate" ? "開始日" : "期限"}</label>
-              <input
-                {...field(key)}
-                type="date"
-                className={inputClass}
-                value={input[key] ?? ""}
-                onChange={(e) => change(key, e.target.value || null)}
-              />
-              {message(key)}
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label htmlFor={`${formId}-status`}>ステータス</label>
-            <select
-              {...field("status")}
-              className={inputClass}
-              value={input.status}
-              onChange={(e) => {
-                const value = TASK_STATUSES.find((s) => s === e.target.value);
-                if (value) change("status", value);
-              }}
-            >
-              {TASK_STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {STATUS_LABEL[s]}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor={`${formId}-priority`}>優先度</label>
-            <select
-              {...field("priority")}
-              className={inputClass}
-              value={input.priority}
-              onChange={(e) => {
-                const value = TASK_PRIORITIES.find((p) => p === e.target.value);
-                if (value) change("priority", value);
-              }}
-            >
-              {TASK_PRIORITIES.map((p) => (
-                <option key={p} value={p}>
-                  {PRIORITY_LABEL[p]}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <fieldset disabled={options.isPending || !!options.error}>
-          <legend>ラベル</legend>
-          <div className="mt-2 flex flex-wrap gap-3">
-            {options.labels.map((label) => (
-              <label key={label.id} className="inline-flex items-center gap-1 text-sm">
-                <input
-                  type="checkbox"
-                  checked={input.labelIds?.includes(label.id) ?? false}
-                  onChange={(e) =>
-                    change(
-                      "labelIds",
-                      e.target.checked
-                        ? [...(input.labelIds ?? []), label.id]
-                        : input.labelIds?.filter((id) => id !== label.id),
-                    )
+            <TriangleAlert aria-hidden className="size-4 shrink-0" />
+            <span className="min-w-0 flex-1">{apiErrorMessage(failure)}</span>
+            {failure instanceof ApiError && failure.isVersionConflict && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="border-[#f3d3a4] text-amber"
+                disabled={pending}
+                onClick={async () => {
+                  setReloading(true);
+                  onBusy(true);
+                  try {
+                    await onReload?.();
+                  } finally {
+                    setReloading(false);
+                    onBusy(false);
                   }
-                />
-                {label.name}
-              </label>
-            ))}
-            {!options.isPending && !options.error && options.labels.length === 0 && (
-              <span className="text-sm">ラベルがありません</span>
+                }}
+              >
+                <RefreshCw aria-hidden />
+                最新の内容を読み込む（入力を置き換えます）
+              </Button>
             )}
           </div>
-          {message("labelIds")}
-        </fieldset>
-      </fieldset>
-      <p className="text-sm text-muted-foreground">
-        進捗 {progressPercent(input.status ?? "todo")}%
-        {original && ` · コメント ${original.commentCount}`}
-      </p>
-      {failure && (
-        <div role="alert" className="text-sm text-destructive">
-          {apiErrorMessage(failure)}
-          {failure instanceof ApiError && failure.isVersionConflict && (
+        )}
+        {options.isPending && (
+          <Notice tone="progress" role="status">
+            選択肢を読み込み中…
+          </Notice>
+        )}
+        {options.error && (
+          <Notice tone="error" role="alert">
+            担当者・ラベルを取得できませんでした。
             <Button
               type="button"
               variant="outline"
-              disabled={pending}
-              onClick={async () => {
-                setReloading(true);
-                onBusy(true);
-                try {
-                  await onReload?.();
-                } finally {
-                  setReloading(false);
-                  onBusy(false);
-                }
+              size="sm"
+              className="ml-auto"
+              onClick={() => {
+                void client.invalidateQueries();
               }}
             >
-              最新の内容を読み込む（入力を置き換えます）
+              再試行
             </Button>
-          )}
-        </div>
-      )}
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="ghost" disabled={pending} onClick={onClose}>
+          </Notice>
+        )}
+        <fieldset disabled={pending} className="space-y-3.5">
+          <div>
+            <label className={labelClass} htmlFor={`${formId}-title`}>
+              タイトル（必須）
+            </label>
+            <input
+              {...field("title")}
+              ref={titleRef}
+              className={inputClass}
+              value={input.title}
+              onChange={(e) => change("title", e.target.value)}
+            />
+            {message("title")}
+          </div>
+          <div>
+            <label className={labelClass} htmlFor={`${formId}-description`}>
+              説明
+            </label>
+            <textarea
+              {...field("description")}
+              className={cn(inputClass, "h-auto py-2.5 leading-normal")}
+              rows={3}
+              placeholder="背景や目的、完了条件を入力してください"
+              value={input.description ?? ""}
+              onChange={(e) => change("description", e.target.value || null)}
+            />
+            {message("description")}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div>
+              <label className={labelClass} htmlFor={`${formId}-assigneeId`}>
+                担当者
+              </label>
+              {select(
+                <User aria-hidden className="left-3" />,
+                <select
+                  {...field("assigneeId")}
+                  className={cn(inputClass, "appearance-none pr-8 pl-9")}
+                  disabled={options.isPending || !!options.error}
+                  value={input.assigneeId ?? ""}
+                  onChange={(e) => change("assigneeId", e.target.value || null)}
+                >
+                  <option value="">未割当</option>
+                  {options.members.map(({ user }) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name}
+                    </option>
+                  ))}
+                </select>,
+              )}
+              {message("assigneeId")}
+            </div>
+            {(["startDate", "dueDate"] as const).map((key) => (
+              <div key={key}>
+                <label className={labelClass} htmlFor={`${formId}-${key}`}>
+                  {key === "startDate" ? "開始日" : "期限"}
+                </label>
+                <input
+                  {...field(key)}
+                  type="date"
+                  className={inputClass}
+                  value={input[key] ?? ""}
+                  onChange={(e) => change(key, e.target.value || null)}
+                />
+                {message(key)}
+              </div>
+            ))}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className={labelClass} htmlFor={`${formId}-status`}>
+                ステータス
+              </label>
+              {select(
+                <CircleDot aria-hidden className="left-3" />,
+                <select
+                  {...field("status")}
+                  className={cn(inputClass, "appearance-none pr-8 pl-9")}
+                  value={input.status}
+                  onChange={(e) => {
+                    const value = TASK_STATUSES.find((s) => s === e.target.value);
+                    if (value) change("status", value);
+                  }}
+                >
+                  {TASK_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {STATUS_LABEL[s]}
+                    </option>
+                  ))}
+                </select>,
+              )}
+            </div>
+            <div>
+              <label className={labelClass} htmlFor={`${formId}-priority`}>
+                優先度
+              </label>
+              {select(
+                <Flag aria-hidden className="left-3" />,
+                <select
+                  {...field("priority")}
+                  className={cn(inputClass, "appearance-none pr-8 pl-9")}
+                  value={input.priority}
+                  onChange={(e) => {
+                    const value = TASK_PRIORITIES.find((p) => p === e.target.value);
+                    if (value) change("priority", value);
+                  }}
+                >
+                  {TASK_PRIORITIES.map((p) => (
+                    <option key={p} value={p}>
+                      {PRIORITY_LABEL[p]}
+                    </option>
+                  ))}
+                </select>,
+              )}
+            </div>
+          </div>
+          <fieldset disabled={options.isPending || !!options.error}>
+            <legend className={labelClass}>ラベル</legend>
+            <div className="flex flex-wrap gap-2">
+              {options.labels.map((label) => {
+                const checked = input.labelIds?.includes(label.id) ?? false;
+                return (
+                  <label
+                    key={label.id}
+                    className={cn(
+                      "inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs has-focus-visible:ring-3 has-focus-visible:ring-ring/50",
+                      checked
+                        ? "border-indigo bg-indigo-tint font-semibold text-indigo"
+                        : "border-border-strong text-muted-foreground",
+                    )}
+                  >
+                    <input
+                      type="checkbox"
+                      className="size-3.5 accent-indigo"
+                      checked={checked}
+                      onChange={(e) =>
+                        change(
+                          "labelIds",
+                          e.target.checked
+                            ? [...(input.labelIds ?? []), label.id]
+                            : input.labelIds?.filter((id) => id !== label.id),
+                        )
+                      }
+                    />
+                    <span
+                      aria-hidden
+                      className="size-[7px] rounded-full"
+                      style={{ backgroundColor: label.color }}
+                    />
+                    {label.name}
+                  </label>
+                );
+              })}
+              {!options.isPending && !options.error && options.labels.length === 0 && (
+                <span className="text-xs text-subtle-foreground">ラベルがありません</span>
+              )}
+            </div>
+            {message("labelIds")}
+          </fieldset>
+        </fieldset>
+      </div>
+      <div className="flex justify-end gap-2 border-t bg-surface-sunken px-6 py-3.5">
+        <Button type="button" variant="outline" size="lg" disabled={pending} onClick={onClose}>
           キャンセル
         </Button>
-        <Button type="submit" disabled={pending || options.isPending || !!options.error}>
+        <Button
+          type="submit"
+          size="lg"
+          className="px-4"
+          disabled={pending || options.isPending || !!options.error}
+        >
           {pending ? "保存中…" : original ? "保存" : "作成"}
         </Button>
       </div>

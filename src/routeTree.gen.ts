@@ -22,6 +22,7 @@ import { Route as ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRouteImport } fr
 import { Route as WWorkspaceIdPProjectIdRRoadmapIdRouteImport } from './routes/w.$workspaceId.p.$projectId.r.$roadmapId'
 import { Route as ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksTaskIdRouteImport } from './routes/api/workspaces.$workspaceId.roadmaps.$roadmapId.tasks.$taskId'
 import { Route as WWorkspaceIdPProjectIdRRoadmapIdBoardRouteImport } from './routes/w.$workspaceId.p.$projectId.r.$roadmapId.board'
+import { Route as WWorkspaceIdPProjectIdRRoadmapIdMapRouteImport } from './routes/w.$workspaceId.p.$projectId.r.$roadmapId.map'
 import { Route as WWorkspaceIdPProjectIdRRoadmapIdTimelineRouteImport } from './routes/w.$workspaceId.p.$projectId.r.$roadmapId.timeline'
 
 const IndexRoute = IndexRouteImport.update({
@@ -99,6 +100,12 @@ const WWorkspaceIdPProjectIdRRoadmapIdBoardRoute =
     path: '/board',
     getParentRoute: () => WWorkspaceIdPProjectIdRRoadmapIdRoute,
   } as any)
+const WWorkspaceIdPProjectIdRRoadmapIdMapRoute =
+  WWorkspaceIdPProjectIdRRoadmapIdMapRouteImport.update({
+    id: '/map',
+    path: '/map',
+    getParentRoute: () => WWorkspaceIdPProjectIdRRoadmapIdRoute,
+  } as any)
 const WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute =
   WWorkspaceIdPProjectIdRRoadmapIdTimelineRouteImport.update({
     id: '/timeline',
@@ -120,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/w/$workspaceId/p/$projectId/r/$roadmapId': typeof WWorkspaceIdPProjectIdRRoadmapIdRouteWithChildren
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks/$taskId': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksTaskIdRoute
   '/w/$workspaceId/p/$projectId/r/$roadmapId/board': typeof WWorkspaceIdPProjectIdRRoadmapIdBoardRoute
+  '/w/$workspaceId/p/$projectId/r/$roadmapId/map': typeof WWorkspaceIdPProjectIdRRoadmapIdMapRoute
   '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline': typeof WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute
 }
 export interface FileRoutesByTo {
@@ -135,6 +143,7 @@ export interface FileRoutesByTo {
   '/w/$workspaceId/p/$projectId/r/$roadmapId': typeof WWorkspaceIdPProjectIdRRoadmapIdRouteWithChildren
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks/$taskId': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksTaskIdRoute
   '/w/$workspaceId/p/$projectId/r/$roadmapId/board': typeof WWorkspaceIdPProjectIdRRoadmapIdBoardRoute
+  '/w/$workspaceId/p/$projectId/r/$roadmapId/map': typeof WWorkspaceIdPProjectIdRRoadmapIdMapRoute
   '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline': typeof WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute
 }
 export interface FileRoutesById {
@@ -152,6 +161,7 @@ export interface FileRoutesById {
   '/w/$workspaceId/p/$projectId/r/$roadmapId': typeof WWorkspaceIdPProjectIdRRoadmapIdRouteWithChildren
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks/$taskId': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksTaskIdRoute
   '/w/$workspaceId/p/$projectId/r/$roadmapId/board': typeof WWorkspaceIdPProjectIdRRoadmapIdBoardRoute
+  '/w/$workspaceId/p/$projectId/r/$roadmapId/map': typeof WWorkspaceIdPProjectIdRRoadmapIdMapRoute
   '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline': typeof WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute
 }
 export interface FileRouteTypes {
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/w/$workspaceId/p/$projectId/r/$roadmapId'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks/$taskId'
     | '/w/$workspaceId/p/$projectId/r/$roadmapId/board'
+    | '/w/$workspaceId/p/$projectId/r/$roadmapId/map'
     | '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -185,6 +196,7 @@ export interface FileRouteTypes {
     | '/w/$workspaceId/p/$projectId/r/$roadmapId'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks/$taskId'
     | '/w/$workspaceId/p/$projectId/r/$roadmapId/board'
+    | '/w/$workspaceId/p/$projectId/r/$roadmapId/map'
     | '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline'
   id:
     | '__root__'
@@ -201,6 +213,7 @@ export interface FileRouteTypes {
     | '/w/$workspaceId/p/$projectId/r/$roadmapId'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks/$taskId'
     | '/w/$workspaceId/p/$projectId/r/$roadmapId/board'
+    | '/w/$workspaceId/p/$projectId/r/$roadmapId/map'
     | '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline'
   fileRoutesById: FileRoutesById
 }
@@ -303,6 +316,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WWorkspaceIdPProjectIdRRoadmapIdBoardRouteImport
       parentRoute: typeof WWorkspaceIdPProjectIdRRoadmapIdRoute
     }
+    '/w/$workspaceId/p/$projectId/r/$roadmapId/map': {
+      id: '/w/$workspaceId/p/$projectId/r/$roadmapId/map'
+      path: '/map'
+      fullPath: '/w/$workspaceId/p/$projectId/r/$roadmapId/map'
+      preLoaderRoute: typeof WWorkspaceIdPProjectIdRRoadmapIdMapRouteImport
+      parentRoute: typeof WWorkspaceIdPProjectIdRRoadmapIdRoute
+    }
     '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline': {
       id: '/w/$workspaceId/p/$projectId/r/$roadmapId/timeline'
       path: '/timeline'
@@ -380,6 +400,7 @@ const ApiWorkspacesRouteWithChildren = ApiWorkspacesRoute._addFileChildren(
 
 interface WWorkspaceIdPProjectIdRRoadmapIdRouteChildren {
   WWorkspaceIdPProjectIdRRoadmapIdBoardRoute: typeof WWorkspaceIdPProjectIdRRoadmapIdBoardRoute
+  WWorkspaceIdPProjectIdRRoadmapIdMapRoute: typeof WWorkspaceIdPProjectIdRRoadmapIdMapRoute
   WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute: typeof WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute
 }
 
@@ -387,6 +408,8 @@ const WWorkspaceIdPProjectIdRRoadmapIdRouteChildren: WWorkspaceIdPProjectIdRRoad
   {
     WWorkspaceIdPProjectIdRRoadmapIdBoardRoute:
       WWorkspaceIdPProjectIdRRoadmapIdBoardRoute,
+    WWorkspaceIdPProjectIdRRoadmapIdMapRoute:
+      WWorkspaceIdPProjectIdRRoadmapIdMapRoute,
     WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute:
       WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute,
   }

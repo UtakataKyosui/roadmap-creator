@@ -4,7 +4,7 @@
 
 ## Issue・PRの作成
 
-用途別テンプレートとPencil / MCPを使ったデザイン・実装の進め方は、[コントリビューションガイド](docs/contributing.md)を参照。
+用途別テンプレートとOpenPencil / MCPを使ったデザイン・実装の進め方は、[コントリビューションガイド](docs/contributing.md)を参照。
 
 ## バックエンドとローカル開発
 

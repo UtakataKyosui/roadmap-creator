@@ -39,16 +39,33 @@ const PROGRESS_PERCENT: Record<TaskStatus, number> = {
 
 export const progressPercent = (status: TaskStatus) => PROGRESS_PERCENT[status];
 
+// 色はui-design.penのステータス色（未着手=グレー、進行中=indigo、レビュー=amber、完了=teal）。
 export const STATUS_TONE: Record<TaskStatus, string> = {
-  todo: "bg-slate-100 text-slate-700",
-  in_progress: "bg-blue-100 text-blue-700",
-  review: "bg-amber-100 text-amber-800",
-  done: "bg-emerald-100 text-emerald-700",
+  todo: "bg-surface-subtle text-muted-foreground",
+  in_progress: "bg-indigo-tint text-indigo",
+  review: "bg-amber-tint text-amber",
+  done: "bg-teal-tint text-teal",
+};
+
+// 列の点、進捗バーなど塗りつぶしに使う色。
+export const STATUS_FILL: Record<TaskStatus, string> = {
+  todo: "bg-subtle-foreground",
+  in_progress: "bg-indigo",
+  review: "bg-amber",
+  done: "bg-teal",
+};
+
+// カード・タイムラインのバーの左端の線。
+export const STATUS_ACCENT: Record<TaskStatus, string> = {
+  todo: "border-l-subtle-foreground",
+  in_progress: "border-l-indigo",
+  review: "border-l-amber",
+  done: "border-l-teal",
 };
 
 export const PRIORITY_TONE: Record<TaskPriority, string> = {
-  low: "bg-slate-100 text-slate-600",
-  medium: "bg-sky-100 text-sky-700",
-  high: "bg-orange-100 text-orange-700",
-  urgent: "bg-red-100 text-red-700",
+  low: "bg-surface-subtle text-subtle-foreground",
+  medium: "bg-surface-subtle text-muted-foreground",
+  high: "bg-amber-tint text-amber",
+  urgent: "bg-danger-tint text-danger",
 };
