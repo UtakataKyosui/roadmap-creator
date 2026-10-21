@@ -109,7 +109,7 @@ OpenAPI 契約のすべての操作を実装している。Workspace・メンバ
 
 ### 招待メール
 
-送信は `Mailer`（`src/server/mailer.ts`）で差し替える。現在の `logMailer` は送信せず、宛先と招待 URL をサーバーのログ（`[mail] ...`）に出す。ローカルでは、このログの URL か、招待作成の応答の `inviteUrl` を開いて受諾を確認する。メール送信に失敗しても招待は作られ、応答の `emailSent` が `false` になる。
+送信は `Mailer`（`src/server/mailer.ts`）で差し替える。現在の `logMailer` は送信せず、開発ビルドに限り宛先と招待 URL をサーバーのログ（`[mail] ...`）に出す（招待 URL は秘密のため、本番のログには出さない）。ローカルでは、このログの URL か、招待作成の応答の `inviteUrl` を開いて受諾を確認する。メール送信に失敗しても招待は作られ、応答の `emailSent` が `false` になる。
 
 ### 認証済みユーザーの解決
 

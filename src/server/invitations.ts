@@ -79,13 +79,13 @@ const sendMail = async (
     .where(eq(workspaces.id, workspaceId));
   const [inviter] = await db.select({ name: users.name }).from(users).where(eq(users.id, actorId));
   try {
-    await mailer.sendInvitation({
+    const sent = await mailer.sendInvitation({
       to: email,
       workspaceName: workspace?.name ?? "",
       invitedByName: inviter?.name ?? "",
       invitePath: inviteUrlFor(token),
     });
-    return true;
+    return sent !== false;
   } catch (error) {
     // 送信に失敗しても招待は有効。inviteUrlを共有して受諾できる。
     console.error("Failed to send invitation mail", error);
@@ -171,8 +171,8 @@ export const createInvitation = async (
         .set({ revokedAt: timestamp, updatedAt: timestamp })
         .where(
           and(
-            eq(invitations.workspaceId, workspaceId),
-            eq(invitations.email, email),
+            pending ? eq(invitations.id, pending.id) : sql`0`,
+            sql`${invitations.expiresAt} <= ${now.toISOString()}`,
             sql`${invitations.acceptedAt} is null and ${invitations.revokedAt} is null`,
           ),
         ),
@@ -294,28 +294,42 @@ export const acceptInvitation = async (
   if (status === "expired") throw reason("", "この招待は有効期限が切れています");
 
   const timestamp = nowIso();
-  await db.batch([
-    // 既にメンバーの場合も重複せず、役割は変えない。
+  // batch内の両文で同じ有効性を検証する。取消・再送された招待ではMembershipも作らない。
+  const claimable = and(
+    eq(invitations.id, row.id),
+    eq(invitations.tokenHash, row.tokenHash),
+    sql`${invitations.acceptedAt} is null and ${invitations.revokedAt} is null`,
+    sql`${invitations.expiresAt} > ${now.toISOString()}`,
+  );
+  const [, claimed] = await db.batch([
     db
       .insert(memberships)
-      .values({
-        id: uuidv7(),
-        workspaceId: row.workspaceId,
-        userId: actorId,
-        role: row.role,
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      })
+      .select(
+        db
+          .select({
+            id: sql<string>`${uuidv7()}`.as("id"),
+            workspaceId: invitations.workspaceId,
+            userId: sql<string>`${actorId}`.as("user_id"),
+            role: invitations.role,
+            createdAt: sql<string>`${timestamp}`.as("created_at"),
+            updatedAt: sql<string>`${timestamp}`.as("updated_at"),
+          })
+          .from(invitations)
+          .where(claimable),
+      )
       .onConflictDoNothing(),
     db
       .update(invitations)
       .set({ acceptedAt: timestamp, acceptedBy: actorId, updatedAt: timestamp })
-      .where(
-        and(
-          eq(invitations.id, row.id),
-          sql`${invitations.acceptedAt} is null and ${invitations.revokedAt} is null`,
-        ),
-      ),
+      .where(claimable)
+      .returning({ id: invitations.id }),
   ]);
+  if (!claimed.length) {
+    const current = await findByToken(db, token);
+    if (current.acceptedBy === actorId) {
+      return { workspaceId: row.workspaceId, alreadyMember: true };
+    }
+    throw reason("", "招待が更新または取り消されました。招待URLを確認してください");
+  }
   return { workspaceId: row.workspaceId, alreadyMember: false };
 };

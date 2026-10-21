@@ -14,6 +14,7 @@ import {
   revokeInvitation,
 } from "./invitations";
 import type { InvitationMail, Mailer } from "./mailer";
+import { logMailer } from "./mailer";
 import { listWorkspaceMembers } from "./workspaces";
 import { createTestDb, otherUserId, seedTestDb } from "./testing/test-db";
 
@@ -58,6 +59,68 @@ const memberCount = (user: string) =>
   ).n;
 
 describe("招待の作成", () => {
+  test("ログ出力のみのMailerは未送信を返し、URLで共有できる", async () => {
+    const log = vi.spyOn(console, "info").mockImplementation(() => {});
+    try {
+      const issued = await createInvitation(
+        db,
+        userId,
+        workspaceId,
+        { email: "other@example.com" },
+        { mailer: logMailer, now },
+      );
+      expect(issued.emailSent).toBe(false);
+      expect(
+        (
+          await resendInvitation(db, userId, workspaceId, issued.invitation.id, {
+            mailer: logMailer,
+            now,
+          })
+        ).emailSent,
+      ).toBe(false);
+    } finally {
+      log.mockRestore();
+    }
+  });
+
+  test.each([false, true])(
+    "同時作成で先行する招待を取り消さない（期限切れ行あり=%s）",
+    async (expired) => {
+      if (expired) await invite();
+      const at = expired ? later : now;
+      const batch = db.batch.bind(db);
+      let first: Awaited<ReturnType<typeof createInvitation>> | undefined;
+      const interleaved = vi.spyOn(db, "batch").mockImplementationOnce(async (queries) => {
+        first = await createInvitation(
+          db,
+          userId,
+          workspaceId,
+          { email: "other@example.com" },
+          { mailer, now: at },
+        );
+        return batch(queries);
+      });
+      try {
+        await expect(
+          createInvitation(
+            db,
+            userId,
+            workspaceId,
+            { email: "other@example.com" },
+            { mailer, now: at },
+          ),
+        ).rejects.toMatchObject({ status: 422 });
+        expect(
+          (await getInvitationPreview(db, otherUserId, tokenOf(first!.inviteUrl), { now: at }))
+            .status,
+        ).toBe("pending");
+        expect(sent).toHaveLength(expired ? 2 : 1);
+      } finally {
+        interleaved.mockRestore();
+      }
+    },
+  );
+
   test("招待中の招待を作り、トークンを保存せず、メールを送る", async () => {
     const issued = await invite("Other@Example.com ");
     parseResponse(CreateInvitationResponse, issued);
@@ -184,6 +247,72 @@ describe("招待の再送と取消", () => {
 });
 
 describe("招待の受諾", () => {
+  test("受諾の記録に失敗したらMembershipもロールバックする", async () => {
+    const options: { failOn?: RegExp } = {};
+    const local = createTestDb(options);
+    seedTestDb(local.sqlite);
+    const issued = await createInvitation(
+      local.db,
+      userId,
+      workspaceId,
+      { email: "other@example.com" },
+      { mailer, now },
+    );
+    options.failOn = /update "invitations"/;
+    await expect(
+      acceptInvitation(local.db, otherUserId, tokenOf(issued.inviteUrl), { now }),
+    ).rejects.toThrow();
+    expect(
+      local.sqlite
+        .prepare("SELECT count(*) AS n FROM memberships WHERE workspace_id = ? AND user_id = ?")
+        .get(workspaceId, otherUserId),
+    ).toMatchObject({ n: 0 });
+    expect(
+      (await getInvitationPreview(local.db, otherUserId, tokenOf(issued.inviteUrl), { now }))
+        .status,
+    ).toBe("pending");
+  });
+
+  test.each(["revoke", "resend"])(
+    "受諾直前の%sで無効になった招待はメンバーを作らない",
+    async (action) => {
+      const issued = await invite();
+      const batch = db.batch.bind(db);
+      const interleaved = vi.spyOn(db, "batch").mockImplementationOnce(async (queries) => {
+        if (action === "revoke")
+          await revokeInvitation(db, userId, workspaceId, issued.invitation.id, { now });
+        else await resendInvitation(db, userId, workspaceId, issued.invitation.id, { mailer, now });
+        return batch(queries);
+      });
+      try {
+        await expect(
+          acceptInvitation(db, otherUserId, tokenOf(issued.inviteUrl), { now }),
+        ).rejects.toMatchObject({ status: action === "revoke" ? 422 : 404 });
+        expect(memberCount(otherUserId)).toBe(0);
+      } finally {
+        interleaved.mockRestore();
+      }
+    },
+  );
+
+  test("同時受諾は片方が再受諾となりMembershipを重複させない", async () => {
+    const issued = await invite();
+    const token = tokenOf(issued.inviteUrl);
+    const batch = db.batch.bind(db);
+    const interleaved = vi.spyOn(db, "batch").mockImplementationOnce(async (queries) => {
+      await acceptInvitation(db, otherUserId, token, { now });
+      return batch(queries);
+    });
+    try {
+      expect(await acceptInvitation(db, otherUserId, token, { now })).toMatchObject({
+        alreadyMember: true,
+      });
+      expect(memberCount(otherUserId)).toBe(1);
+    } finally {
+      interleaved.mockRestore();
+    }
+  });
+
   test("招待先本人が受諾するとメンバーになり、共有メンバーとして一覧に出る", async () => {
     const issued = await invite("other@example.com", userId, { role: "admin" });
     const token = tokenOf(issued.inviteUrl);
