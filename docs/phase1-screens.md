@@ -2,6 +2,7 @@
 
 `ui-design.pen` の「Phase1 —」で始まるフレームと「Phase1 Task Card」コンポーネントが実装の正本。
 白いカード、淡い背景（`bg-app`）、Noto Sans JP、indigoの主操作を使う。
+フォントは読み込まず、未インストールの環境ではヒラギノ等の日本語フォントで表示する。
 色・角丸は `.pen` の変数と `src/styles/app.css` のトークンを同じ値で対応させる。
 ステータスの色は未着手=グレー、進行中=indigo、レビュー=amber、完了=tealで全画面共通。
 

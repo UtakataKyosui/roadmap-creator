@@ -57,28 +57,28 @@ function Modal({
     <dialog
       ref={ref}
       aria-labelledby={titleId}
-      className="m-auto max-h-[90dvh] w-[min(40rem,calc(100%-2rem))] overflow-auto rounded-lg bg-surface p-0 text-foreground shadow-[0_16px_40px_#15181e33] backdrop:bg-[#15181e]/45"
+      className="relative m-auto max-h-[90dvh] w-[min(40rem,calc(100%-2rem))] overflow-auto rounded-lg bg-surface p-0 text-foreground shadow-[0_16px_40px_#15181e33] backdrop:bg-[#15181e]/45"
       onCancel={(event) => {
         event.preventDefault();
         if (!busy) onClose();
       }}
     >
-      <div className="flex items-start gap-3 px-6 pt-5">
-        <h2 id={titleId} className="flex-1 text-lg font-bold">
-          {title}
-        </h2>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          aria-label="閉じる"
-          disabled={busy}
-          onClick={onClose}
-        >
-          <X aria-hidden />
-        </Button>
-      </div>
+      <h2 id={titleId} className="px-6 pt-5 pr-14 text-lg font-bold">
+        {title}
+      </h2>
       {children}
+      {/* 初期フォーカスがタイトル入力に当たるよう、閉じるボタンは内容の後に置く。 */}
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        aria-label="閉じる"
+        className="absolute top-4 right-4"
+        disabled={busy}
+        onClick={onClose}
+      >
+        <X aria-hidden />
+      </Button>
     </dialog>
   );
 }

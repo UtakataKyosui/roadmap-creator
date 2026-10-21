@@ -6,6 +6,8 @@
   @import "@xyflow/react/dist/style.css";
 }
 
+@custom-variant dark (&:is(.dark *));
+
 @layer base {
   *,
   ::after,
