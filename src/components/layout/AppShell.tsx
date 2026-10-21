@@ -1,5 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { ChartGantt, ChevronRight, LayoutList, Map as MapIcon, SquareKanban } from "lucide-react";
+import {
+  ChartGantt,
+  ChevronRight,
+  GitBranch,
+  LayoutList,
+  Map as MapIcon,
+  SquareKanban,
+} from "lucide-react";
 import { Fragment, type ReactNode } from "react";
 import { useListRoadmaps } from "@/api/generated/endpoints/roadmaps/roadmaps";
 import type { View } from "@/domain/breadcrumb";
@@ -10,7 +17,7 @@ type Named = { id: string; name: string };
 const ROADMAP_DOTS = ["bg-indigo", "bg-teal", "bg-amber"];
 
 const navItem =
-  "flex h-9 items-center gap-2.5 rounded-sm px-2.5 text-[13px] text-muted-foreground transition-colors hover:bg-surface-subtle [&_svg]:size-4 [&_svg]:shrink-0";
+  "flex h-9 items-center gap-2 rounded-sm px-2 text-[13px] whitespace-nowrap text-muted-foreground transition-colors hover:bg-surface-subtle md:gap-2.5 md:px-2.5 [&_svg]:size-4 [&_svg]:shrink-0";
 const navActive = "bg-indigo-tint font-semibold text-indigo hover:bg-indigo-tint";
 
 // 上部バー（ロゴ・パンくず）と左サイドバーを持つ共通の枠。
@@ -108,14 +115,23 @@ function Sidebar({
         ロードマップ一覧
       </Link>
       {roadmap && (
-        <nav aria-label="表示の切り替え" className="mt-3 flex flex-col gap-1">
-          <p className="truncate px-2.5 pb-1 text-[11px] font-semibold text-subtle-foreground">
+        <nav aria-label="表示の切り替え" className="mt-3 flex flex-wrap gap-1 md:flex-col">
+          <p className="w-full truncate px-2.5 pb-1 text-[11px] font-semibold text-subtle-foreground">
             {roadmap.name}
           </p>
           <Link
+            to="/w/$workspaceId/p/$projectId/r/$roadmapId/map"
+            params={{ ...params, roadmapId: roadmap.id }}
+            className={cn(navItem, "flex-1 md:flex-none", view === "map" && navActive)}
+            aria-current={view === "map" ? "page" : undefined}
+          >
+            <GitBranch aria-hidden />
+            マップ
+          </Link>
+          <Link
             to="/w/$workspaceId/p/$projectId/r/$roadmapId/board"
             params={{ ...params, roadmapId: roadmap.id }}
-            className={cn(navItem, view === "board" && navActive)}
+            className={cn(navItem, "flex-1 md:flex-none", view === "board" && navActive)}
             aria-current={view === "board" ? "page" : undefined}
           >
             <SquareKanban aria-hidden />
@@ -124,7 +140,7 @@ function Sidebar({
           <Link
             to="/w/$workspaceId/p/$projectId/r/$roadmapId/timeline"
             params={{ ...params, roadmapId: roadmap.id }}
-            className={cn(navItem, view === "timeline" && navActive)}
+            className={cn(navItem, "flex-1 md:flex-none", view === "timeline" && navActive)}
             aria-current={view === "timeline" ? "page" : undefined}
           >
             <ChartGantt aria-hidden />

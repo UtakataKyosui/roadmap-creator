@@ -29,7 +29,7 @@ openpencil documents save
 
 Noto Sans JPをローカルに用意し、`get_font_status` の `faithful` と `issues` を確認する。実装はCSSのフォント指定のみで、未インストール環境では日本語フォントへフォールバックする。MCPの設定は各自の環境で行い、マシン固有パスや設定ファイルをコミットしない。
 
-移行時のJSX生成元は `designs/source/generate.mjs`。`node designs/source/generate.mjs /tmp/roadmap-design` で6つのJSXを書き出せる。作り直す場合はトークンを持つドキュメントで `render` を呼び、components → board → その他の順で作成する。生成は既存ノードへの追記なので、重複生成に注意する。通常の変更は `.fig` の既存ノードを編集する。
+移行時のJSX生成元は `designs/source/generate.mjs`。`node designs/source/generate.mjs /tmp/roadmap-design` で7つのJSXを書き出せる。作り直す場合はトークンを持つドキュメントで `render` を呼び、components → board → その他の順で作成する。生成は既存ノードへの追記なので、重複生成に注意する。通常の変更は `.fig` の既存ノードを編集する。
 
 `.fig` 保存時にノードIDが変わることがある。保存後に `tree` でIDを確認し直し、再度開いたファイルからプレビューを書き出して、文字の重なり・枠線・アイコン・インスタンスの個別テキストを確認する。
 

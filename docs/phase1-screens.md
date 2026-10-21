@@ -1,6 +1,6 @@
 # フェーズ1の画面案（#35）
 
-`designs/roadmap-studio.fig` の「Phase1 /」で始まる5画面と「Task Card」コンポーネントセットが実装の正本。
+`designs/roadmap-studio.fig` の「Phase1 /」で始まる6画面と「Task Card」コンポーネントセットが実装の正本。
 OpenPencilで編集し、各画面の画像を `designs/previews/` に書き出す。
 `ui-design.pen` は移行前の参照資料として残し、今後の変更は `.fig` に反映する。
 白いカード、淡い背景（`bg-app`）、Noto Sans JP、indigoの主操作を使う。
@@ -19,10 +19,11 @@ OpenPencilではNoto Sans JPを解決してからプレビューを書き出す�
 | フレーム／コンポーネント        | 保存後のノードID | プレビュー                                            |
 | ------------------------------- | ---------------- | ----------------------------------------------------- |
 | Phase1 / ボード                 | `0:181`          | `designs/previews/phase1-board-1440.png`              |
-| Phase1 / タイムライン           | `0:277`          | `designs/previews/phase1-timeline-1440.png`           |
-| Phase1 / ロードマップ一覧・作成 | `0:731`          | `designs/previews/phase1-roadmaps-editing-1440.png`   |
-| Phase1 / タスク詳細・編集       | `0:836`          | `designs/previews/phase1-task-edit-conflict-1440.png` |
-| Phase1 / 状態・競合             | `0:937`          | `designs/previews/phase1-states-1440.png`             |
+| Phase1 / タイムライン           | `0:283`          | `designs/previews/phase1-timeline-1440.png`           |
+| Phase1 / ロードマップ一覧・作成 | `0:743`          | `designs/previews/phase1-roadmaps-editing-1440.png`   |
+| Phase1 / タスク詳細・編集       | `0:848`          | `designs/previews/phase1-task-edit-conflict-1440.png` |
+| Phase1 / 状態・競合             | `0:949`          | `designs/previews/phase1-states-1440.png`             |
+| Phase1 / マップ                 | `0:1019`         | `designs/previews/phase1-map-1440.png`                |
 | Task Card（4バリアント）        | `0:5`            | `designs/previews/phase1-task-card.png`（進行中）     |
 
 ノードIDは再保存で変わる場合があるため、フレーム名を併記する。
@@ -36,6 +37,22 @@ Workspace > Project のパンくずの下に名称リンクと名称編集ボタ
 下部に名称入力と「作成」。0件なら作成へ誘導する空状態を表示する。
 作成後は新しいロードマップのボードを開く。編集は行内で保存・キャンセル。
 空白だけ、契約の上限超過は入力に関連づけて表示する。失敗しても入力を保持する。
+
+## マップ（XYFlow）
+
+ボード・タイムラインと切り替えられる `/map` を追加する。
+ドット背景、ロードマップの完了数と完了率、4つのステータス、タスクノードを表示する。
+線は「ロードマップ → ステータス → タスク」の所属を表し、タスク間の依存関係や実行順序は意味しない。
+APIに依存関係がないため、接続線の追加・削除は提供しない。
+
+キャンバスはパン・ズーム・全体表示、ミニマップで移動できる。
+ノードのドラッグは表示上の位置だけを変更し、再読込・画面移動で破棄する。タスクの状態や並び順は変わらない。
+「配置を整える」で初期配置と全体表示に戻す。タスク名から既存の編集モーダルを開き、追加・更新は既存APIへ保存する。
+タスク名は2行、ラベルは先頭1件と残件数を表示し、他の情報は編集モーダルで確認する。
+0件では追加の案内、取得失敗では再試行、担当者・ラベルの取得失敗では通知を表示する。
+390pxでは表示切り替えを横並びにし、凡例・ミニマップを省略してズーム操作を画面内に収める。
+
+OpenPencilは1440pxの配置案。実装は表示領域に合わせて全体を自動縮小するため、ノード間隔や文字の表示サイズは変化する。
 
 ## ボード・タスク編集（#6・#12・#18）
 

@@ -8,6 +8,25 @@
 
 @custom-variant dark (&:is(.dark *));
 
+.roadmap-flow .react-flow__controls {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px #15181e08;
+}
+
+.roadmap-flow .react-flow__controls-button {
+  width: 34px;
+  height: 34px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  border-bottom-color: var(--border);
+}
+
+.roadmap-flow .react-flow__controls-button:hover {
+  background: var(--surface-subtle);
+}
+
 @layer base {
   *,
   ::after,
@@ -31,7 +50,7 @@
   }
 }
 
-/* ui-design.pen の変数と同じ値。名前の対応は docs/phase1-screens.md を参照。 */
+/* designs/roadmap-studio.fig の変数と同じ値。名前の対応は docs/phase1-screens.md を参照。 */
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans:

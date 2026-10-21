@@ -38,7 +38,12 @@ function RoadmapLayout() {
   const { roadmap } = Route.useLoaderData();
   const { workspace, project } = projectRoute.useLoaderData();
   const view = useRouterState({
-    select: (state): View => (state.location.pathname.endsWith("/timeline") ? "timeline" : "board"),
+    select: (state): View =>
+      state.location.pathname.endsWith("/map")
+        ? "map"
+        : state.location.pathname.endsWith("/timeline")
+          ? "timeline"
+          : "board",
   });
   const [workspaceName, projectName, roadmapName, viewName] = buildBreadcrumb({
     workspace: workspace.name,

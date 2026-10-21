@@ -1,6 +1,7 @@
 // Generates JSX strings for the Roadmap Studio phase 1 design (OpenPencil).
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { createMapDesign } from "./map-design.mjs";
 
 const outputDirectory = process.argv[2];
 if (!outputDirectory) throw new Error("Usage: node designs/source/generate.mjs <output-directory>");
@@ -162,7 +163,7 @@ function shell({ name, crumbs, view, roadmap = true, heading, desc, actions = ""
         <Frame name="Workspace Text" grow={1} flex="col" gap={2}>${T("Workspace Name", "開発用ワークスペース", { weight: 600, color: "text-primary" })}${T("Project Name", "学習プロジェクト", { size: 11, color: "text-tertiary" })}</Frame>
       </Frame>
       ${nav("ロードマップ一覧", "layout-list", view === "list")}
-      ${roadmap ? section("はじめてのロードマップ") + nav("ボード", "square-kanban", view === "board") + nav("タイムライン", "chart-gantt", view === "timeline") : ""}
+      ${roadmap ? section("はじめてのロードマップ") + nav("マップ", "git-branch", view === "map") + nav("ボード", "square-kanban", view === "board") + nav("タイムライン", "chart-gantt", view === "timeline") : ""}
       ${section("プロジェクトのロードマップ")}
       ${roadmaps}
     </Frame>
@@ -413,6 +414,8 @@ const states = `
   </Frame>
 </Frame>`;
 
+const map = createMapDesign({ shell, T, I, v, cards, STATUS, btnOutline, btnPrimary });
+
 for (const [file, jsx] of Object.entries({
   components,
   board: board(),
@@ -420,6 +423,7 @@ for (const [file, jsx] of Object.entries({
   roadmaps,
   modal,
   states,
+  map,
 }))
   writeFileSync(join(outputDirectory, `${file}.jsx`), jsx);
 console.log("ok");

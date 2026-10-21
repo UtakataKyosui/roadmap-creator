@@ -1,6 +1,10 @@
-export type View = "board" | "timeline";
+export type View = "map" | "board" | "timeline";
 
-export const VIEW_LABEL: Record<View, string> = { board: "ボード", timeline: "タイムライン" };
+export const VIEW_LABEL: Record<View, string> = {
+  map: "マップ",
+  board: "ボード",
+  timeline: "タイムライン",
+};
 
 // Workspace > Project > Roadmap > 画面 の順。名前が取得できないときはIDの代わりに「…」を出す。
 export const buildBreadcrumb = (names: {
