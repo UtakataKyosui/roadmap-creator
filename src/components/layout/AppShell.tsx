@@ -8,6 +8,7 @@ import {
   LogOut,
   Map as MapIcon,
   SquareKanban,
+  Users,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Fragment, useState, type ReactNode } from "react";
@@ -176,6 +177,15 @@ function Sidebar({
       >
         <LayoutList aria-hidden />
         ロードマップ一覧
+      </Link>
+      <Link
+        to="/w/$workspaceId/members"
+        params={{ workspaceId: workspace.id }}
+        className={navItem}
+        activeProps={{ className: navActive }}
+      >
+        <Users aria-hidden />
+        メンバー
       </Link>
       {roadmap && (
         <nav aria-label="表示の切り替え" className="mt-3 flex flex-wrap gap-1 md:flex-col">
