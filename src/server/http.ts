@@ -12,7 +12,7 @@ export const readJson = async (request: Request): Promise<unknown> => {
 // ルートの共通処理。認証済みのユーザーIDを渡し、結果をJSONにし、例外を共通のエラー形式に変換する。
 export const handle = async (run: (actorId: string) => Promise<unknown>, status = 200) => {
   try {
-    const body = await run(resolveActorId());
+    const body = await run(await resolveActorId());
     // 本文のない応答（204）は、実行結果がundefinedのときに返す。
     if (body === undefined) return new Response(null, { status });
     return Response.json(body, { status });

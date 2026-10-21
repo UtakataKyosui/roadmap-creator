@@ -1,4 +1,4 @@
-import { betterAuth } from "better-auth";
+import { betterAuth, type BetterAuthPlugin } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
@@ -20,7 +20,7 @@ export const LOGIN_PATH = "/login";
 
 // 認証ユーザーの作成に合わせて、同じIDでアプリのユーザー（プロフィール）を作る。
 // メールアドレスだけで既存のユーザーに結びつけることはしない。
-export const createAuth = (db: Db, config: AuthConfig) =>
+export const createAuth = (db: Db, config: AuthConfig, extraPlugins: BetterAuthPlugin[] = []) =>
   betterAuth({
     baseURL: config.baseURL,
     secret: config.secret,
@@ -64,22 +64,41 @@ export const createAuth = (db: Db, config: AuthConfig) =>
         },
       },
     },
-    plugins: [tanstackStartCookies()],
+    plugins: [...extraPlugins, tanstackStartCookies()],
   });
 
 export type Auth = ReturnType<typeof createAuth>;
 
-const readConfig = (): AuthConfig => {
-  const { API_ORIGIN, BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = env as {
-    API_ORIGIN: string;
-    BETTER_AUTH_SECRET?: string;
-    GOOGLE_CLIENT_ID?: string;
-    GOOGLE_CLIENT_SECRET?: string;
-  };
-  if (!BETTER_AUTH_SECRET || !GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-    throw new Error(
+// 認証の環境変数が揃っていないことを表す。
+export class AuthNotConfiguredError extends Error {
+  constructor() {
+    super(
       "認証の環境変数（BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET）が設定されていません",
     );
+    this.name = "AuthNotConfiguredError";
+  }
+}
+
+const readConfig = (): AuthConfig => {
+  let values: Record<
+    "API_ORIGIN" | "BETTER_AUTH_SECRET" | "GOOGLE_CLIENT_ID" | "GOOGLE_CLIENT_SECRET",
+    string | undefined
+  >;
+  try {
+    const source = env as Partial<typeof values>;
+    values = {
+      API_ORIGIN: source.API_ORIGIN,
+      BETTER_AUTH_SECRET: source.BETTER_AUTH_SECRET,
+      GOOGLE_CLIENT_ID: source.GOOGLE_CLIENT_ID,
+      GOOGLE_CLIENT_SECRET: source.GOOGLE_CLIENT_SECRET,
+    };
+  } catch {
+    // リクエストの外（テストなど）ではCloudflareのenvを参照できない。
+    throw new AuthNotConfiguredError();
+  }
+  const { API_ORIGIN, BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = values;
+  if (!API_ORIGIN || !BETTER_AUTH_SECRET || !GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+    throw new AuthNotConfiguredError();
   }
   return {
     baseURL: API_ORIGIN,

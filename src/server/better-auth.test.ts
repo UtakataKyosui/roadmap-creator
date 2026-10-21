@@ -1,3 +1,4 @@
+import { testUtils } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vite-plus/test";
 import { authAccounts, authUsers, users } from "../../db/schema";
@@ -112,5 +113,39 @@ describe("Better Auth", () => {
     await expect(createGoogleUser(auth, "taro@example.com")).rejects.toThrow();
     expect(await db.select().from(authUsers)).toHaveLength(0);
     expect(await db.select().from(users)).toHaveLength(1);
+  });
+
+  describe("セッションの検証", () => {
+    const loginAs = async () => {
+      const { db } = createTestDb();
+      const auth = createAuth(
+        db,
+        {
+          baseURL: "http://localhost:3000",
+          secret: "test-secret-test-secret-test-secret",
+          google: { clientId: "id", clientSecret: "secret" },
+        },
+        [testUtils()],
+      );
+      const created = await createGoogleUser(auth, "taro@example.com");
+      const { test } = (await auth.$context) as unknown as {
+        test: { login: (o: { userId: string }) => Promise<{ headers: Headers }> };
+      };
+      const { headers } = await test.login({ userId: created.user.id });
+      return { auth, headers, userId: created.user.id };
+    };
+
+    it("サーバーが署名付きCookieを検証して、ユーザーを返す", async () => {
+      const { auth, headers, userId } = await loginAs();
+      const session = await auth.api.getSession({ headers });
+      expect(session?.user.id).toBe(userId);
+    });
+
+    it("Cookieがない、または改ざんされていればセッションにならない", async () => {
+      const { auth, headers } = await loginAs();
+      expect(await auth.api.getSession({ headers: new Headers() })).toBeNull();
+      const forged = new Headers({ cookie: headers.get("cookie")!.replace(/=([^.;]+)\./, "=x.") });
+      expect(await auth.api.getSession({ headers: forged })).toBeNull();
+    });
   });
 });
