@@ -3,6 +3,7 @@ import { SearchX } from "lucide-react";
 import type { ReactNode } from "react";
 import { EmptyState } from "@/components/state/StateViews";
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function NotFound({ children }: { children?: ReactNode }) {
   return (
@@ -16,7 +17,7 @@ export function NotFound({ children }: { children?: ReactNode }) {
             : "指定された対象が存在しないか、アクセスできません。"
         }
         action={
-          <Link to="/" className={buttonVariants({ variant: "outline" })}>
+          <Link to="/" className={cn(buttonVariants({ variant: "outline" }))}>
             トップへ戻る
           </Link>
         }

@@ -1,4 +1,4 @@
-import { CalendarDays, GripVertical } from "lucide-react";
+import { CalendarDays, GripVertical, MessageSquare } from "lucide-react";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import type { Label, Task, User } from "@/api/generated/models";
 import { formatShortDate, isOverdue } from "@/domain/calendar-date";
@@ -71,9 +71,14 @@ export function TaskCard({
               ))}
             </ul>
           )}
+          <span className="ml-auto inline-flex shrink-0 items-center gap-1 text-[10.5px] text-subtle-foreground">
+            <MessageSquare className="size-3" aria-hidden />
+            <span className="sr-only">コメント</span>
+            {task.commentCount}
+          </span>
           <span
             className={cn(
-              "ml-auto inline-flex shrink-0 items-center gap-1 text-[10.5px] text-subtle-foreground",
+              "inline-flex shrink-0 items-center gap-1 text-[10.5px] text-subtle-foreground",
               overdue && "font-semibold text-danger",
             )}
           >

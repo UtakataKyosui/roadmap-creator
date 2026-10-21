@@ -37,7 +37,7 @@ export function AppShell({
           <span className="flex size-7 items-center justify-center rounded-[8px] bg-indigo text-white">
             <MapIcon aria-hidden className="size-4" />
           </span>
-          Roadmap Studio
+          <span className="hidden sm:inline">Roadmap Studio</span>
         </Link>
         <span aria-hidden className="h-5 w-px bg-border" />
         <nav aria-label="パンくず" className="min-w-0">
