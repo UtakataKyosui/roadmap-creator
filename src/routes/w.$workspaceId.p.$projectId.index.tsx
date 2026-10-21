@@ -1,6 +1,6 @@
 import { createFileRoute, getRouteApi } from "@tanstack/react-router";
 import { getListRoadmapsQueryOptions } from "@/api/generated/endpoints/roadmaps/roadmaps";
-import { AppHeader } from "@/components/layout/AppHeader";
+import { AppShell, PageHeader } from "@/components/layout/AppShell";
 import { RoadmapManager } from "@/components/roadmap/RoadmapManager";
 import { buildBreadcrumb } from "@/domain/breadcrumb";
 
@@ -22,11 +22,14 @@ function ProjectPage() {
   });
 
   return (
-    <>
-      <AppHeader trail={[workspaceName, projectName]} />
-      <main className="p-4">
+    <AppShell workspace={workspace} project={project} trail={[workspaceName, projectName]}>
+      <PageHeader
+        title="ロードマップ"
+        description={`${project.name}のロードマップを作成・名称変更します`}
+      />
+      <main className="p-6">
         <RoadmapManager workspaceId={workspaceId} projectId={projectId} />
       </main>
-    </>
+    </AppShell>
   );
 }
