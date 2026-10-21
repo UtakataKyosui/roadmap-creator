@@ -2,6 +2,10 @@
 
 +自分や知り合いが学習を行うためのRoadmapを作成するためのWebアプリケーション
 
+## Issue・PRの作成
+
+用途別テンプレートとPencil / MCPを使ったデザイン・実装の進め方は、[コントリビューションガイド](docs/contributing.md)を参照。
+
 ## バックエンドとローカル開発
 
 API サーバーは TanStack Start のサーバールート、DB は Cloudflare D1（Drizzle）。DB 選定の理由、ローカル起動、マイグレーション、seed の手順は [`docs/backend.md`](docs/backend.md) を参照。
