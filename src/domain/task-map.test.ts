@@ -23,7 +23,7 @@ const task = (id: string, status: Task["status"], sortOrder = "a0"): Task => ({
 });
 
 describe("マップの所属関係", () => {
-  test("全タスクを一度だけ表示し、線は所属するステータスだけを指す", () => {
+  test("全タスクを一度だけ表示し、線は中央のロードマップから直接つながる", () => {
     const tasks = [
       task("a", "done"),
       task("b", "todo"),
@@ -35,7 +35,7 @@ describe("マップの所属関係", () => {
     expect(new Set(graph.nodes.map((node) => node.id)).size).toBe(graph.nodes.length);
     for (const item of tasks) {
       expect(graph.edges.filter((edge) => edge.target === `task:${item.id}`)).toMatchObject([
-        { source: `status:${item.status}` },
+        { source: "summary" },
       ]);
     }
     expect(graph.edges.some((edge) => edge.source.startsWith("task:"))).toBe(false);
@@ -48,7 +48,7 @@ describe("マップの所属関係", () => {
     ).toBe(true);
   });
 
-  test("ボードと同じ表示順を使い、同じキーのタスクも安定して並べる", () => {
+  test("同じキーのタスクも安定して並べる", () => {
     const { nodes } = buildTaskMap(
       [task("c", "todo", "a1"), task("b", "todo"), task("a", "todo")],
       "計画",
@@ -58,6 +58,28 @@ describe("マップの所属関係", () => {
       "task:b",
       "task:c",
     ]);
+  });
+
+  test.each([7, 9, 22, 100])("%i件でも状態変更で列へ戻らず、周囲に重ならず分散する", (count) => {
+    const tasks = Array.from({ length: count }, (_, i) => task(String(i), "todo"));
+    const graph = buildTaskMap(tasks, "計画");
+    const changed = buildTaskMap(
+      tasks.map((item) => ({ ...item, status: "done" as const })),
+      "計画",
+    );
+    expect(changed.nodes.map((node) => node.position)).toEqual(
+      graph.nodes.map((node) => node.position),
+    );
+    const points = graph.nodes.slice(1).map((node) => node.position);
+    expect(points.some((p) => p.x < -140)).toBe(true);
+    expect(points.some((p) => p.x > 140)).toBe(true);
+    expect(points.some((p) => p.y < -70)).toBe(true);
+    expect(points.some((p) => p.y > 70)).toBe(true);
+    for (const a of points)
+      for (const b of points) {
+        if (a === b) continue;
+        expect(Math.abs(a.x - b.x) >= 272 || Math.abs(a.y - b.y) >= 180).toBe(true);
+      }
   });
 
   test("0件でも完了率の計算に使う件数が有限で、空の分類に架空タスクを作らない", () => {

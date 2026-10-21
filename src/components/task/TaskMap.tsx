@@ -19,7 +19,7 @@ import { EmptyState, ErrorState, LoadingState, Notice } from "@/components/state
 import { Button } from "@/components/ui/button";
 import { formatShortDate, isOverdue } from "@/domain/calendar-date";
 import { buildTaskMap, type RoadmapNode } from "@/domain/task-map";
-import { STATUS_ACCENT, STATUS_FILL, STATUS_LABEL, TASK_STATUSES } from "@/domain/task";
+import { STATUS_FILL, STATUS_LABEL, TASK_STATUSES } from "@/domain/task";
 import { useLocalToday } from "@/hooks/use-local-today";
 import { useWorkspaceOptions } from "@/hooks/use-workspace-options";
 import { cn } from "@/lib/utils";
@@ -57,20 +57,10 @@ function MapNode({ data }: NodeProps<RoadmapNode>) {
         <div className="mt-2 h-1 rounded-full bg-indigo-tint">
           <div className="h-full rounded-full bg-indigo" style={{ width: `${percent}%` }} />
         </div>
-        <Handle type="source" position={Position.Bottom} className={port} />
-      </div>
-    );
-  }
-  if (data.kind === "status") {
-    return (
-      <div className="flex h-12 w-[252px] items-center gap-2.5 rounded-md border bg-surface px-4 shadow-sm">
-        <Handle id="group" type="target" position={Position.Top} className={port} />
-        <span className={cn("size-2 rounded-full", STATUS_FILL[data.status])} />
-        <h2 className="text-xs font-bold">{data.title}</h2>
-        <span className="ml-auto rounded-full bg-surface-subtle px-2 text-[11px] text-muted-foreground">
-          {data.count}
-        </span>
-        <Handle id="tasks" type="source" position={Position.Left} className={port} />
+        <Handle id="top" type="source" position={Position.Top} className={port} />
+        <Handle id="right" type="source" position={Position.Right} className={port} />
+        <Handle id="bottom" type="source" position={Position.Bottom} className={port} />
+        <Handle id="left" type="source" position={Position.Left} className={port} />
       </div>
     );
   }
@@ -79,16 +69,24 @@ function MapNode({ data }: NodeProps<RoadmapNode>) {
   const assignee = task.assigneeId ? options.memberById.get(task.assigneeId) : undefined;
   const labels = options.labels.filter((label) => task.labelIds.includes(label.id));
   return (
-    <article
-      className={cn(
-        "w-[252px] rounded-md border border-l-[3px] bg-surface p-3.5 shadow-[0_2px_8px_#15181e08] transition-shadow hover:shadow-md",
-        STATUS_ACCENT[task.status],
-      )}
-    >
-      <Handle type="target" position={Position.Left} className={port} />
+    <article className="w-[252px] rounded-xl border border-border-strong bg-surface p-3.5 shadow-[0_2px_8px_#15181e08] transition-shadow hover:border-indigo/50 hover:shadow-md">
+      <Handle
+        type="target"
+        position={
+          data.side === "top"
+            ? Position.Top
+            : data.side === "bottom"
+              ? Position.Bottom
+              : data.side === "right"
+                ? Position.Right
+                : Position.Left
+        }
+        className={port}
+      />
       <div className="mb-2.5 flex items-center gap-2">
         <PriorityBadge priority={task.priority} />
         <span className="ml-auto flex items-center gap-1 text-[10px] text-subtle-foreground">
+          <span className={cn("size-1.5 rounded-full", STATUS_FILL[task.status])} />
           {task.status === "done" && <Check aria-hidden className="size-3 text-teal" />}
           {STATUS_LABEL[task.status]}
         </span>
@@ -259,7 +257,7 @@ export function TaskMap({
                     position="top-left"
                     className="!m-5 hidden rounded-md border bg-surface/95 px-3.5 py-2.5 shadow-sm sm:block"
                   >
-                    <p className="mb-2 text-[11px] font-semibold">ステータスで全体を整理</p>
+                    <p className="mb-2 text-[11px] font-semibold">ロードマップの全体像</p>
                     <div className="flex flex-wrap gap-3">
                       {TASK_STATUSES.map((status) => (
                         <span
@@ -288,7 +286,7 @@ export function TaskMap({
                     position="bottom-center"
                     className="pointer-events-none !mb-5 hidden rounded-full border bg-surface/95 px-4 py-2 text-[10px] text-muted-foreground lg:block"
                   >
-                    線は分類を表示 · ドラッグで配置 · 配置はこの画面内のみ
+                    線はロードマップへの所属 · 配置はこの画面内のみ
                   </Panel>
                 </ReactFlow>
               </div>
