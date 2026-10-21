@@ -9,13 +9,14 @@ export function Avatar({
   user?: Pick<User, "name" | "avatarUrl">;
   className?: string;
 }) {
-  const base = "inline-flex size-6 shrink-0 items-center justify-center rounded-full text-xs";
+  const base =
+    "inline-flex size-[22px] shrink-0 items-center justify-center rounded-full text-[10px]";
   if (!user) {
     return (
       <span
         role="img"
         aria-label="担当者未設定"
-        className={cn(base, "border border-dashed text-muted-foreground", className)}
+        className={cn(base, "border border-dashed border-border-strong", className)}
       />
     );
   }
@@ -28,7 +29,7 @@ export function Avatar({
     <span
       role="img"
       aria-label={user.name}
-      className={cn(base, "bg-secondary font-medium", className)}
+      className={cn(base, "bg-indigo font-semibold text-white", className)}
     >
       {Array.from(user.name)[0]}
     </span>
