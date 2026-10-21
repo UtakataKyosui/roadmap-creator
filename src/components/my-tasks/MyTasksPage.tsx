@@ -40,10 +40,15 @@ export function MyTasksPage({
   });
   const page = query.data?.status === 200 ? query.data.data : undefined;
   const filtered = hasActiveFilters(search);
+  const [text, setText] = useState(search.q ?? "");
+  useEffect(() => setText(search.q ?? ""), [search.q]);
 
   const update = (change: Parameters<typeof withFilter>[1]) =>
     navigate({ search: withFilter(search, change), replace: true });
-  const clear = () => navigate({ search: {}, replace: true });
+  const clear = () => {
+    setText("");
+    return navigate({ search: {}, replace: true });
+  };
   const goToPage = (next: number) =>
     navigate({ search: { ...search, page: next >= 2 ? next : undefined } });
 
@@ -70,7 +75,14 @@ export function MyTasksPage({
         </div>
         <div className="flex flex-col gap-4 p-6">
           <Summary summary={page?.summary} />
-          <Filters search={search} filtered={filtered} onChange={update} onClear={clear} />
+          <Filters
+            search={search}
+            text={text}
+            onTextChange={setText}
+            filtered={filtered}
+            onChange={update}
+            onClear={clear}
+          />
           <section aria-label="担当タスク一覧" aria-busy={query.isPlaceholderData}>
             {query.isPending ? (
               <LoadingState label="担当タスクを読み込み中…" />
@@ -139,19 +151,19 @@ function Summary({ summary }: { summary: MyTaskSummary | undefined }) {
 
 function Filters({
   search,
+  text,
+  onTextChange,
   filtered,
   onChange,
   onClear,
 }: {
   search: MyTasksSearch;
+  text: string;
+  onTextChange: (text: string) => void;
   filtered: boolean;
   onChange: (change: Parameters<typeof withFilter>[1]) => void;
   onClear: () => void;
 }) {
-  const [text, setText] = useState(search.q ?? "");
-  // 条件の解除や戻る操作でURLが変わったときに、入力欄を合わせる。
-  useEffect(() => setText(search.q ?? ""), [search.q]);
-
   return (
     <div className="flex flex-wrap items-end gap-3">
       <form
@@ -174,7 +186,7 @@ function Filters({
             maxLength={200}
             placeholder="タイトル・説明で検索"
             className={cn(fieldClass, "w-full pl-9")}
-            onChange={(event) => setText(event.target.value)}
+            onChange={(event) => onTextChange(event.target.value)}
           />
         </label>
         <Button type="submit" variant="outline" size="lg">
