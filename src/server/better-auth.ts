@@ -48,6 +48,7 @@ export const createAuth = (db: Db, config: AuthConfig, extraPlugins: BetterAuthP
             if (existing) {
               throw new APIError("BAD_REQUEST", {
                 message: "このメールアドレスは別のアカウントで使われています",
+                code: "email_already_used",
               });
             }
           },

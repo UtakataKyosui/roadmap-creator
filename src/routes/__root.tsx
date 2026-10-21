@@ -1,14 +1,24 @@
 /// <reference types="vite/client" />
-import { HeadContent, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
+import { HeadContent, Scripts, createRootRouteWithContext, redirect } from "@tanstack/react-router";
 import type { QueryClient } from "@tanstack/react-query";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import * as React from "react";
+import { sessionQueryOptions } from "@/api/session";
 import { DefaultCatchBoundary } from "@/components/DefaultCatchBoundary";
 import { NotFound } from "@/components/NotFound";
+import { safeRedirect } from "@/domain/auth-redirect";
 import appCss from "@/styles/app.css?url";
 import { seo } from "@/utils/seo";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  // セッションはサーバーで検証する。未ログインならログイン画面へ送り、戻り先を同じオリジンの相対パスで渡す。
+  beforeLoad: async ({ context: { queryClient }, location }) => {
+    const user = await queryClient.ensureQueryData(sessionQueryOptions());
+    if (!user && location.pathname !== "/login") {
+      throw redirect({ to: "/login", search: { redirect: safeRedirect(location.href) } });
+    }
+    return { user };
+  },
   head: () => ({
     meta: [
       {

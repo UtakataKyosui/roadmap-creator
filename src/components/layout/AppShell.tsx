@@ -1,14 +1,20 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouteContext, useRouter } from "@tanstack/react-router";
 import {
   ChartGantt,
   ChevronRight,
   GitBranch,
   LayoutList,
+  LogOut,
   Map as MapIcon,
   SquareKanban,
 } from "lucide-react";
-import { Fragment, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Fragment, useState, type ReactNode } from "react";
+import { authClient } from "@/api/auth-client";
+import { clearUserCache } from "@/api/cache";
 import { useListRoadmaps } from "@/api/generated/endpoints/roadmaps/roadmaps";
+import { Avatar } from "@/components/task/Avatar";
+import { Button } from "@/components/ui/button";
 import type { View } from "@/domain/breadcrumb";
 import { cn } from "@/lib/utils";
 
@@ -65,11 +71,52 @@ export function AppShell({
             })}
           </ol>
         </nav>
+        <UserMenu />
       </header>
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
         <Sidebar workspace={workspace} project={project} roadmap={roadmap} view={view} />
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto">{children}</div>
       </div>
+    </div>
+  );
+}
+
+// ログイン中の利用者とログアウト。ログアウト後は利用者のキャッシュを破棄してログイン画面へ戻る。
+function UserMenu() {
+  const { user } = useRouteContext({ from: "__root__" });
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [failed, setFailed] = useState(false);
+  if (!user) return null;
+
+  const signOut = async () => {
+    setPending(true);
+    setFailed(false);
+    try {
+      await authClient.signOut();
+      clearUserCache(queryClient);
+      await router.navigate({ to: "/login", replace: true });
+    } catch {
+      setFailed(true);
+    } finally {
+      setPending(false);
+    }
+  };
+
+  return (
+    <div className="ml-auto flex shrink-0 items-center gap-2">
+      {failed && (
+        <span role="alert" className="text-xs text-danger">
+          ログアウトできませんでした
+        </span>
+      )}
+      <Avatar user={user} />
+      <span className="hidden max-w-40 truncate text-xs md:inline">{user.name}</span>
+      <Button variant="ghost" size="sm" disabled={pending} onClick={signOut}>
+        <LogOut aria-hidden />
+        ログアウト
+      </Button>
     </div>
   );
 }
