@@ -4,6 +4,7 @@ import {
   ChevronRight,
   GitBranch,
   LayoutList,
+  ListChecks,
   LogOut,
   Map as MapIcon,
   SquareKanban,
@@ -45,39 +46,54 @@ export function AppShell({
 }) {
   return (
     <div className="flex h-dvh flex-col">
-      <header className="flex h-14 shrink-0 items-center gap-3 border-b bg-surface px-5">
-        <Link to="/" className="flex items-center gap-3 text-[15px] font-semibold">
-          <span className="flex size-7 items-center justify-center rounded-[8px] bg-indigo text-white">
-            <MapIcon aria-hidden className="size-4" />
-          </span>
-          <span className="hidden sm:inline">Roadmap Studio</span>
-        </Link>
-        <span aria-hidden className="h-5 w-px bg-border" />
-        <nav aria-label="パンくず" className="min-w-0">
-          <ol className="flex items-center gap-1.5 text-xs text-subtle-foreground">
-            {trail.map((item, index) => {
-              const current = index === trail.length - 1;
-              return (
-                <Fragment key={index}>
-                  {index > 0 && <ChevronRight aria-hidden className="size-3 shrink-0" />}
-                  <li
-                    aria-current={current ? "page" : undefined}
-                    className={cn("truncate", current && "font-semibold text-foreground")}
-                  >
-                    {item}
-                  </li>
-                </Fragment>
-              );
-            })}
-          </ol>
-        </nav>
-        <UserMenu />
-      </header>
+      <AppHeader trail={trail} />
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
         <Sidebar workspace={workspace} project={project} roadmap={roadmap} view={view} />
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto">{children}</div>
       </div>
     </div>
+  );
+}
+
+// 上部バー（ロゴ・パンくず・マイタスクへの導線・ログイン中の利用者）。
+export function AppHeader({ trail }: { trail: ReactNode[] }) {
+  return (
+    <header className="flex h-14 shrink-0 items-center gap-3 border-b bg-surface px-5">
+      <Link to="/" className="flex items-center gap-3 text-[15px] font-semibold">
+        <span className="flex size-7 items-center justify-center rounded-[8px] bg-indigo text-white">
+          <MapIcon aria-hidden className="size-4" />
+        </span>
+        <span className="hidden sm:inline">Roadmap Studio</span>
+      </Link>
+      <span aria-hidden className="h-5 w-px bg-border" />
+      <nav aria-label="パンくず" className="min-w-0">
+        <ol className="flex items-center gap-1.5 text-xs text-subtle-foreground">
+          {trail.map((item, index) => {
+            const current = index === trail.length - 1;
+            return (
+              <Fragment key={index}>
+                {index > 0 && <ChevronRight aria-hidden className="size-3 shrink-0" />}
+                <li
+                  aria-current={current ? "page" : undefined}
+                  className={cn("truncate", current && "font-semibold text-foreground")}
+                >
+                  {item}
+                </li>
+              </Fragment>
+            );
+          })}
+        </ol>
+      </nav>
+      <Link
+        to="/my-tasks"
+        className="ml-auto flex h-8 shrink-0 items-center gap-1.5 rounded-sm px-2 text-xs text-muted-foreground hover:bg-surface-subtle [&_svg]:size-4"
+        activeProps={{ className: "bg-indigo-tint font-semibold text-indigo" }}
+      >
+        <ListChecks aria-hidden />
+        <span className="hidden sm:inline">マイタスク</span>
+      </Link>
+      <UserMenu />
+    </header>
   );
 }
 
@@ -105,7 +121,7 @@ function UserMenu() {
   };
 
   return (
-    <div className="ml-auto flex shrink-0 items-center gap-2">
+    <div className="flex shrink-0 items-center gap-2">
       {failed && (
         <span role="alert" className="text-xs text-danger">
           ログアウトできませんでした
