@@ -193,3 +193,79 @@ export const comments = sqliteTable(
   },
   (t) => [index("comments_task_idx").on(t.taskId)],
 );
+
+// 以下はBetter Authが管理する認証テーブル。アプリのusersとは別に持ち、日時はBetter Authが扱うDate（ミリ秒）で保存する。
+// アプリのusersには、同じIDでプロフィールを作る（src/server/auth.ts）。
+const authTimestamps = {
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+};
+
+export const authUsers = sqliteTable(
+  "auth_users",
+  {
+    id: id(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    emailVerified: integer("email_verified", { mode: "boolean" }).notNull().default(false),
+    image: text("image"),
+    ...authTimestamps,
+  },
+  (t) => [uniqueIndex("auth_users_email_unique").on(t.email)],
+);
+
+export const authSessions = sqliteTable(
+  "auth_sessions",
+  {
+    id: id(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => authUsers.id, { onDelete: "cascade" }),
+    token: text("token").notNull(),
+    expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    ...authTimestamps,
+  },
+  (t) => [
+    uniqueIndex("auth_sessions_token_unique").on(t.token),
+    index("auth_sessions_user_idx").on(t.userId),
+  ],
+);
+
+export const authAccounts = sqliteTable(
+  "auth_accounts",
+  {
+    id: id(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => authUsers.id, { onDelete: "cascade" }),
+    providerId: text("provider_id").notNull(),
+    accountId: text("account_id").notNull(),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: integer("access_token_expires_at", { mode: "timestamp_ms" }),
+    refreshTokenExpiresAt: integer("refresh_token_expires_at", { mode: "timestamp_ms" }),
+    scope: text("scope"),
+    password: text("password"),
+    ...authTimestamps,
+  },
+  (t) => [
+    // 同じGoogle主体の並行ログインでも、認証ユーザーを重複して作らない。
+    uniqueIndex("auth_accounts_provider_account_unique").on(t.providerId, t.accountId),
+    index("auth_accounts_user_idx").on(t.userId),
+  ],
+);
+
+export const authVerifications = sqliteTable(
+  "auth_verifications",
+  {
+    id: id(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+    ...authTimestamps,
+  },
+  (t) => [index("auth_verifications_identifier_idx").on(t.identifier)],
+);
