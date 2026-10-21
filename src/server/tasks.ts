@@ -28,7 +28,7 @@ const MAX_LABELS = 50;
 // 単一テーブルのselectではDrizzleが列名の修飾を外すため、サブクエリ内の外側の列は修飾付きで書く。
 const outerTaskId = sql.raw('"tasks"."id"');
 
-const taskColumns = {
+export const taskColumns = {
   ...getTableColumns(tasks),
   labelIds:
     sql<string>`(select coalesce(json_group_array(label_id), '[]') from (select ${taskLabels.labelId} as label_id from ${taskLabels} where ${taskLabels.taskId} = ${outerTaskId} order by ${taskLabels.labelId}))`.mapWith(
