@@ -14,13 +14,18 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as MyTasksRouteImport } from './routes/my-tasks'
 import { Route as ApiWorkspacesRouteImport } from './routes/api/workspaces'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
+import { Route as ApiInvitationsTokenRouteImport } from './routes/api/invitations.$token'
 import { Route as ApiMeTasksRouteImport } from './routes/api/me.tasks'
+import { Route as ApiInvitationsTokenAcceptRouteImport } from './routes/api/invitations.$token.accept'
+import { Route as ApiWorkspacesWorkspaceIdInvitationsRouteImport } from './routes/api/workspaces.$workspaceId.invitations'
 import { Route as ApiWorkspacesWorkspaceIdLabelsRouteImport } from './routes/api/workspaces.$workspaceId.labels'
 import { Route as ApiWorkspacesWorkspaceIdMembersRouteImport } from './routes/api/workspaces.$workspaceId.members'
 import { Route as ApiWorkspacesWorkspaceIdProjectsRouteImport } from './routes/api/workspaces.$workspaceId.projects'
 import { Route as WWorkspaceIdPProjectIdRouteImport } from './routes/w.$workspaceId.p.$projectId'
+import { Route as ApiWorkspacesWorkspaceIdInvitationsInvitationIdRouteImport } from './routes/api/workspaces.$workspaceId.invitations.$invitationId'
 import { Route as ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteImport } from './routes/api/workspaces.$workspaceId.roadmaps.$roadmapId'
 import { Route as WWorkspaceIdPProjectIdIndexRouteImport } from './routes/w.$workspaceId.p.$projectId.index'
+import { Route as ApiWorkspacesWorkspaceIdInvitationsInvitationIdResendRouteImport } from './routes/api/workspaces.$workspaceId.invitations.$invitationId.resend'
 import { Route as ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRouteImport } from './routes/api/workspaces.$workspaceId.projects.$projectId.roadmaps'
 import { Route as ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRouteImport } from './routes/api/workspaces.$workspaceId.roadmaps.$roadmapId.tasks'
 import { Route as WWorkspaceIdPProjectIdRRoadmapIdRouteImport } from './routes/w.$workspaceId.p.$projectId.r.$roadmapId'
@@ -54,11 +59,28 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiInvitationsTokenRoute = ApiInvitationsTokenRouteImport.update({
+  id: '/api/invitations/$token',
+  path: '/api/invitations/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMeTasksRoute = ApiMeTasksRouteImport.update({
   id: '/api/me/tasks',
   path: '/api/me/tasks',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiInvitationsTokenAcceptRoute =
+  ApiInvitationsTokenAcceptRouteImport.update({
+    id: '/accept',
+    path: '/accept',
+    getParentRoute: () => ApiInvitationsTokenRoute,
+  } as any)
+const ApiWorkspacesWorkspaceIdInvitationsRoute =
+  ApiWorkspacesWorkspaceIdInvitationsRouteImport.update({
+    id: '/$workspaceId/invitations',
+    path: '/$workspaceId/invitations',
+    getParentRoute: () => ApiWorkspacesRoute,
+  } as any)
 const ApiWorkspacesWorkspaceIdLabelsRoute =
   ApiWorkspacesWorkspaceIdLabelsRouteImport.update({
     id: '/$workspaceId/labels',
@@ -82,6 +104,12 @@ const WWorkspaceIdPProjectIdRoute = WWorkspaceIdPProjectIdRouteImport.update({
   path: '/w/$workspaceId/p/$projectId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWorkspacesWorkspaceIdInvitationsInvitationIdRoute =
+  ApiWorkspacesWorkspaceIdInvitationsInvitationIdRouteImport.update({
+    id: '/$invitationId',
+    path: '/$invitationId',
+    getParentRoute: () => ApiWorkspacesWorkspaceIdInvitationsRoute,
+  } as any)
 const ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRoute =
   ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteImport.update({
     id: '/$workspaceId/roadmaps/$roadmapId',
@@ -93,6 +121,12 @@ const WWorkspaceIdPProjectIdIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => WWorkspaceIdPProjectIdRoute,
+  } as any)
+const ApiWorkspacesWorkspaceIdInvitationsInvitationIdResendRoute =
+  ApiWorkspacesWorkspaceIdInvitationsInvitationIdResendRouteImport.update({
+    id: '/resend',
+    path: '/resend',
+    getParentRoute: () => ApiWorkspacesWorkspaceIdInvitationsInvitationIdRoute,
   } as any)
 const ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute =
   ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRouteImport.update({
@@ -143,13 +177,18 @@ export interface FileRoutesByFullPath {
   '/my-tasks': typeof MyTasksRoute
   '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/invitations/$token': typeof ApiInvitationsTokenRouteWithChildren
   '/api/me/tasks': typeof ApiMeTasksRoute
+  '/api/invitations/$token/accept': typeof ApiInvitationsTokenAcceptRoute
+  '/api/workspaces/$workspaceId/invitations': typeof ApiWorkspacesWorkspaceIdInvitationsRouteWithChildren
   '/api/workspaces/$workspaceId/labels': typeof ApiWorkspacesWorkspaceIdLabelsRoute
   '/api/workspaces/$workspaceId/members': typeof ApiWorkspacesWorkspaceIdMembersRoute
   '/api/workspaces/$workspaceId/projects': typeof ApiWorkspacesWorkspaceIdProjectsRouteWithChildren
   '/w/$workspaceId/p/$projectId': typeof WWorkspaceIdPProjectIdRouteWithChildren
+  '/api/workspaces/$workspaceId/invitations/$invitationId': typeof ApiWorkspacesWorkspaceIdInvitationsInvitationIdRouteWithChildren
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteWithChildren
   '/w/$workspaceId/p/$projectId/': typeof WWorkspaceIdPProjectIdIndexRoute
+  '/api/workspaces/$workspaceId/invitations/$invitationId/resend': typeof ApiWorkspacesWorkspaceIdInvitationsInvitationIdResendRoute
   '/api/workspaces/$workspaceId/projects/$projectId/roadmaps': typeof ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRouteWithChildren
   '/w/$workspaceId/p/$projectId/r/$roadmapId': typeof WWorkspaceIdPProjectIdRRoadmapIdRouteWithChildren
@@ -164,12 +203,17 @@ export interface FileRoutesByTo {
   '/my-tasks': typeof MyTasksRoute
   '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/invitations/$token': typeof ApiInvitationsTokenRouteWithChildren
   '/api/me/tasks': typeof ApiMeTasksRoute
+  '/api/invitations/$token/accept': typeof ApiInvitationsTokenAcceptRoute
+  '/api/workspaces/$workspaceId/invitations': typeof ApiWorkspacesWorkspaceIdInvitationsRouteWithChildren
   '/api/workspaces/$workspaceId/labels': typeof ApiWorkspacesWorkspaceIdLabelsRoute
   '/api/workspaces/$workspaceId/members': typeof ApiWorkspacesWorkspaceIdMembersRoute
   '/api/workspaces/$workspaceId/projects': typeof ApiWorkspacesWorkspaceIdProjectsRouteWithChildren
+  '/api/workspaces/$workspaceId/invitations/$invitationId': typeof ApiWorkspacesWorkspaceIdInvitationsInvitationIdRouteWithChildren
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteWithChildren
   '/w/$workspaceId/p/$projectId': typeof WWorkspaceIdPProjectIdIndexRoute
+  '/api/workspaces/$workspaceId/invitations/$invitationId/resend': typeof ApiWorkspacesWorkspaceIdInvitationsInvitationIdResendRoute
   '/api/workspaces/$workspaceId/projects/$projectId/roadmaps': typeof ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRouteWithChildren
   '/w/$workspaceId/p/$projectId/r/$roadmapId': typeof WWorkspaceIdPProjectIdRRoadmapIdRouteWithChildren
@@ -185,13 +229,18 @@ export interface FileRoutesById {
   '/my-tasks': typeof MyTasksRoute
   '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/invitations/$token': typeof ApiInvitationsTokenRouteWithChildren
   '/api/me/tasks': typeof ApiMeTasksRoute
+  '/api/invitations/$token/accept': typeof ApiInvitationsTokenAcceptRoute
+  '/api/workspaces/$workspaceId/invitations': typeof ApiWorkspacesWorkspaceIdInvitationsRouteWithChildren
   '/api/workspaces/$workspaceId/labels': typeof ApiWorkspacesWorkspaceIdLabelsRoute
   '/api/workspaces/$workspaceId/members': typeof ApiWorkspacesWorkspaceIdMembersRoute
   '/api/workspaces/$workspaceId/projects': typeof ApiWorkspacesWorkspaceIdProjectsRouteWithChildren
   '/w/$workspaceId/p/$projectId': typeof WWorkspaceIdPProjectIdRouteWithChildren
+  '/api/workspaces/$workspaceId/invitations/$invitationId': typeof ApiWorkspacesWorkspaceIdInvitationsInvitationIdRouteWithChildren
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteWithChildren
   '/w/$workspaceId/p/$projectId/': typeof WWorkspaceIdPProjectIdIndexRoute
+  '/api/workspaces/$workspaceId/invitations/$invitationId/resend': typeof ApiWorkspacesWorkspaceIdInvitationsInvitationIdResendRoute
   '/api/workspaces/$workspaceId/projects/$projectId/roadmaps': typeof ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute
   '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks': typeof ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdTasksRouteWithChildren
   '/w/$workspaceId/p/$projectId/r/$roadmapId': typeof WWorkspaceIdPProjectIdRRoadmapIdRouteWithChildren
@@ -208,13 +257,18 @@ export interface FileRouteTypes {
     | '/my-tasks'
     | '/api/workspaces'
     | '/api/auth/$'
+    | '/api/invitations/$token'
     | '/api/me/tasks'
+    | '/api/invitations/$token/accept'
+    | '/api/workspaces/$workspaceId/invitations'
     | '/api/workspaces/$workspaceId/labels'
     | '/api/workspaces/$workspaceId/members'
     | '/api/workspaces/$workspaceId/projects'
     | '/w/$workspaceId/p/$projectId'
+    | '/api/workspaces/$workspaceId/invitations/$invitationId'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId'
     | '/w/$workspaceId/p/$projectId/'
+    | '/api/workspaces/$workspaceId/invitations/$invitationId/resend'
     | '/api/workspaces/$workspaceId/projects/$projectId/roadmaps'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks'
     | '/w/$workspaceId/p/$projectId/r/$roadmapId'
@@ -229,12 +283,17 @@ export interface FileRouteTypes {
     | '/my-tasks'
     | '/api/workspaces'
     | '/api/auth/$'
+    | '/api/invitations/$token'
     | '/api/me/tasks'
+    | '/api/invitations/$token/accept'
+    | '/api/workspaces/$workspaceId/invitations'
     | '/api/workspaces/$workspaceId/labels'
     | '/api/workspaces/$workspaceId/members'
     | '/api/workspaces/$workspaceId/projects'
+    | '/api/workspaces/$workspaceId/invitations/$invitationId'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId'
     | '/w/$workspaceId/p/$projectId'
+    | '/api/workspaces/$workspaceId/invitations/$invitationId/resend'
     | '/api/workspaces/$workspaceId/projects/$projectId/roadmaps'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks'
     | '/w/$workspaceId/p/$projectId/r/$roadmapId'
@@ -249,13 +308,18 @@ export interface FileRouteTypes {
     | '/my-tasks'
     | '/api/workspaces'
     | '/api/auth/$'
+    | '/api/invitations/$token'
     | '/api/me/tasks'
+    | '/api/invitations/$token/accept'
+    | '/api/workspaces/$workspaceId/invitations'
     | '/api/workspaces/$workspaceId/labels'
     | '/api/workspaces/$workspaceId/members'
     | '/api/workspaces/$workspaceId/projects'
     | '/w/$workspaceId/p/$projectId'
+    | '/api/workspaces/$workspaceId/invitations/$invitationId'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId'
     | '/w/$workspaceId/p/$projectId/'
+    | '/api/workspaces/$workspaceId/invitations/$invitationId/resend'
     | '/api/workspaces/$workspaceId/projects/$projectId/roadmaps'
     | '/api/workspaces/$workspaceId/roadmaps/$roadmapId/tasks'
     | '/w/$workspaceId/p/$projectId/r/$roadmapId'
@@ -271,6 +335,7 @@ export interface RootRouteChildren {
   MyTasksRoute: typeof MyTasksRoute
   ApiWorkspacesRoute: typeof ApiWorkspacesRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiInvitationsTokenRoute: typeof ApiInvitationsTokenRouteWithChildren
   ApiMeTasksRoute: typeof ApiMeTasksRoute
   WWorkspaceIdPProjectIdRoute: typeof WWorkspaceIdPProjectIdRouteWithChildren
 }
@@ -312,12 +377,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/invitations/$token': {
+      id: '/api/invitations/$token'
+      path: '/api/invitations/$token'
+      fullPath: '/api/invitations/$token'
+      preLoaderRoute: typeof ApiInvitationsTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/me/tasks': {
       id: '/api/me/tasks'
       path: '/api/me/tasks'
       fullPath: '/api/me/tasks'
       preLoaderRoute: typeof ApiMeTasksRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/invitations/$token/accept': {
+      id: '/api/invitations/$token/accept'
+      path: '/accept'
+      fullPath: '/api/invitations/$token/accept'
+      preLoaderRoute: typeof ApiInvitationsTokenAcceptRouteImport
+      parentRoute: typeof ApiInvitationsTokenRoute
+    }
+    '/api/workspaces/$workspaceId/invitations': {
+      id: '/api/workspaces/$workspaceId/invitations'
+      path: '/$workspaceId/invitations'
+      fullPath: '/api/workspaces/$workspaceId/invitations'
+      preLoaderRoute: typeof ApiWorkspacesWorkspaceIdInvitationsRouteImport
+      parentRoute: typeof ApiWorkspacesRoute
     }
     '/api/workspaces/$workspaceId/labels': {
       id: '/api/workspaces/$workspaceId/labels'
@@ -347,6 +433,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WWorkspaceIdPProjectIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/workspaces/$workspaceId/invitations/$invitationId': {
+      id: '/api/workspaces/$workspaceId/invitations/$invitationId'
+      path: '/$invitationId'
+      fullPath: '/api/workspaces/$workspaceId/invitations/$invitationId'
+      preLoaderRoute: typeof ApiWorkspacesWorkspaceIdInvitationsInvitationIdRouteImport
+      parentRoute: typeof ApiWorkspacesWorkspaceIdInvitationsRoute
+    }
     '/api/workspaces/$workspaceId/roadmaps/$roadmapId': {
       id: '/api/workspaces/$workspaceId/roadmaps/$roadmapId'
       path: '/$workspaceId/roadmaps/$roadmapId'
@@ -360,6 +453,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/w/$workspaceId/p/$projectId/'
       preLoaderRoute: typeof WWorkspaceIdPProjectIdIndexRouteImport
       parentRoute: typeof WWorkspaceIdPProjectIdRoute
+    }
+    '/api/workspaces/$workspaceId/invitations/$invitationId/resend': {
+      id: '/api/workspaces/$workspaceId/invitations/$invitationId/resend'
+      path: '/resend'
+      fullPath: '/api/workspaces/$workspaceId/invitations/$invitationId/resend'
+      preLoaderRoute: typeof ApiWorkspacesWorkspaceIdInvitationsInvitationIdResendRouteImport
+      parentRoute: typeof ApiWorkspacesWorkspaceIdInvitationsInvitationIdRoute
     }
     '/api/workspaces/$workspaceId/projects/$projectId/roadmaps': {
       id: '/api/workspaces/$workspaceId/projects/$projectId/roadmaps'
@@ -413,6 +513,36 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ApiWorkspacesWorkspaceIdInvitationsInvitationIdRouteChildren {
+  ApiWorkspacesWorkspaceIdInvitationsInvitationIdResendRoute: typeof ApiWorkspacesWorkspaceIdInvitationsInvitationIdResendRoute
+}
+
+const ApiWorkspacesWorkspaceIdInvitationsInvitationIdRouteChildren: ApiWorkspacesWorkspaceIdInvitationsInvitationIdRouteChildren =
+  {
+    ApiWorkspacesWorkspaceIdInvitationsInvitationIdResendRoute:
+      ApiWorkspacesWorkspaceIdInvitationsInvitationIdResendRoute,
+  }
+
+const ApiWorkspacesWorkspaceIdInvitationsInvitationIdRouteWithChildren =
+  ApiWorkspacesWorkspaceIdInvitationsInvitationIdRoute._addFileChildren(
+    ApiWorkspacesWorkspaceIdInvitationsInvitationIdRouteChildren,
+  )
+
+interface ApiWorkspacesWorkspaceIdInvitationsRouteChildren {
+  ApiWorkspacesWorkspaceIdInvitationsInvitationIdRoute: typeof ApiWorkspacesWorkspaceIdInvitationsInvitationIdRouteWithChildren
+}
+
+const ApiWorkspacesWorkspaceIdInvitationsRouteChildren: ApiWorkspacesWorkspaceIdInvitationsRouteChildren =
+  {
+    ApiWorkspacesWorkspaceIdInvitationsInvitationIdRoute:
+      ApiWorkspacesWorkspaceIdInvitationsInvitationIdRouteWithChildren,
+  }
+
+const ApiWorkspacesWorkspaceIdInvitationsRouteWithChildren =
+  ApiWorkspacesWorkspaceIdInvitationsRoute._addFileChildren(
+    ApiWorkspacesWorkspaceIdInvitationsRouteChildren,
+  )
+
 interface ApiWorkspacesWorkspaceIdProjectsRouteChildren {
   ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute: typeof ApiWorkspacesWorkspaceIdProjectsProjectIdRoadmapsRoute
 }
@@ -459,6 +589,7 @@ const ApiWorkspacesWorkspaceIdRoadmapsRoadmapIdRouteWithChildren =
   )
 
 interface ApiWorkspacesRouteChildren {
+  ApiWorkspacesWorkspaceIdInvitationsRoute: typeof ApiWorkspacesWorkspaceIdInvitationsRouteWithChildren
   ApiWorkspacesWorkspaceIdLabelsRoute: typeof ApiWorkspacesWorkspaceIdLabelsRoute
   ApiWorkspacesWorkspaceIdMembersRoute: typeof ApiWorkspacesWorkspaceIdMembersRoute
   ApiWorkspacesWorkspaceIdProjectsRoute: typeof ApiWorkspacesWorkspaceIdProjectsRouteWithChildren
@@ -466,6 +597,8 @@ interface ApiWorkspacesRouteChildren {
 }
 
 const ApiWorkspacesRouteChildren: ApiWorkspacesRouteChildren = {
+  ApiWorkspacesWorkspaceIdInvitationsRoute:
+    ApiWorkspacesWorkspaceIdInvitationsRouteWithChildren,
   ApiWorkspacesWorkspaceIdLabelsRoute: ApiWorkspacesWorkspaceIdLabelsRoute,
   ApiWorkspacesWorkspaceIdMembersRoute: ApiWorkspacesWorkspaceIdMembersRoute,
   ApiWorkspacesWorkspaceIdProjectsRoute:
@@ -477,6 +610,17 @@ const ApiWorkspacesRouteChildren: ApiWorkspacesRouteChildren = {
 const ApiWorkspacesRouteWithChildren = ApiWorkspacesRoute._addFileChildren(
   ApiWorkspacesRouteChildren,
 )
+
+interface ApiInvitationsTokenRouteChildren {
+  ApiInvitationsTokenAcceptRoute: typeof ApiInvitationsTokenAcceptRoute
+}
+
+const ApiInvitationsTokenRouteChildren: ApiInvitationsTokenRouteChildren = {
+  ApiInvitationsTokenAcceptRoute: ApiInvitationsTokenAcceptRoute,
+}
+
+const ApiInvitationsTokenRouteWithChildren =
+  ApiInvitationsTokenRoute._addFileChildren(ApiInvitationsTokenRouteChildren)
 
 interface WWorkspaceIdPProjectIdRRoadmapIdRouteChildren {
   WWorkspaceIdPProjectIdRRoadmapIdBoardRoute: typeof WWorkspaceIdPProjectIdRRoadmapIdBoardRoute
@@ -522,6 +666,7 @@ const rootRouteChildren: RootRouteChildren = {
   MyTasksRoute: MyTasksRoute,
   ApiWorkspacesRoute: ApiWorkspacesRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiInvitationsTokenRoute: ApiInvitationsTokenRouteWithChildren,
   ApiMeTasksRoute: ApiMeTasksRoute,
   WWorkspaceIdPProjectIdRoute: WWorkspaceIdPProjectIdRouteWithChildren,
 }

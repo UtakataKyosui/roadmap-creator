@@ -16,6 +16,8 @@ tags:
     description: ロードマップに属するタスク。ボードとタイムラインが共有する。
   - name: Labels
     description: Workspaceに属するラベル。
+  - name: Invitations
+    description: Workspaceへのメンバー招待。招待の管理はowner/adminだけが行い、受諾は招待先本人が行う。
   - name: MyTasks
     description: ログイン中のユーザーが担当するタスク（マイタスク）。
 security:
@@ -118,6 +120,163 @@ paths:
                 $ref: "#/components/schemas/MyTaskPage"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /workspaces/{workspaceId}/invitations:
+    get:
+      operationId: listInvitations
+      summary: Workspaceの招待一覧（招待中・受諾済み・取消・期限切れ）
+      description: owner/adminだけが取得できる。新しい順。
+      tags: [Invitations]
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Invitation"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      operationId: createInvitation
+      summary: メールアドレス宛にWorkspaceへの招待を送る
+      description: |
+        owner/adminだけが行える。有効期限は7日。
+        既にメンバーのメールアドレス、既に招待中のメールアドレスは422。期限切れの招待が残っている場合は、取り消して新しい招待を作る。
+        応答のinviteUrlは作成時だけ得られる。メール送信に失敗した場合も招待は作成され、inviteUrlを共有できる。
+      tags: [Invitations]
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvitationCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvitationIssued"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /workspaces/{workspaceId}/invitations/{invitationId}:
+    delete:
+      operationId: revokeInvitation
+      summary: 招待中の招待を取り消す
+      description: 招待中の招待だけを取り消せる。取り消し済みなら何もせず204。受諾済み・期限切れは422。
+      tags: [Invitations]
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/InvitationId"
+      responses:
+        "204":
+          description: No Content
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /workspaces/{workspaceId}/invitations/{invitationId}/resend:
+    post:
+      operationId: resendInvitation
+      summary: 招待を再送する
+      description: 招待中または期限切れの招待に対し、新しいinviteUrlを発行して有効期限を7日に延ばし、メールを再送する。以前のinviteUrlは使えなくなる。
+      tags: [Invitations]
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/InvitationId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvitationIssued"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /invitations/{token}:
+    get:
+      operationId: getInvitationPreview
+      summary: 招待の概要を取得する（受諾画面用）
+      description: ログイン中のユーザーが、招待URLのトークンから招待の概要を確認する。招待先のメールアドレスは返さず、本人かどうかだけをemailMatchesで返す。
+      tags: [Invitations]
+      parameters:
+        - $ref: "#/components/parameters/InvitationToken"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvitationPreview"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /invitations/{token}/accept:
+    post:
+      operationId: acceptInvitation
+      summary: 招待を受諾してWorkspaceに参加する
+      description: |
+        招待先のメールアドレスと、ログイン中のGoogleアカウントのメールアドレスが一致する場合だけ参加できる。一致しなければ403。
+        受諾済みの同じ招待を同じユーザーが再度受諾しても、Membershipは重複せず成功する。
+        取り消された・期限切れの招待は422で、detailsに理由を返す。
+      tags: [Invitations]
+      parameters:
+        - $ref: "#/components/parameters/InvitationToken"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvitationAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/ValidationFailed"
         "500":
@@ -503,6 +662,21 @@ components:
       required: true
       schema:
         $ref: "#/components/schemas/Id"
+    InvitationId:
+      name: invitationId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Id"
+    InvitationToken:
+      name: token
+      in: path
+      required: true
+      description: 招待URLに含まれる、推測できないトークン。
+      schema:
+        type: string
+        minLength: 20
+        maxLength: 100
     ProjectId:
       name: projectId
       in: path
@@ -1006,6 +1180,84 @@ components:
           description: 条件に一致するタスクの総数。
         summary:
           $ref: "#/components/schemas/MyTaskSummary"
+    InvitationRole:
+      type: string
+      enum: [admin, member]
+      description: 招待できるのはadminとmember。ownerは招待で付与しない。
+    InvitationStatus:
+      type: string
+      enum: [pending, accepted, revoked, expired]
+      description: 表示名は pending=招待中、accepted=参加済み、revoked=取消、expired=期限切れ。
+    Invitation:
+      type: object
+      description: 招待のトークンは保存・返却しない（ハッシュだけを保存する）。
+      required: [id, workspaceId, email, role, status, expiresAt, invitedBy, createdAt]
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        workspaceId:
+          $ref: "#/components/schemas/Id"
+        email:
+          type: string
+          format: email
+        role:
+          $ref: "#/components/schemas/InvitationRole"
+        status:
+          $ref: "#/components/schemas/InvitationStatus"
+        expiresAt:
+          $ref: "#/components/schemas/Timestamp"
+        invitedBy:
+          $ref: "#/components/schemas/Id"
+        createdAt:
+          $ref: "#/components/schemas/Timestamp"
+        acceptedAt:
+          oneOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - type: "null"
+    InvitationCreate:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        role:
+          $ref: "#/components/schemas/InvitationRole"
+    InvitationIssued:
+      type: object
+      description: 作成・再送の応答。inviteUrlはこのときだけ得られ、受諾画面のURL（相対パス）を含む。
+      required: [invitation, inviteUrl, emailSent]
+      properties:
+        invitation:
+          $ref: "#/components/schemas/Invitation"
+        inviteUrl:
+          type: string
+        emailSent:
+          type: boolean
+          description: 招待メールの送信に成功したか。falseでもinviteUrlを共有すれば受諾できる。
+    InvitationPreview:
+      type: object
+      required: [workspaceName, status, expiresAt, emailMatches]
+      properties:
+        workspaceName:
+          type: string
+        status:
+          $ref: "#/components/schemas/InvitationStatus"
+        expiresAt:
+          $ref: "#/components/schemas/Timestamp"
+        emailMatches:
+          type: boolean
+          description: ログイン中のユーザーのメールアドレスが、招待先と一致するか。
+    InvitationAccepted:
+      type: object
+      required: [workspaceId, alreadyMember]
+      properties:
+        workspaceId:
+          $ref: "#/components/schemas/Id"
+        alreadyMember:
+          type: boolean
+          description: この呼び出しの前から、同じ招待の受諾により参加済みだったか。
     ErrorCode:
       type: string
       enum: [unauthorized, forbidden, not_found, version_conflict, validation_failed, internal]
