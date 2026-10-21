@@ -1,20 +1,18 @@
-name: API contract
+name: Quality
 
 on:
   pull_request:
-    paths:
-      - openapi/**
-      - orval.config.ts
-      - redocly.yaml
-      - src/api/**
-      - package.json
-      - pnpm-lock.yaml
   push:
     branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
 
 jobs:
   api-contract:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -22,14 +20,10 @@ jobs:
           version: 12.14.0
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: OpenAPI 仕様の検証
-        run: pnpm api:lint
-      - name: 生成物が仕様と一致するか確認
-        run: pnpm api:check
-      - name: 型チェック
-        run: pnpm exec tsc --noEmit
-      - name: API 連携のテスト
-        run: pnpm test --run
+      - name: Generate Void types
+        run: pnpm exec void prepare
+      - name: Format, lint, types, OpenAPI, generated clients, tests and build
+        run: pnpm exec vp run verify

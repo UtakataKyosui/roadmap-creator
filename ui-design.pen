@@ -9541,6 +9541,258 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "phase1-roadmaps",
+      "name": "Roadmap Studio — ロードマップ一覧・作成",
+      "x": 0,
+      "y": 2500,
+      "width": 940,
+      "height": 680,
+      "fill": "#F8FAFC",
+      "layout": "vertical",
+      "padding": 32,
+      "gap": 24,
+      "children": [
+        {
+          "type": "text",
+          "id": "phase1-roadmaps-0",
+          "content": "Roadmap Studio    Workspace > Project",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 22,
+          "fontWeight": "600"
+        },
+        {
+          "type": "text",
+          "id": "phase1-roadmaps-1",
+          "content": "ロードマップ",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-roadmaps-2",
+          "content": "プロダクト開発                         名称を編集",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-roadmaps-3",
+          "content": "新しいロードマップ",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-roadmaps-4",
+          "content": "名称 [                                    ]  作成",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-roadmaps-5",
+          "content": "0件: 名称をつけて作成し、タスクを追加できます。",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-roadmaps-6",
+          "content": "入力エラー: 名称を入力してください。入力を保持。",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "phase1-detail",
+      "name": "Roadmap Studio — タスク詳細・編集",
+      "x": 1000,
+      "y": 2500,
+      "width": 940,
+      "height": 680,
+      "fill": "#F8FAFC",
+      "layout": "vertical",
+      "padding": 32,
+      "gap": 24,
+      "children": [
+        {
+          "type": "text",
+          "id": "phase1-detail-0",
+          "content": "Roadmap Studio    Workspace > Project > Roadmap > ボード",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 22,
+          "fontWeight": "600"
+        },
+        {
+          "type": "text",
+          "id": "phase1-detail-1",
+          "content": "タスクを編集",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-detail-2",
+          "content": "タイトル [                                                  ]",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-detail-3",
+          "content": "説明 [                                                       ]",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-detail-4",
+          "content": "担当者 [未割当 v]   開始日 [YYYY-MM-DD]   期限 [YYYY-MM-DD]",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-detail-5",
+          "content": "ステータス [未着手 v]  優先度 [中 v]   ラベル [選択]",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-detail-6",
+          "content": "コメント 0    進捗 0%",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-detail-7",
+          "content": "キャンセル                                      保存",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "phase1-states",
+      "name": "Roadmap Studio — 状態・競合",
+      "x": 2000,
+      "y": 2500,
+      "width": 940,
+      "height": 680,
+      "fill": "#F8FAFC",
+      "layout": "vertical",
+      "padding": 32,
+      "gap": 24,
+      "children": [
+        {
+          "type": "text",
+          "id": "phase1-states-0",
+          "content": "読み込み中…",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 22,
+          "fontWeight": "600"
+        },
+        {
+          "type": "text",
+          "id": "phase1-states-1",
+          "content": "0件: ロードマップを作成 / タスクを追加",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-states-2",
+          "content": "取得失敗: 接続を確認してください。 [再試行]",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-states-3",
+          "content": "権限なし: この内容を見る権限がありません。",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-states-4",
+          "content": "対象なし: 削除されたか、アクセスできません。",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-states-5",
+          "content": "更新競合: 他のユーザーが先に更新しました。入力は保持。",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-states-6",
+          "content": "[最新の内容を読み込む（入力を置き換えます）]",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        },
+        {
+          "type": "text",
+          "id": "phase1-states-7",
+          "content": "タイムライン: 28日 / 前へ・今日・次へ / 日付変更は詳細から",
+          "fill": "#0F172A",
+          "fontFamily": "Geist",
+          "fontSize": 16,
+          "fontWeight": "400"
+        }
+      ]
     }
   ],
   "variables": {

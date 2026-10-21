@@ -1,4 +1,5 @@
 import type { ZodType, output } from "zod";
+import { hasValidDateRange } from "@/domain/calendar-date";
 import { CreateTaskBody, UpdateTaskBody } from "./generated/zod/tasks/tasks.zod";
 
 export class ResponseValidationError extends Error {
@@ -23,15 +24,15 @@ export const parseResponse = <S extends ZodType>(schema: S, data: unknown): outp
 // 生成されたZodスキーマでは表せない横断検証。開始日は期限日以前でなければならない。
 type DateRange = { startDate?: string | null; dueDate?: string | null };
 
-const hasValidDateRange = (value: DateRange) =>
-  !value.startDate || !value.dueDate || value.startDate <= value.dueDate;
-
 const dateRangeIssue = {
   message: "開始日は期限日以前にしてください",
   path: ["dueDate"],
 };
 
-export const CreateTaskInput = CreateTaskBody.refine(hasValidDateRange, dateRangeIssue);
+export const CreateTaskInput = CreateTaskBody.refine(hasValidDateRange, dateRangeIssue).refine(
+  (input) => input.title.length === 0 || input.title.trim().length > 0,
+  { path: ["title"], message: "タイトルを入力してください" },
+);
 
 // 部分更新は片方の日付しか送らないことがある。省略した側は現在のタスクの値で補って検証する。
 export const updateTaskInputFor = (current: DateRange) =>
@@ -42,4 +43,11 @@ export const updateTaskInputFor = (current: DateRange) =>
         dueDate: patch.dueDate === undefined ? current.dueDate : patch.dueDate,
       }),
     dateRangeIssue,
+  ).refine(
+    (input) =>
+      input.title === undefined || input.title.length === 0 || input.title.trim().length > 0,
+    {
+      path: ["title"],
+      message: "タイトルを入力してください",
+    },
   );

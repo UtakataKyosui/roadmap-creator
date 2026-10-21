@@ -8,19 +8,10 @@ import { cn } from "@/lib/utils";
 
 export type GroupNodeLabelProps = ComponentProps<"div">;
 
-export function GroupNodeLabel({
-  children,
-  className,
-  ...props
-}: GroupNodeLabelProps) {
+export function GroupNodeLabel({ children, className, ...props }: GroupNodeLabelProps) {
   return (
     <div className="h-full w-full" {...props}>
-      <div
-        className={cn(
-          "text-card-foreground bg-secondary w-fit p-2 text-xs",
-          className,
-        )}
-      >
+      <div className={cn("text-card-foreground bg-secondary w-fit p-2 text-xs", className)}>
         {children}
       </div>
     </div>
@@ -55,16 +46,9 @@ export function GroupNode({ label, position, ...props }: GroupNodeProps) {
   };
 
   return (
-    <BaseNode
-      className="h-full overflow-hidden rounded-sm bg-white bg-opacity-50"
-      {...props}
-    >
+    <BaseNode className="h-full overflow-hidden rounded-sm bg-white bg-opacity-50" {...props}>
       <Panel className="m-0 p-0" position={position}>
-        {label && (
-          <GroupNodeLabel className={getLabelClassName(position)}>
-            {label}
-          </GroupNodeLabel>
-        )}
+        {label && <GroupNodeLabel className={getLabelClassName(position)}>{label}</GroupNodeLabel>}
       </Panel>
     </BaseNode>
   );

@@ -16,6 +16,7 @@ import {
   updateTask,
 } from "./generated/endpoints/tasks/tasks";
 import { ListTasksResponse } from "./generated/zod/tasks/tasks.zod";
+import { roadmapTasksOptions } from "./roadmap-tasks";
 
 const workspaceId = "0190a000-0000-7000-8000-000000000001";
 const roadmapId = "0190a000-0000-7000-8000-000000000002";
@@ -51,6 +52,42 @@ const stubFetch = (status: number, body: unknown) => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+});
+
+describe("画面用の全ページ取得", () => {
+  test("cursorを継承して全ページを取得し、ページ間の重複IDを除く", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ items: [task], nextCursor: "page-2" })))
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            items: [task, { ...task, id: "0190a000-0000-7000-8000-000000000005" }],
+            nextCursor: null,
+          }),
+        ),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    const client = createQueryClient();
+    const result = await client.fetchQuery(roadmapTasksOptions(workspaceId, roadmapId));
+    expect(result).toHaveLength(2);
+    expect(String(fetchMock.mock.calls[1][0])).toContain("cursor=page-2");
+    expect(String(fetchMock.mock.calls[1][0])).toContain(roadmapId);
+    await invalidateTasks(client, workspaceId, roadmapId);
+    expect(
+      client.getQueryState(roadmapTasksOptions(workspaceId, roadmapId).queryKey)?.isInvalidated,
+    ).toBe(true);
+    client.clear();
+  });
+  test("同じcursorを返す壊れた応答で無限取得しない", async () => {
+    const fetchMock = stubFetch(200, { items: [task], nextCursor: "repeated" });
+    const client = createQueryClient();
+    await expect(
+      client.fetchQuery({ ...roadmapTasksOptions(workspaceId, roadmapId), retry: false }),
+    ).rejects.toThrow("Repeated task cursor");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    client.clear();
+  });
 });
 
 describe("Zodスキーマ", () => {

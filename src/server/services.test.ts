@@ -61,6 +61,21 @@ const details = (promise: Promise<unknown>) =>
   );
 
 describe("ロードマップ", () => {
+  test("空白名称は拒否し、前後の空白を除いて作成・改名する", async () => {
+    expect(await status(createRoadmap(db, userId, workspaceId, projectId, { name: "　 " }))).toBe(
+      422,
+    );
+    const created = await createRoadmap(db, userId, workspaceId, projectId, { name: "  整理  " });
+    expect(created.name).toBe("整理");
+    expect(
+      await status(updateRoadmap(db, userId, workspaceId, created.id, { version: 1, name: " " })),
+    ).toBe(422);
+    expect((await getRoadmap(db, userId, workspaceId, created.id)).version).toBe(1);
+    expect(
+      (await updateRoadmap(db, userId, workspaceId, created.id, { version: 1, name: " 改名 " }))
+        .name,
+    ).toBe("改名");
+  });
   test("作成→取得→更新→再取得で保存内容が残り、サーバーが管理する項目が設定される", async () => {
     const created = await createRoadmap(db, userId, workspaceId, projectId, {
       name: "新しい",
