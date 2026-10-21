@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Fragment, useState, type ReactNode } from "react";
-import { authClient } from "@/api/auth-client";
+import { signOut as signOutSession } from "@/api/auth-client";
 import { clearUserCache } from "@/api/cache";
 import { useListRoadmaps } from "@/api/generated/endpoints/roadmaps/roadmaps";
 import { Avatar } from "@/components/task/Avatar";
@@ -94,7 +94,7 @@ function UserMenu() {
     setPending(true);
     setFailed(false);
     try {
-      await authClient.signOut();
+      await signOutSession();
       clearUserCache(queryClient);
       await router.navigate({ to: "/login", replace: true });
     } catch {

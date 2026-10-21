@@ -7,7 +7,7 @@ export const safeRedirect = (value: unknown) => {
   if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\")) {
     return DEFAULT_REDIRECT;
   }
-  if (/[\u0000-\u001f]/.test(value)) return DEFAULT_REDIRECT;
+  if (Array.from(value).some((char) => char.charCodeAt(0) < 0x20)) return DEFAULT_REDIRECT;
   if (value === "/login" || value.startsWith("/login?") || value.startsWith("/api/")) {
     return DEFAULT_REDIRECT;
   }
