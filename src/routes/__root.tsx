@@ -8,6 +8,7 @@ import { getSiteOrigin } from "@/api/site";
 import { DefaultCatchBoundary } from "@/components/DefaultCatchBoundary";
 import { NotFound } from "@/components/NotFound";
 import { safeRedirect } from "@/domain/auth-redirect";
+import { registerServiceWorker } from "@/pwa/register";
 import appCss from "@/styles/app.css?url";
 import { seo } from "@/utils/seo";
 
@@ -31,8 +32,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         name: "viewport",
-        content: "width=device-width, initial-scale=1",
+        content: "width=device-width, initial-scale=1, viewport-fit=cover",
       },
+      { name: "theme-color", content: "#347359" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "Roadmap" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
       ...seo({
         title: "Roadmap Studio",
         description: "学習やプロジェクトのロードマップを、ボードとタイムラインで管理する。",
@@ -62,7 +68,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         sizes: "16x16",
         href: "/favicon-16x16.png",
       },
-      { rel: "manifest", href: "/site.webmanifest", color: "#fffff" },
+      { rel: "manifest", href: "/site.webmanifest" },
       { rel: "icon", href: "/favicon.ico" },
     ],
   }),
@@ -72,6 +78,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  React.useEffect(() => {
+    registerServiceWorker();
+  }, []);
+
   return (
     <html lang="ja">
       <head>
