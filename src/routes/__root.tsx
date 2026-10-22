@@ -20,8 +20,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     }
     return { user };
   },
-  // メタタグの絶対URLに使う公開オリジン。
+  // メタタグの絶対URLに使う公開オリジン。配備ごとに不変なので、遷移のたびに取り直さない。
   loader: async () => ({ siteOrigin: await getSiteOrigin() }),
+  staleTime: Infinity,
+  gcTime: Infinity,
   head: ({ loaderData }) => ({
     meta: [
       {
