@@ -5,5 +5,16 @@ export default defineConfig({
   cloudflare: {
     account_id: "a5fe722b1d3ed1cb2dd9665abafcd39e",
     compatibility_date: "2026-02-24",
+    workers_dev: true,
+    preview_urls: false,
+    routes: [],
+    d1_databases: [
+      {
+        binding: "DB",
+        database_name: "tanstack-start-example-basic-db",
+        database_id: "d5548b00-e360-48ac-9629-35f00cffccfa",
+        migrations_dir: "./db/migrations",
+      },
+    ],
   },
 });

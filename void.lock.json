@@ -2,12 +2,34 @@
   "version": 1,
   "source": {
     "account_id": "a5fe722b1d3ed1cb2dd9665abafcd39e",
-    "compatibility_date": "2026-02-24"
+    "compatibility_date": "2026-02-24",
+    "workers_dev": true,
+    "preview_urls": false,
+    "routes": [],
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "tanstack-start-example-basic-db",
+        "database_id": "d5548b00-e360-48ac-9629-35f00cffccfa",
+        "migrations_dir": "./db/migrations"
+      }
+    ]
   },
   "resolved": {
     "account_id": "a5fe722b1d3ed1cb2dd9665abafcd39e",
     "compatibility_date": "2026-02-24",
-    "name": "tanstack-start-example-basic"
+    "name": "tanstack-start-example-basic",
+    "workers_dev": true,
+    "preview_urls": false,
+    "routes": [],
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "tanstack-start-example-basic-db",
+        "database_id": "d5548b00-e360-48ac-9629-35f00cffccfa",
+        "migrations_dir": "./db/migrations"
+      }
+    ]
   },
-  "text": "{\n  \"account_id\": \"a5fe722b1d3ed1cb2dd9665abafcd39e\",\n  \"compatibility_date\": \"2026-02-24\",\n  \"name\": \"tanstack-start-example-basic\"\n}"
+  "text": "{\n  \"account_id\": \"a5fe722b1d3ed1cb2dd9665abafcd39e\",\n  \"compatibility_date\": \"2026-02-24\",\n  \"name\": \"tanstack-start-example-basic\",\n  \"workers_dev\": true,\n  \"preview_urls\": false,\n  \"routes\": [],\n  \"d1_databases\": [\n    {\n      \"binding\": \"DB\",\n      \"database_name\": \"tanstack-start-example-basic-db\",\n      \"database_id\": \"d5548b00-e360-48ac-9629-35f00cffccfa\",\n      \"migrations_dir\": \"./db/migrations\"\n    }\n  ]\n}\n"
 }
