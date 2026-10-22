@@ -1,4 +1,8 @@
 import { copyFile, readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { isDeepStrictEqual } from "node:util";
+import { checkIsolation, httpsOrigin, identity } from "./deployment-config.mjs";
 
 const target = process.env.DEPLOY_ENVIRONMENT;
 if (!["staging", "production"].includes(target)) throw new Error("Unknown deployment environment");
@@ -10,31 +14,20 @@ if (process.env.DEPLOYMENT_READY !== "true" || process.env.ACCESS_READY !== "tru
 if (target === "production" && process.env.AUTH_READY !== "true") {
   throw new Error("Production requires completed authentication and an approved release");
 }
-const url = new URL(process.env.APP_URL ?? "");
-if (
-  url.protocol !== "https:" ||
-  url.username ||
-  url.password ||
-  url.pathname !== "/" ||
-  url.search ||
-  url.hash
-) {
-  throw new Error("APP_URL must be an HTTPS origin");
-}
+const origin = httpsOrigin(process.env.APP_URL ?? "");
 // 環境ごとのレビュー済み設定・lockがない場合は配備せず終了する。
 // リソースの初回作成や既存Workerの移行はCIの外で明示的に行う。
 const root = `deploy/${target}`;
 const lock = JSON.parse(await readFile(`${root}/void.lock.json`, "utf8"));
-if (!lock.resolved?.name || !lock.resolved?.account_id)
-  throw new Error("Missing locked Worker identity");
-if (target === "staging") {
-  const production = JSON.parse(await readFile("void.lock.json", "utf8"));
-  if (
-    lock.resolved.name === production.resolved?.name &&
-    lock.resolved.account_id === production.resolved?.account_id
-  ) {
-    throw new Error("Staging must use a separate Worker");
-  }
+const config = identity(lock);
+const { default: reviewed } = await import(pathToFileURL(resolve(root, "void.config.ts")).href);
+const declared = identity({ resolved: reviewed.cloudflare });
+if (!isDeepStrictEqual(declared, config) || reviewed.worker?.vars?.API_ORIGIN) {
+  throw new Error("Reviewed config must match the lock and must not override API_ORIGIN");
 }
+if (config.account_id !== process.env.CLOUDFLARE_ACCOUNT_ID)
+  throw new Error("Account does not match the reviewed lock");
+if (config.vars?.API_ORIGIN !== origin) throw new Error("API_ORIGIN does not match APP_URL");
+await checkIsolation(config, root);
 await copyFile(`${root}/void.config.ts`, "void.config.ts");
 await copyFile(`${root}/void.lock.json`, "void.lock.json");
