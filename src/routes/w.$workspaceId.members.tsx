@@ -3,7 +3,7 @@ import { getListWorkspacesQueryOptions } from "@/api/generated/endpoints/workspa
 import { getListProjectsQueryOptions } from "@/api/generated/endpoints/projects/projects";
 import { MembersPage } from "@/components/members/MembersPage";
 import { parseMembersSearch, pickReturnProject } from "@/domain/members-search";
-import { isUuid } from "@/server/ids";
+import { isUuid } from "@/domain/ids";
 
 // ワークスペースのメンバー一覧と、メンバーの招待・招待の管理。
 export const Route = createFileRoute("/w/$workspaceId/members")({

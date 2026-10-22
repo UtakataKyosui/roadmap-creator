@@ -1,4 +1,4 @@
-import { isUuid } from "@/server/ids";
+import { isUuid } from "./ids";
 
 // メンバー画面から元のプロジェクトへ戻るための検索条件。
 export type MembersSearch = { projectId?: string };

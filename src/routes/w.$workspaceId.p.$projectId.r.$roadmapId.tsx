@@ -11,7 +11,7 @@ import { ApiError } from "@/api/http";
 import { AppShell } from "@/components/layout/AppShell";
 import { GoalOverview } from "@/components/roadmap/GoalOverview";
 import { buildBreadcrumb, type View } from "@/domain/breadcrumb";
-import { isUuid } from "@/server/ids";
+import { isUuid } from "@/domain/ids";
 
 const projectRoute = getRouteApi("/w/$workspaceId/p/$projectId");
 
