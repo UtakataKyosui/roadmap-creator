@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   foreignKey,
   index,
@@ -48,6 +49,37 @@ export const memberships = sqliteTable(
     ...timestamps,
   },
   (t) => [uniqueIndex("memberships_workspace_user_unique").on(t.workspaceId, t.userId)],
+);
+
+export const invitations = sqliteTable(
+  "invitations",
+  {
+    id: id(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    // 小文字に正規化して保存する。
+    email: text("email").notNull(),
+    role: text("role", { enum: ["admin", "member"] }).notNull(),
+    // 招待URLのトークンはSHA-256のハッシュだけを保存する。
+    tokenHash: text("token_hash").notNull(),
+    invitedBy: text("invited_by")
+      .notNull()
+      .references(() => users.id),
+    expiresAt: text("expires_at").notNull(),
+    acceptedAt: text("accepted_at"),
+    acceptedBy: text("accepted_by").references(() => users.id),
+    revokedAt: text("revoked_at"),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("invitations_token_hash_unique").on(t.tokenHash),
+    index("invitations_workspace_idx").on(t.workspaceId),
+    // 同じメールアドレスへの招待中（未受諾・未取消）は、Workspaceごとに1件に限る。
+    uniqueIndex("invitations_pending_unique")
+      .on(t.workspaceId, t.email)
+      .where(sql`${t.acceptedAt} is null and ${t.revokedAt} is null`),
+  ],
 );
 
 export const projects = sqliteTable(
