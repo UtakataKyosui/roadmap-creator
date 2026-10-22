@@ -109,6 +109,7 @@ export function AppHeader({
             <Link
               to="/w/$workspaceId/members"
               params={{ workspaceId: workspace.id }}
+              search={{ projectId: project?.id }}
               className={navItem}
               activeProps={{ className: navActive }}
             >
