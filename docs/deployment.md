@@ -1,5 +1,8 @@
 # 配備とCI/CD（#19・#20）
 
+現行workflowは手動実行。PR作成・更新時のpreviewとmainマージ時のprodを自動化する
+後続計画は [自動配備設計](./automatic-deployment-design.md) を参照する。
+
 ## 担当とバージョン
 
 Void 1.1.12 が Cloudflare Workers のアプリ、D1、binding、マイグレーション、配備履歴を管理する。
