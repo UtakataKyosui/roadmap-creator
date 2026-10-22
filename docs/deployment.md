@@ -12,16 +12,16 @@ Nodeは `.node-version`、pnpmは `package.json`、Void・Vite+はlockfileに固
 
 現在のルート設定のWorker名は `tanstack-start-example-basic`。既存の配備IDやDBを流用・変更しない。
 Voidの直接Cloudflare配備は名前付き環境（`--env`）をサポートしない。
-stagingとproductionそれぞれに独立したWorker、D1、API_ORIGIN、Access保護を用意し、
+今後は `preview`（PRごとの検証用）と `prod`（本番用）の2種類に分ける。stagingは作らない。
+独立したWorker、D1、API_ORIGIN、Access保護を用意し、
 レビュー済みの `void.config.ts` と初回配備で得た `void.lock.json` を `deploy/<environment>/` に記録する。
 環境別の設定・lockがない状態では手動CDも失敗する。
 
-| 環境       | 配備単位           | URL・DB                                                     |
-| ---------- | ------------------ | ----------------------------------------------------------- |
-| ローカル   | `vp run dev`       | localhost:3000、ローカルD1                                  |
-| staging    | 独立した検証Worker | 管理者が確定するHTTPS originと専用D1。Access必須            |
-| production | 承認済みWorker     | 管理者が確定するHTTPS originと専用D1。本番OAuth検証後に公開 |
-| PR preview | PR専用Worker       | `rm-<repository-id>-pr-<number>`、専用D1、Access保護        |
+| 環境       | 配備単位       | URL・DB                                                     |
+| ---------- | -------------- | ----------------------------------------------------------- |
+| ローカル   | `vp run dev`   | localhost:3000、ローカルD1                                  |
+| prod       | 承認済みWorker | 管理者が確定するHTTPS originと専用D1。本番OAuth検証後に公開 |
+| PR preview | PR専用Worker   | `rm-<repository-id>-pr-<number>`、専用D1、Access保護        |
 
 PRプレビューの作成・配備・削除は後述の承認手順で行う。設定未完了の状態では配備しない。
 
@@ -30,12 +30,12 @@ PRプレビューの作成・配備・削除は後述の承認手順で行う。
 1. `vp install --frozen-lockfile`、`vp run void prepare`、`vp run verify`。
 2. 対象環境専用のチェックアウトで `vp run void connect --platform cloudflare`。
 3. 環境別のWorker名とアカウント、Accessの対象ホスト・サービス認証を確定する。
-   同一Worker/DBをstagingとproductionで共有しない。設定のD1 bindingとlockをレビューする。
+   同一Worker/DBをpreviewとprodで共有しない。設定のD1 bindingとlockをレビューする。
 4. `vp run void secret put API_ORIGIN` でその環境のHTTPS originを入力する。ローカル`.env`は配備されない。
 5. `vp run db:generate` でSQLを生成・レビューしてリポジトリに記録する。
 6. 初回配備を明示的に承認し、Access保護の設定を確認してから `vp run void:deploy`。
    Voidが未適用マイグレーションを適用して配備する。出力のURLとWorker versionを保存する。
-7. 初回配備で確定した設定とlockを `deploy/staging/` または `deploy/production/` に記録する。
+7. 初回配備で確定した設定とlockを `deploy/prod/`（previewは後述のPR別ディレクトリ） に記録する。
    ローカルの認証状態や `.void/` キャッシュは記録しない。
 
 開発用ユーザーは開発ビルドに限定され、配備ビルドの匿名APIは401になる。
@@ -54,7 +54,7 @@ PRでは同じ参照の古い実行を取り消す（mainと配備からの呼�
 ## 手動CD
 
 `Deploy approved main commit` は書き込み権限者の `workflow_dispatch` 専用。
-mainのコミットを選び、環境とマイグレーションを含むリリース承認を明示する。
+mainのコミットを選び、`prod`環境とマイグレーションを含むリリース承認を明示する。
 品質チェック成功後、Environmentの認可を受け、現在のmainと一致するコミットだけを配備する。
 GitHub Environmentが利用プランで承認者をサポートする場合はrequired reviewersとmain限定を設定する。
 利用できない場合も、権限者による手動実行と承認入力が必須になる。
@@ -64,7 +64,7 @@ Environment変数は初期設定後に管理者が有効化する。自動で設
 
 - `DEPLOYMENT_READY=true`: 独立設定・lock・D1をレビュー済み。
 - `ACCESS_READY=true`: URLとバージョンURLのアクセス制限を検証済み。
-- `AUTH_READY=true`: productionのみ。Googleログイン（#13）の本番OAuth設定と認証テストを確認済み。
+- `AUTH_READY=true`: prodで必須。Googleログイン（#13）の本番OAuth設定と認証テストを確認済み。
 - `APP_URL`: クエリや認証情報を含まないHTTPS origin。
 - `CLOUDFLARE_ACCOUNT_ID`、必要時 `CLOUDFLARE_WORKERS_SUBDOMAIN`。
 
@@ -72,7 +72,7 @@ Environment変数は初期設定後に管理者が有効化する。自動で設
 `DB` binding（専用D1の名前とID）、`migrations_dir: "./db/migrations"` を記録する。
 `cloudflare.vars.API_ORIGIN` は `APP_URL` と同じHTTPS originにし、`worker.vars` で上書きしない。
 `preview_urls: false` とし、未保護のバージョンURLを公開しない。バージョン確認にはmetadata bindingを使う。
-配備前にルートの既存lock・staging・production・全PRのlockと照合し、WorkerやD1の共有を拒否する。
+配備前にルートの既存lock・prod・全PRのlock（旧案のstaging/production lockがあればそれも）と照合し、WorkerやD1の共有を拒否する。
 
 Secrets:
 
@@ -83,7 +83,7 @@ Workerには `API_ORIGIN` に加えて、環境専用の `BETTER_AUTH_SECRET`、
 `GOOGLE_CLIENT_SECRET` をVoidで設定する。Googleの承認済みリダイレクトURIは
 `<APP_URL>/api/auth/callback/google`。これらの値をGitや配備記録に保存しない。
 
-productionとstagingは別SecretsとDBを使う。秘密値をコード・Issue・ログに書かない。
+prodとpreviewは別SecretsとDBを使う。秘密値をコード・Issue・ログに書かない。
 forkのPRを `pull_request_target` で配備しない。
 同一環境はconcurrencyで直列化し、実行中ジョブをキャンセルしない。
 古いmainからの配備は拒否する。失敗時はGitHubのジョブ結果を確認し、再実行前に配備状態を見る。
@@ -121,7 +121,7 @@ fork PRは配備しない。`pull_request_target` は使わず、品質ジョブ
 3. 出力された `deploy/previews/pr-<number>/{ownership.json,void.config.ts,void.lock.json}` をレビューしmainへ記録する。
    名前だけからDBの所有権を推測しない。作成途中で中断した場合はCloudflare上のIDを管理者が照合し、
    記録を復旧する。既存DBを自動削除・再利用して再試行しない。
-4. プレビュー専用OAuthクライアントとセッションsecretを用意する。staging/productionの認証情報やseedを使わない。
+4. プレビュー専用OAuthクライアントとセッションsecretを用意する。prodの認証情報やseedを使わない。
    新規Workerへのsecret設定とAccess保護を管理者が確認するまで `DEPLOYMENT_READY` を有効にしない。
 5. `Approved PR preview` をmainから `action=deploy`、PR番号、完全なSHA、承認入力で実行する。
    品質チェックが通ったSHAだけを配備する。設定・所有権記録・制御スクリプトはmainのものを使い、PRによる差し替えを防ぐ。
@@ -155,7 +155,8 @@ APIの参照: [D1作成](https://developers.cloudflare.com/api/resources/d1/subr
 Worker `tanstack-start-example-basic`、D1 `tanstack-start-example-basic-db`
 （`d5548b00-e360-48ac-9629-35f00cffccfa`）。これは環境別設定ではないため、そのまま複製しない。
 2026-10-23の読み取り確認ではGitHub Environmentは `copilot` のみで、配備用Repository Variablesは未登録。
-この情報だけではstaging/productionへの割当やHTTPS originは確定できない。
+既存環境の用途は未分類であり、環境別の確定情報ファイルは存在しない。
+preview/prod分離の提案と既知・未確定の値は [`deploy/README.md`](../deploy/README.md) にまとめる。
 
 ## PWA（Service Worker）
 

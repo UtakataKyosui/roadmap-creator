@@ -65,6 +65,8 @@ export async function optionalJson(path) {
 export async function checkIsolation(config, root) {
   const paths = [
     "void.lock.json",
+    "deploy/prod/void.lock.json",
+    // Also reject sharing with any locks left from earlier environment proposals.
     "deploy/staging/void.lock.json",
     "deploy/production/void.lock.json",
   ];

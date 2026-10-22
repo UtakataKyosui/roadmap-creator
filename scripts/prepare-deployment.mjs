@@ -5,13 +5,13 @@ import { isDeepStrictEqual } from "node:util";
 import { checkIsolation, httpsOrigin, identity } from "./deployment-config.mjs";
 
 const target = process.env.DEPLOY_ENVIRONMENT;
-if (!["staging", "production"].includes(target)) throw new Error("Unknown deployment environment");
+if (target !== "prod") throw new Error("Unknown deployment environment");
 if (process.env.DEPLOYMENT_READY !== "true" || process.env.ACCESS_READY !== "true") {
   throw new Error(
     "Configure isolated resources and Access before enabling deployment (docs/deployment.md)",
   );
 }
-if (target === "production" && process.env.AUTH_READY !== "true") {
+if (process.env.AUTH_READY !== "true") {
   throw new Error("Production requires completed authentication and an approved release");
 }
 const origin = httpsOrigin(process.env.APP_URL ?? "");

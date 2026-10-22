@@ -7,7 +7,7 @@ on:
         description: Deployment destination
         required: true
         type: choice
-        options: [staging, production]
+        options: [prod]
       approved:
         description: I approve deployment of this main commit and its migrations
         required: true
