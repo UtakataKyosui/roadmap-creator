@@ -4,6 +4,7 @@ import { z } from "zod";
 import { devFixtures } from "../../db/dev-fixtures";
 import { labels, roadmaps } from "../../db/schema";
 import { resolveActorId } from "./auth";
+import { AuthNotConfiguredError } from "./better-auth";
 import { HttpError, parseInput, toErrorResponse, toPointer } from "./errors";
 import { handle, readJson } from "./http";
 import { isUuid, uuidv7 } from "./ids";
@@ -87,14 +88,45 @@ describe("エラー応答", () => {
   });
 });
 
-describe("開発用ユーザー", () => {
-  test("開発ビルドでは開発用ユーザーになる", () => {
-    expect(resolveActorId(true)).toBe(devFixtures.userId);
+describe("認証済みユーザーの解決", () => {
+  const notConfigured = async () => {
+    throw new AuthNotConfiguredError();
+  };
+
+  test("セッションがあればそのユーザーIDになる", async () => {
+    const userId = "0190a000-0000-7000-8000-0000000000aa";
+    await expect(
+      resolveActorId({ allowDevUser: false, readSession: async () => userId }),
+    ).resolves.toBe(userId);
   });
 
-  test("本番ビルドでは未認証（401）になる", () => {
-    expect(() => resolveActorId(false)).toThrowError(HttpError);
-    expect(() => resolveActorId(false)).toThrowError(expect.objectContaining({ status: 401 }));
+  test("セッションがなければ、開発ビルドでも未認証（401）になる", async () => {
+    await expect(
+      resolveActorId({ allowDevUser: true, readSession: async () => null }),
+    ).rejects.toMatchObject({ status: 401 });
+  });
+
+  test("認証が未設定の開発ビルドでは開発用ユーザーになる", async () => {
+    await expect(resolveActorId({ allowDevUser: true, readSession: notConfigured })).resolves.toBe(
+      devFixtures.userId,
+    );
+  });
+
+  test("認証が未設定の本番ビルドでは未認証（401）になる", async () => {
+    const rejection = resolveActorId({ allowDevUser: false, readSession: notConfigured });
+    await expect(rejection).rejects.toBeInstanceOf(HttpError);
+    await expect(rejection).rejects.toMatchObject({ status: 401 });
+  });
+
+  test("セッション検証の想定外の失敗は未認証にせず、そのまま伝える", async () => {
+    await expect(
+      resolveActorId({
+        allowDevUser: true,
+        readSession: async () => {
+          throw new Error("db down");
+        },
+      }),
+    ).rejects.toThrow("db down");
   });
 });
 
