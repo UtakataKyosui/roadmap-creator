@@ -8,6 +8,46 @@
 import * as zod from "zod";
 
 /**
+ * owner/adminのみ実行できる。
+ * @summary Projectを作成する
+ */
+export const CreateProjectParams = zod.object({
+  workspaceId: zod.uuid(),
+});
+
+export const createProjectBodyNameMax = 100;
+
+export const CreateProjectBody = zod.object({
+  name: zod.string().min(1).max(createProjectBodyNameMax),
+});
+
+export const createProjectResponseNameMax = 100;
+
+export const CreateProjectResponse = zod.object({
+  id: zod.uuid().describe("サーバーが採番するUUID v7。クライアントは指定しない。"),
+  workspaceId: zod.uuid().describe("サーバーが採番するUUID v7。クライアントは指定しない。"),
+  name: zod.string().min(1).max(createProjectResponseNameMax),
+  archivedAt: zod
+    .union([
+      zod.iso
+        .datetime({ offset: true })
+        .describe("UTCのRFC 3339 date-time。表示時のみ閲覧者のブラウザのタイムゾーンへ変換する。"),
+      zod.null(),
+    ])
+    .optional(),
+  createdAt: zod.iso
+    .datetime({ offset: true })
+    .describe("UTCのRFC 3339 date-time。表示時のみ閲覧者のブラウザのタイムゾーンへ変換する。"),
+  updatedAt: zod.iso
+    .datetime({ offset: true })
+    .describe("UTCのRFC 3339 date-time。表示時のみ閲覧者のブラウザのタイムゾーンへ変換する。"),
+  version: zod
+    .int()
+    .min(1)
+    .describe("更新競合検出用。作成時1、更新ごとに+1。更新要求で不一致なら409を返す。"),
+});
+
+/**
  * @summary Workspaceのプロジェクト一覧
  */
 export const ListProjectsParams = zod.object({

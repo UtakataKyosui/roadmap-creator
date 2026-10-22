@@ -4,6 +4,7 @@ import { parseResponse } from "@roadmapper/domain/validation";
 import { ListLabelsResponse } from "@roadmapper/api-contract/zod/labels/labels.zod";
 import {
   ListProjectsResponse,
+  CreateProjectResponse,
   UpdateProjectResponse,
 } from "@roadmapper/api-contract/zod/projects/projects.zod";
 import {
@@ -14,6 +15,7 @@ import {
 } from "@roadmapper/api-contract/zod/workspaces/workspaces.zod";
 import {
   createWorkspace,
+  createProject,
   deleteWorkspace,
   updateWorkspace,
   updateProject,
@@ -270,6 +272,45 @@ describe("Workspace", () => {
 });
 
 describe("ラベルとプロジェクト", () => {
+  test("owner/adminが所属WorkspaceにProjectを作成でき、本文のID指定を無視する", async () => {
+    const created = await createProject(db, userId, workspaceId, {
+      name: "  新規プロジェクト  ",
+      workspaceId: otherWorkspaceId,
+      id: missingId,
+    });
+    parseResponse(CreateProjectResponse, created);
+    expect(created).toMatchObject({
+      workspaceId,
+      name: "新規プロジェクト",
+      version: 1,
+      archivedAt: null,
+    });
+    expect(created.id).not.toBe(missingId);
+    expect((await listProjects(db, userId, workspaceId)).map((p) => p.id)).toContain(created.id);
+    expect(await listProjects(db, otherUserId, otherWorkspaceId)).toHaveLength(1);
+    sqlite.prepare("UPDATE memberships SET role = 'admin' WHERE user_id = ?").run(userId);
+    expect(await createProject(db, userId, workspaceId, { name: "管理者" })).toMatchObject({
+      name: "管理者",
+    });
+  });
+
+  test("Project作成はmember・所属外を拒否し、不正なID・入力を保存しない", async () => {
+    expect(await status(createProject(db, otherUserId, workspaceId, { name: "x" }))).toBe(403);
+    for (const id of [missingId, "invalid"]) {
+      expect(await status(createProject(db, userId, id, { name: "x" }))).toBe(404);
+    }
+    for (const body of [{ name: "" }, { name: "　 " }, { name: "a".repeat(101) }, {}, null]) {
+      expect(await status(createProject(db, userId, workspaceId, body))).toBe(422);
+    }
+    expect(await listProjects(db, userId, workspaceId)).toHaveLength(1);
+    expect(
+      (await createProject(db, userId, workspaceId, { name: "a".repeat(100) })).name,
+    ).toHaveLength(100);
+    sqlite.prepare("UPDATE memberships SET role = 'member' WHERE user_id = ?").run(userId);
+    expect(await status(createProject(db, userId, workspaceId, { name: "x" }))).toBe(403);
+    expect(await listProjects(db, userId, workspaceId)).toHaveLength(2);
+  });
+
   test("同じWorkspaceのラベルだけを名前順に返し、契約を満たす", async () => {
     sqlite
       .prepare(

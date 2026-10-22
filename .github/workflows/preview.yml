@@ -1,0 +1,149 @@
+name: Approved PR preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: PR number (same repository, targeting main)
+        required: true
+        type: string
+      sha:
+        description: Exact reviewed head SHA (required for deploy)
+        type: string
+      action:
+        description: Deploy or remove a closed PR preview
+        type: choice
+        options: [deploy, cleanup]
+        required: true
+      approved:
+        description: I approve this SHA and migrations, or permanent deletion of this closed PR's dedicated resources
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+  pull-requests: read
+
+# Deployment, migration and cleanup of a PR never overlap or cancel one another.
+concurrency:
+  group: preview-${{ inputs.pr }}
+  cancel-in-progress: false
+
+env:
+  PR_NUMBER: ${{ inputs.pr }}
+  DEPLOY_SHA: ${{ inputs.sha }}
+  PREVIEW_ACTION: ${{ inputs.action }}
+  DEPLOY_ACTOR: ${{ github.triggering_actor }}
+
+jobs:
+  eligibility:
+    if: github.ref == 'refs/heads/main' && inputs.approved
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - run: node scripts/check-preview-pr.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  quality:
+    needs: eligibility
+    if: inputs.action == 'deploy'
+    uses: ./.github/workflows/api-contract.yml
+    with:
+      commit_ref: ${{ inputs.sha }}
+
+  deploy:
+    needs: [eligibility, quality]
+    if: inputs.action == 'deploy'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: preview
+    env:
+      DEPLOY_ENVIRONMENT: preview
+      DEPLOYMENT_READY: ${{ vars.DEPLOYMENT_READY }}
+      ACCESS_READY: ${{ vars.ACCESS_READY }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_WORKERS_SUBDOMAIN: ${{ vars.CLOUDFLARE_WORKERS_SUBDOMAIN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 12.14.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - name: Preserve reviewed controls from main
+        run: |
+          mkdir -p "$RUNNER_TEMP/preview-control"
+          cp -R scripts deploy void.lock.json "$RUNNER_TEMP/preview-control/"
+          node scripts/preview-origin.mjs
+      - name: Prepare reviewed isolated config
+        working-directory: ${{ runner.temp }}/preview-control
+        run: node scripts/prepare-preview.mjs
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.sha }}
+          persist-credentials: false
+      - name: Apply reviewed config
+        run: cp "$RUNNER_TEMP/preview-control/void.config.ts" "$RUNNER_TEMP/preview-control/void.lock.json" .
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec void prepare
+      - run: pnpm exec vp run verify
+      - name: Refuse an obsolete or closed PR immediately before migration
+        run: node "$RUNNER_TEMP/preview-control/scripts/check-preview-pr.mjs"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Deploy exact approved commit and migrations
+        run: pnpm exec void deploy --platform cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+      - name: Health and deployment record
+        run: node "$RUNNER_TEMP/preview-control/scripts/check-deployment.mjs"
+        env:
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+      - name: Record active Worker version
+        run: pnpm exec void project status >> "$GITHUB_STEP_SUMMARY"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Report failure
+        if: failure()
+        run: echo 'Preview deploy or health check failed. Inspect migration and Worker state before retrying; code rollback does not restore D1.' >> "$GITHUB_STEP_SUMMARY"
+
+  cleanup:
+    needs: eligibility
+    if: inputs.action == 'cleanup'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: preview
+    env:
+      PREVIEW_APPROVED: "true"
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_WORKERS_SUBDOMAIN: ${{ vars.CLOUDFLARE_WORKERS_SUBDOMAIN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - name: Check closure and reviewed origin
+        run: |
+          node scripts/check-preview-pr.mjs
+          node scripts/preview-origin.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Verify ownership and remove dedicated resources
+        run: node scripts/cleanup-preview.mjs
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

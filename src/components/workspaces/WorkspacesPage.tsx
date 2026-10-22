@@ -3,7 +3,13 @@ import { Link, useRouteContext, useRouter } from "@tanstack/react-router";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useId, useState } from "react";
 import { apiErrorMessage } from "@/api/error-message";
-import { useListProjects, useUpdateProject } from "@/api/generated/endpoints/projects/projects";
+import {
+  getListProjectsQueryKey,
+  useCreateProject,
+  useListProjects,
+  useUpdateProject,
+  type listProjectsResponseSuccess,
+} from "@/api/generated/endpoints/projects/projects";
 import {
   getListWorkspacesQueryKey,
   useCreateWorkspace,
@@ -249,6 +255,7 @@ function WorkspaceCard({ workspace, onDeleted }: { workspace: Workspace; onDelet
           アクティブなプロジェクトがありません。
         </p>
       )}
+      {manager && !confirming && <ProjectCreator workspaceId={workspace.id} />}
       {confirming && (
         <section
           aria-label="ワークスペースの削除確認"
@@ -306,6 +313,108 @@ function WorkspaceCard({ workspace, onDeleted }: { workspace: Workspace; onDelet
         </section>
       )}
     </article>
+  );
+}
+
+function ProjectCreator({ workspaceId }: { workspaceId: string }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [createdName, setCreatedName] = useState<string | null>(null);
+  const id = useId();
+  const create = useCreateProject();
+  const queryClient = useQueryClient();
+  return (
+    <div className="mt-4">
+      {open ? (
+        <form
+          noValidate
+          className="space-y-2"
+          onSubmit={async (event) => {
+            event.preventDefault();
+            if (create.isPending) return;
+            const trimmed = name.trim();
+            if (!trimmed || name.length > 100) {
+              setError(
+                !trimmed ? "プロジェクト名を入力してください。" : "100文字以内で入力してください。",
+              );
+              return;
+            }
+            setError(null);
+            try {
+              const result = await create.mutateAsync({ workspaceId, data: { name: trimmed } });
+              const key = getListProjectsQueryKey(workspaceId);
+              await queryClient.cancelQueries({ queryKey: key });
+              queryClient.setQueryData<listProjectsResponseSuccess>(key, (current) => ({
+                ...result,
+                status: 200,
+                data: [
+                  ...(current?.data.filter((item) => item.id !== result.data.id) ?? []),
+                  result.data,
+                ],
+              }));
+              void queryClient.invalidateQueries({ queryKey: key });
+              setName("");
+              setCreatedName(result.data.name);
+              setOpen(false);
+            } catch (cause) {
+              setError(apiErrorMessage(cause));
+            }
+          }}
+        >
+          <label htmlFor={id} className="block text-xs font-semibold">
+            プロジェクト名
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <input
+              id={id}
+              autoFocus
+              value={name}
+              maxLength={100}
+              disabled={create.isPending}
+              onChange={(event) => setName(event.target.value)}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? `${id}-error` : undefined}
+              className="h-9 min-w-0 flex-1 basis-48 rounded-sm border border-border-strong bg-surface px-3 text-sm"
+            />
+            <Button type="submit" disabled={create.isPending}>
+              {create.isPending ? "作成中…" : "作成する"}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={create.isPending}
+              onClick={() => setOpen(false)}
+            >
+              キャンセル
+            </Button>
+          </div>
+          {error && (
+            <p id={`${id}-error`} role="alert" className="text-xs text-danger">
+              {error}
+            </p>
+          )}
+        </form>
+      ) : (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setOpen(true);
+            setError(null);
+            setCreatedName(null);
+          }}
+        >
+          <Plus aria-hidden />
+          プロジェクトを作成
+        </Button>
+      )}
+      {createdName && (
+        <p role="status" className="mt-2 text-xs text-indigo">
+          「{createdName}」を作成しました。上のリンクからロードマップを作成できます。
+        </p>
+      )}
+    </div>
   );
 }
 
