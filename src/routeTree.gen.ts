@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MyTasksRouteImport } from './routes/my-tasks'
 import { Route as ApiWorkspacesRouteImport } from './routes/api/workspaces'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 import { Route as ApiMeTasksRouteImport } from './routes/api/me.tasks'
@@ -36,6 +37,11 @@ const IndexRoute = IndexRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyTasksRoute = MyTasksRouteImport.update({
+  id: '/my-tasks',
+  path: '/my-tasks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiWorkspacesRoute = ApiWorkspacesRouteImport.update({
@@ -134,6 +140,7 @@ const WWorkspaceIdPProjectIdRRoadmapIdTimelineRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/my-tasks': typeof MyTasksRoute
   '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/me/tasks': typeof ApiMeTasksRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/my-tasks': typeof MyTasksRoute
   '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/me/tasks': typeof ApiMeTasksRoute
@@ -174,6 +182,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/my-tasks': typeof MyTasksRoute
   '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/me/tasks': typeof ApiMeTasksRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/my-tasks'
     | '/api/workspaces'
     | '/api/auth/$'
     | '/api/me/tasks'
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/my-tasks'
     | '/api/workspaces'
     | '/api/auth/$'
     | '/api/me/tasks'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/login'
+    | '/my-tasks'
     | '/api/workspaces'
     | '/api/auth/$'
     | '/api/me/tasks'
@@ -256,6 +268,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  MyTasksRoute: typeof MyTasksRoute
   ApiWorkspacesRoute: typeof ApiWorkspacesRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiMeTasksRoute: typeof ApiMeTasksRoute
@@ -276,6 +289,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-tasks': {
+      id: '/my-tasks'
+      path: '/my-tasks'
+      fullPath: '/my-tasks'
+      preLoaderRoute: typeof MyTasksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/workspaces': {
@@ -499,6 +519,7 @@ const WWorkspaceIdPProjectIdRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  MyTasksRoute: MyTasksRoute,
   ApiWorkspacesRoute: ApiWorkspacesRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiMeTasksRoute: ApiMeTasksRoute,

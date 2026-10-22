@@ -2,7 +2,8 @@ import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 import { ApiError } from "./http";
 import type { Task } from "./generated/models";
 import { createQueryClient } from "./query-client";
-import { invalidateTasks } from "./cache";
+import { invalidateRoadmaps, invalidateTasks } from "./cache";
+import { getListMyTasksQueryKey } from "./generated/endpoints/my-tasks/my-tasks";
 import {
   CreateTaskInput,
   ResponseValidationError,
@@ -77,6 +78,22 @@ describe("画面用の全ページ取得", () => {
     expect(
       client.getQueryState(roadmapTasksOptions(workspaceId, roadmapId).queryKey)?.isInvalidated,
     ).toBe(true);
+    client.clear();
+  });
+  test("タスクの更新後は、マイタスクのキャッシュも無効にする", async () => {
+    const client = createQueryClient();
+    const key = getListMyTasksQueryKey({ today: "2026-06-10", page: 2 });
+    client.setQueryData(key, { items: [] });
+    await invalidateTasks(client, workspaceId, roadmapId);
+    expect(client.getQueryState(key)?.isInvalidated).toBe(true);
+    client.clear();
+  });
+  test("ロードマップの名称変更後は全ページのマイタスクを無効にする", async () => {
+    const client = createQueryClient();
+    const keys = [1, 2].map((page) => getListMyTasksQueryKey({ today: "2026-06-10", page }));
+    for (const key of keys) client.setQueryData(key, { items: [{ roadmapName: "変更前" }] });
+    await invalidateRoadmaps(client, workspaceId, "project", roadmapId);
+    for (const key of keys) expect(client.getQueryState(key)?.isInvalidated).toBe(true);
     client.clear();
   });
   test("同じcursorを返す壊れた応答で無限取得しない", async () => {
