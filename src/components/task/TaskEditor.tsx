@@ -62,7 +62,7 @@ function Modal({
     <dialog
       ref={ref}
       aria-labelledby={titleId}
-      className="relative m-auto max-h-[90dvh] w-[min(40rem,calc(100%-2rem))] overflow-auto rounded-lg bg-surface p-0 text-foreground shadow-[0_16px_40px_#15181e33] backdrop:bg-[#15181e]/45"
+      className="relative m-auto max-h-[90dvh] w-[min(40rem,calc(100%-2rem))] overflow-auto overscroll-contain rounded-lg max-sm:m-0 max-sm:h-dvh max-sm:max-h-none max-sm:w-full max-sm:max-w-none max-sm:rounded-none bg-surface p-0 text-foreground shadow-[0_16px_40px_#15181e33] backdrop:bg-[#15181e]/45"
       onCancel={(event) => {
         event.preventDefault();
         if (!busy) onClose();
@@ -491,7 +491,7 @@ function TaskForm({
           </fieldset>
         </fieldset>
       </div>
-      <div className="flex justify-end gap-2 border-t bg-surface-sunken px-6 py-3.5">
+      <div className="sticky bottom-0 z-10 flex justify-end gap-2 border-t bg-surface-sunken px-6 py-3.5 pb-[max(0.875rem,env(safe-area-inset-bottom))]">
         <Button type="button" variant="outline" size="lg" disabled={pending} onClick={onClose}>
           キャンセル
         </Button>

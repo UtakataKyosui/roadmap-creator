@@ -106,7 +106,7 @@ export function InvitationAcceptPage({ token, userEmail }: { token: string; user
         </div>
         {preview.isPending ? (
           <LoadingState label="招待を確認しています…" />
-        ) : preview.error?.status === 404 ? (
+        ) : preview.error instanceof ApiError && preview.error.status === 404 ? (
           <Notice tone="error" role="alert">
             招待が見つかりません。URLを確認するか、招待した人に再送を依頼してください。
           </Notice>
