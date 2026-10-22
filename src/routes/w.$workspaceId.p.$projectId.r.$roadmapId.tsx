@@ -74,7 +74,7 @@ function RoadmapLayout() {
         viewName,
       ]}
     >
-      <GoalOverview scope={params} name={roadmap.name} view={view} />
+      <GoalOverview scope={params} name={roadmap.name} view={view} roadmap={roadmap} />
       <Outlet />
     </AppShell>
   );

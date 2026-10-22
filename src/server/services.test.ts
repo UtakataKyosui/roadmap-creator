@@ -61,6 +61,76 @@ const details = (promise: Promise<unknown>) =>
   );
 
 describe("ロードマップ", () => {
+  test("作成時の期間を保存し、部分更新・未設定化でも日付の前後関係を守る", async () => {
+    const created = await createRoadmap(db, userId, workspaceId, projectId, {
+      name: "期間あり",
+      startDate: "2026-10-01",
+      dueDate: "2026-10-31",
+    });
+    expect(await getRoadmap(db, userId, workspaceId, created.id)).toMatchObject({
+      startDate: "2026-10-01",
+      dueDate: "2026-10-31",
+    });
+    expect(
+      (await listRoadmaps(db, userId, workspaceId, projectId)).find((r) => r.id === created.id),
+    ).toMatchObject({ startDate: "2026-10-01", dueDate: "2026-10-31" });
+    expect(
+      await status(
+        updateRoadmap(db, userId, workspaceId, created.id, { version: 1, startDate: "2026-11-01" }),
+      ),
+    ).toBe(422);
+    expect(
+      await status(
+        updateRoadmap(db, userId, workspaceId, created.id, { version: 1, dueDate: "2026-09-30" }),
+      ),
+    ).toBe(422);
+    const updated = await updateRoadmap(db, userId, workspaceId, created.id, {
+      version: 1,
+      dueDate: "2026-11-01",
+    });
+    expect(updated).toMatchObject({ startDate: "2026-10-01", dueDate: "2026-11-01", version: 2 });
+    expect(
+      await status(
+        updateRoadmap(db, userId, workspaceId, created.id, { version: 1, dueDate: "2026-12-01" }),
+      ),
+    ).toBe(409);
+    const cleared = await updateRoadmap(db, userId, workspaceId, created.id, {
+      version: 2,
+      startDate: null,
+      dueDate: null,
+    });
+    expect(cleared).toMatchObject({ startDate: null, dueDate: null, version: 3 });
+  });
+
+  test("期間の逆転・実在しない日付を拒否し、同日・片方だけ・期間なしを受け入れる", async () => {
+    for (const period of [
+      { startDate: "2026-11-01", dueDate: "2026-10-31" },
+      { dueDate: "2026-02-30" },
+      { startDate: "not-a-date" },
+    ]) {
+      expect(
+        await status(
+          createRoadmap(db, userId, workspaceId, projectId, { name: "不正な期間", ...period }),
+        ),
+      ).toBe(422);
+      expect(
+        await status(updateRoadmap(db, userId, workspaceId, roadmapId, { version: 1, ...period })),
+      ).toBe(422);
+    }
+    for (const period of [
+      { startDate: "2026-10-01", dueDate: "2026-10-01" },
+      { dueDate: "2026-10-31" },
+      { startDate: "2026-10-01" },
+      {},
+    ]) {
+      expect(
+        await status(
+          createRoadmap(db, userId, workspaceId, projectId, { name: "正しい期間", ...period }),
+        ),
+      ).toBe(200);
+    }
+  });
+
   test("空白名称は拒否し、前後の空白を除いて作成・改名する", async () => {
     expect(await status(createRoadmap(db, userId, workspaceId, projectId, { name: "　 " }))).toBe(
       422,

@@ -22,7 +22,13 @@ import {
 import { ApiError } from "@/api/http";
 import { EmptyState, ErrorState, LoadingState } from "@/components/state/StateViews";
 import { Button } from "@/components/ui/button";
-import { validateRoadmapName } from "@/domain/roadmap";
+import {
+  roadmapPeriodLabel,
+  validateRoadmapName,
+  validateRoadmapPeriod,
+  type RoadmapPeriod,
+} from "@/domain/roadmap";
+import { PeriodFields } from "./RoadmapPeriod";
 import { cn } from "@/lib/utils";
 
 type Scope = { workspaceId: string; projectId: string };
@@ -37,6 +43,7 @@ const failureMessage = (error: unknown) => {
 
 function NameField({
   initial = "",
+  initialPeriod,
   label,
   hint,
   submitLabel,
@@ -46,15 +53,20 @@ function NameField({
   onCancel,
 }: {
   initial?: string;
+  initialPeriod?: Partial<RoadmapPeriod>;
   label?: string;
   hint?: string;
   submitLabel: string;
   pending: boolean;
   error: string | null;
-  onSubmit: (name: string) => void;
+  onSubmit: (name: string, period: RoadmapPeriod) => void;
   onCancel?: () => void;
 }) {
   const [value, setValue] = useState(initial);
+  const [period, setPeriod] = useState<RoadmapPeriod>({
+    startDate: initialPeriod?.startDate ?? null,
+    dueDate: initialPeriod?.dueDate ?? null,
+  });
   const [localError, setLocalError] = useState<string | null>(null);
   const inputId = useId();
   const errorId = useId();
@@ -68,8 +80,9 @@ function NameField({
         event.preventDefault();
         if (pending) return;
         const result = validateRoadmapName(value);
-        setLocalError(result.ok ? null : result.message);
-        if (result.ok) onSubmit(result.name);
+        const dateError = validateRoadmapPeriod(period);
+        setLocalError(result.ok ? dateError : result.message);
+        if (result.ok && !dateError) onSubmit(result.name, period);
       }}
     >
       <div className="flex min-w-0 flex-1 basis-full flex-col gap-1.5 sm:basis-0">
@@ -91,6 +104,12 @@ function NameField({
           autoFocus={onCancel !== undefined}
           placeholder="例：TOEIC 800点を目指す"
           className="h-9 w-full rounded-sm border border-border-strong bg-surface px-3 text-[13px] focus:border-indigo focus:outline-none aria-invalid:border-destructive"
+        />
+        <PeriodFields
+          value={period}
+          onChange={setPeriod}
+          disabled={pending}
+          errorId={shown ? errorId : undefined}
         />
         {shown ? (
           <p id={errorId} role="alert" className="flex items-center gap-1 text-xs text-danger">
@@ -157,6 +176,7 @@ function RoadmapRow({ roadmap, scope, index }: { roadmap: Roadmap; scope: Scope;
         <RoadmapIcon index={index} />
         <NameField
           initial={roadmap.name}
+          initialPeriod={roadmap}
           hint="Enterで保存、Escでキャンセル"
           submitLabel="保存"
           pending={update.isPending}
@@ -165,12 +185,12 @@ function RoadmapRow({ roadmap, scope, index }: { roadmap: Roadmap; scope: Scope;
             update.reset();
             setEditing(false);
           }}
-          onSubmit={(name) =>
+          onSubmit={(name, period) =>
             update.mutate(
               {
                 workspaceId: scope.workspaceId,
                 roadmapId: roadmap.id,
-                data: { version: roadmap.version, name },
+                data: { version: roadmap.version, name, ...period },
               },
               {
                 onSuccess: (response) => {
@@ -199,6 +219,7 @@ function RoadmapRow({ roadmap, scope, index }: { roadmap: Roadmap; scope: Scope;
       <div className="min-w-0 flex-1">
         <p className="mb-1 text-[10px] tracking-wider text-subtle-foreground">目指しているゴール</p>
         <span className="block truncate text-sm font-semibold">{roadmap.name}</span>
+        <p className="mt-1 text-xs text-muted-foreground">{roadmapPeriodLabel(roadmap)}</p>
       </div>
       <Link
         to="/w/$workspaceId/p/$projectId/r/$roadmapId/map"
@@ -212,7 +233,7 @@ function RoadmapRow({ roadmap, scope, index }: { roadmap: Roadmap; scope: Scope;
       <Button
         variant="outline"
         size="icon"
-        aria-label={`「${roadmap.name}」の名称を編集`}
+        aria-label={`「${roadmap.name}」の名称と期間を編集`}
         onClick={() => setEditing(true)}
       >
         <Pencil />
@@ -230,9 +251,9 @@ export function RoadmapManager({ workspaceId, projectId }: Scope) {
   const listId = useId();
   const createId = useId();
 
-  const submitCreate = (name: string) =>
+  const submitCreate = (name: string, period: RoadmapPeriod) =>
     create.mutate(
-      { workspaceId, projectId, data: { name } },
+      { workspaceId, projectId, data: { name, ...period } },
       {
         onSuccess: async (response) => {
           await invalidateRoadmaps(queryClient, workspaceId, projectId);

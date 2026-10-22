@@ -5,6 +5,15 @@ import { assertIds, findRoadmap, requireMember, requireProject } from "./access"
 import type { Db } from "./db";
 import { notFound, parseInput, validationFailed, versionConflict } from "./errors";
 import { nowIso, uuidv7 } from "./ids";
+import { validateRoadmapPeriod } from "@/domain/roadmap";
+
+const checkPeriod = (period: { startDate?: string | null; dueDate?: string | null }) => {
+  const message = validateRoadmapPeriod({
+    startDate: period.startDate ?? null,
+    dueDate: period.dueDate ?? null,
+  });
+  if (message) throw validationFailed([{ path: "/dueDate", message }]);
+};
 
 // OpenAPIのminLengthは空白のみの名称を許すため、サーバー側でも空白のみを拒否し、前後の空白を除く。
 const trimmedName = (name: string) => {
@@ -42,6 +51,7 @@ export const createRoadmap = async (
   await requireMember(db, workspaceId, actorId);
   await requireProject(db, workspaceId, projectId);
   const input = parseInput(CreateRoadmapBody, body);
+  checkPeriod(input);
   const now = nowIso();
   const [created] = await db
     .insert(roadmaps)
@@ -51,6 +61,8 @@ export const createRoadmap = async (
       workspaceId,
       name: trimmedName(input.name),
       description: input.description ?? null,
+      startDate: input.startDate ?? null,
+      dueDate: input.dueDate ?? null,
       createdBy: actorId,
       createdAt: now,
       updatedAt: now,
@@ -82,6 +94,12 @@ export const updateRoadmap = async (
   assertIds(workspaceId, roadmapId);
   await requireMember(db, workspaceId, actorId);
   const input = parseInput(UpdateRoadmapBody, body);
+  const current = await findRoadmap(db, workspaceId, roadmapId);
+  if (!current) throw notFound();
+  checkPeriod({
+    startDate: input.startDate === undefined ? current.startDate : input.startDate,
+    dueDate: input.dueDate === undefined ? current.dueDate : input.dueDate,
+  });
 
   // versionの照合と更新を1文で行い、他のユーザーの更新を上書きしない。
   const [updated] = await db
@@ -89,6 +107,8 @@ export const updateRoadmap = async (
     .set({
       ...(input.name !== undefined && { name: trimmedName(input.name) }),
       ...(input.description !== undefined && { description: input.description }),
+      ...(input.startDate !== undefined && { startDate: input.startDate }),
+      ...(input.dueDate !== undefined && { dueDate: input.dueDate }),
       updatedAt: nowIso(),
       version: sql`${roadmaps.version} + 1`,
     })

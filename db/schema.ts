@@ -112,6 +112,8 @@ export const roadmaps = sqliteTable(
       .references(() => workspaces.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     description: text("description"),
+    startDate: text("start_date"),
+    dueDate: text("due_date"),
     archivedAt: text("archived_at"),
     createdBy: text("created_by")
       .notNull()

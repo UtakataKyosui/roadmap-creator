@@ -24,6 +24,30 @@ security:
   - sessionCookie: []
 paths:
   /workspaces:
+    post:
+      operationId: createWorkspace
+      summary: Workspaceを作成する
+      description: 作成者をownerとして登録し、初期プロジェクト「マイプロジェクト」を作成する。すべてを同一トランザクションで保存する。
+      tags: [Workspaces]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkspaceCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "500":
+          $ref: "#/components/responses/InternalError"
     get:
       operationId: listWorkspaces
       summary: ログイン中のユーザーが所属するWorkspace一覧
@@ -39,6 +63,55 @@ paths:
                   $ref: "#/components/schemas/Workspace"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /workspaces/{workspaceId}:
+    parameters:
+      - $ref: "#/components/parameters/WorkspaceId"
+    patch:
+      operationId: updateWorkspace
+      summary: Workspaceの名称を変更する
+      description: owner/adminのみ実行できる。versionが一致しない場合は409。
+      tags: [Workspaces]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkspaceUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/VersionConflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    delete:
+      operationId: deleteWorkspace
+      summary: Workspaceを削除する
+      description: ownerのみ実行できる。配下のProject・Roadmap・Task・Label・招待・メンバーシップも削除する。
+      tags: [Workspaces]
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
         "500":
           $ref: "#/components/responses/InternalError"
   /me/tasks:
@@ -353,6 +426,40 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+  /workspaces/{workspaceId}/projects/{projectId}:
+    parameters:
+      - $ref: "#/components/parameters/WorkspaceId"
+      - $ref: "#/components/parameters/ProjectId"
+    patch:
+      operationId: updateProject
+      summary: Projectの名称を変更する
+      description: owner/adminのみ実行できる。versionが一致しない場合は409。
+      tags: [Projects]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/VersionConflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "500":
+          $ref: "#/components/responses/InternalError"
   /workspaces/{workspaceId}/projects/{projectId}/roadmaps:
     get:
       operationId: listRoadmaps
@@ -770,6 +877,34 @@ components:
           $ref: "#/components/schemas/Timestamp"
         updatedAt:
           $ref: "#/components/schemas/Timestamp"
+    WorkspaceCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+    WorkspaceUpdate:
+      type: object
+      required: [name, version]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        version:
+          $ref: "#/components/schemas/Version"
+    ProjectUpdate:
+      type: object
+      required: [name, version]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        version:
+          $ref: "#/components/schemas/Version"
     Workspace:
       type: object
       description: チームが共有する作業領域。共有境界であり、Label・Project・Membershipが属する。
@@ -848,6 +983,16 @@ components:
         description:
           type: [string, "null"]
           maxLength: 2000
+        startDate:
+          oneOf:
+            - $ref: "#/components/schemas/CalendarDate"
+            - type: "null"
+          description: 学習を開始する日。
+        dueDate:
+          oneOf:
+            - $ref: "#/components/schemas/CalendarDate"
+            - type: "null"
+          description: 完了予定日。開始日以降に設定する。
         archivedAt:
           oneOf:
             - $ref: "#/components/schemas/Timestamp"
@@ -1087,6 +1232,14 @@ components:
         description:
           type: [string, "null"]
           maxLength: 2000
+        startDate:
+          oneOf:
+            - $ref: "#/components/schemas/CalendarDate"
+            - type: "null"
+        dueDate:
+          oneOf:
+            - $ref: "#/components/schemas/CalendarDate"
+            - type: "null"
     RoadmapUpdate:
       type: object
       description: 部分更新。未指定の項目は据え置き、descriptionのnullは未設定化。versionが現在値と異なれば409を返す。
@@ -1101,6 +1254,16 @@ components:
         description:
           type: [string, "null"]
           maxLength: 2000
+        startDate:
+          oneOf:
+            - $ref: "#/components/schemas/CalendarDate"
+            - type: "null"
+          description: 省略は据え置き、nullは未設定化。
+        dueDate:
+          oneOf:
+            - $ref: "#/components/schemas/CalendarDate"
+            - type: "null"
+          description: 省略は据え置き、nullは未設定化。
     TaskPage:
       type: object
       required: [items, nextCursor]

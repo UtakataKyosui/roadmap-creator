@@ -5,15 +5,18 @@
  * Roadmap Studioフェーズ1のAPI契約の正本。
  * OpenAPI spec version: 0.1.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseQueryResult,
+  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
@@ -23,7 +26,10 @@ import type {
   InternalErrorResponse,
   NotFoundResponse,
   Project,
+  ProjectUpdate,
   UnauthorizedResponse,
+  ValidationFailedResponse,
+  VersionConflictResponse,
 } from "../../models";
 
 import { customFetch } from "../../../http";
@@ -218,3 +224,187 @@ export function useListProjects<
 
   return withQueryKey(query, queryOptions.queryKey);
 }
+
+export type updateProjectResponse200 = {
+  data: Project;
+  status: 200;
+};
+
+export type updateProjectResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type updateProjectResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type updateProjectResponse404 = {
+  data: NotFoundResponse;
+  status: 404;
+};
+
+export type updateProjectResponse409 = {
+  data: VersionConflictResponse;
+  status: 409;
+};
+
+export type updateProjectResponse422 = {
+  data: ValidationFailedResponse;
+  status: 422;
+};
+
+export type updateProjectResponse500 = {
+  data: InternalErrorResponse;
+  status: 500;
+};
+
+export type updateProjectResponseSuccess = updateProjectResponse200 & {
+  headers: Headers;
+};
+export type updateProjectResponseError = (
+  | updateProjectResponse401
+  | updateProjectResponse403
+  | updateProjectResponse404
+  | updateProjectResponse409
+  | updateProjectResponse422
+  | updateProjectResponse500
+) & {
+  headers: Headers;
+};
+
+export const getUpdateProjectUrl = (workspaceId: string, projectId: string) => {
+  return `/api/workspaces/${workspaceId}/projects/${projectId}`;
+};
+
+/**
+ * owner/adminのみ実行できる。versionが一致しない場合は409。
+ * @summary Projectの名称を変更する
+ */
+export const updateProject = async (
+  workspaceId: string,
+  projectId: string,
+  projectUpdate: ProjectUpdate,
+  options?: Parameters<typeof customFetch>[1],
+): Promise<updateProjectResponseSuccess> => {
+  const getHeaders = (
+    h?: NonNullable<RequestInit["headers"]>,
+  ): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(
+          h as Iterable<Iterable<string>>,
+          (entry) => Array.from(entry) as [string, string],
+        ),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+  return customFetch<updateProjectResponseSuccess>(getUpdateProjectUrl(workspaceId, projectId), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...getHeaders(options?.headers) },
+    body: JSON.stringify(projectUpdate),
+  });
+};
+
+export const getUpdateProjectMutationKey = () => ["updateProject"] as const;
+
+export const getUpdateProjectMutationOptions = <
+  TError = ErrorType<
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | NotFoundResponse
+    | VersionConflictResponse
+    | ValidationFailedResponse
+    | InternalErrorResponse
+  >,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateProject>>,
+    TError,
+    UpdateProjectMutationVariables,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateProject>>,
+  TError,
+  UpdateProjectMutationVariables,
+  TContext
+> => {
+  const mutationKey = getUpdateProjectMutationKey();
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateProject>>,
+    UpdateProjectMutationVariables
+  > = (props) => {
+    const { workspaceId, projectId, data } = props ?? {};
+
+    return updateProject(workspaceId, projectId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateProjectMutationResult = NonNullable<Awaited<ReturnType<typeof updateProject>>>;
+export type UpdateProjectMutationBody = ProjectUpdate;
+export type UpdateProjectMutationError = ErrorType<
+  | UnauthorizedResponse
+  | ForbiddenResponse
+  | NotFoundResponse
+  | VersionConflictResponse
+  | ValidationFailedResponse
+  | InternalErrorResponse
+>;
+export type UpdateProjectMutationVariables = {
+  workspaceId: string;
+  projectId: string;
+  data: ProjectUpdate;
+};
+
+/**
+ * @summary Projectの名称を変更する
+ */
+export const useUpdateProject = <
+  TError = ErrorType<
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | NotFoundResponse
+    | VersionConflictResponse
+    | ValidationFailedResponse
+    | InternalErrorResponse
+  >,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof updateProject>>,
+      TError,
+      UpdateProjectMutationVariables,
+      TContext
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof updateProject>>,
+  TError,
+  UpdateProjectMutationVariables,
+  TContext
+> => {
+  return useMutation(getUpdateProjectMutationOptions(options), queryClient);
+};

@@ -5,15 +5,18 @@
  * Roadmap Studioフェーズ1のAPI契約の正本。
  * OpenAPI spec version: 0.1.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseQueryResult,
+  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
@@ -24,7 +27,11 @@ import type {
   Member,
   NotFoundResponse,
   UnauthorizedResponse,
+  ValidationFailedResponse,
+  VersionConflictResponse,
   Workspace,
+  WorkspaceCreate,
+  WorkspaceUpdate,
 } from "../../models";
 
 import { customFetch } from "../../../http";
@@ -47,6 +54,148 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
+export type createWorkspaceResponse201 = {
+  data: Workspace;
+  status: 201;
+};
+
+export type createWorkspaceResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type createWorkspaceResponse422 = {
+  data: ValidationFailedResponse;
+  status: 422;
+};
+
+export type createWorkspaceResponse500 = {
+  data: InternalErrorResponse;
+  status: 500;
+};
+
+export type createWorkspaceResponseSuccess = createWorkspaceResponse201 & {
+  headers: Headers;
+};
+export type createWorkspaceResponseError = (
+  | createWorkspaceResponse401
+  | createWorkspaceResponse422
+  | createWorkspaceResponse500
+) & {
+  headers: Headers;
+};
+
+export const getCreateWorkspaceUrl = () => {
+  return `/api/workspaces`;
+};
+
+/**
+ * 作成者をownerとして登録し、初期プロジェクト「マイプロジェクト」を作成する。すべてを同一トランザクションで保存する。
+ * @summary Workspaceを作成する
+ */
+export const createWorkspace = async (
+  workspaceCreate: WorkspaceCreate,
+  options?: Parameters<typeof customFetch>[1],
+): Promise<createWorkspaceResponseSuccess> => {
+  const getHeaders = (
+    h?: NonNullable<RequestInit["headers"]>,
+  ): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(
+          h as Iterable<Iterable<string>>,
+          (entry) => Array.from(entry) as [string, string],
+        ),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+  return customFetch<createWorkspaceResponseSuccess>(getCreateWorkspaceUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...getHeaders(options?.headers) },
+    body: JSON.stringify(workspaceCreate),
+  });
+};
+
+export const getCreateWorkspaceMutationKey = () => ["createWorkspace"] as const;
+
+export const getCreateWorkspaceMutationOptions = <
+  TError = ErrorType<UnauthorizedResponse | ValidationFailedResponse | InternalErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createWorkspace>>,
+    TError,
+    CreateWorkspaceMutationVariables,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createWorkspace>>,
+  TError,
+  CreateWorkspaceMutationVariables,
+  TContext
+> => {
+  const mutationKey = getCreateWorkspaceMutationKey();
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createWorkspace>>,
+    CreateWorkspaceMutationVariables
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createWorkspace(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateWorkspaceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createWorkspace>>
+>;
+export type CreateWorkspaceMutationBody = WorkspaceCreate;
+export type CreateWorkspaceMutationError = ErrorType<
+  UnauthorizedResponse | ValidationFailedResponse | InternalErrorResponse
+>;
+export type CreateWorkspaceMutationVariables = { data: WorkspaceCreate };
+
+/**
+ * @summary Workspaceを作成する
+ */
+export const useCreateWorkspace = <
+  TError = ErrorType<UnauthorizedResponse | ValidationFailedResponse | InternalErrorResponse>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof createWorkspace>>,
+      TError,
+      CreateWorkspaceMutationVariables,
+      TContext
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof createWorkspace>>,
+  TError,
+  CreateWorkspaceMutationVariables,
+  TContext
+> => {
+  return useMutation(getCreateWorkspaceMutationOptions(options), queryClient);
+};
 export type listWorkspacesResponse200 = {
   data: Workspace[];
   status: 200;
@@ -185,6 +334,317 @@ export function useListWorkspaces<
   return withQueryKey(query, queryOptions.queryKey);
 }
 
+export type updateWorkspaceResponse200 = {
+  data: Workspace;
+  status: 200;
+};
+
+export type updateWorkspaceResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type updateWorkspaceResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type updateWorkspaceResponse404 = {
+  data: NotFoundResponse;
+  status: 404;
+};
+
+export type updateWorkspaceResponse409 = {
+  data: VersionConflictResponse;
+  status: 409;
+};
+
+export type updateWorkspaceResponse422 = {
+  data: ValidationFailedResponse;
+  status: 422;
+};
+
+export type updateWorkspaceResponse500 = {
+  data: InternalErrorResponse;
+  status: 500;
+};
+
+export type updateWorkspaceResponseSuccess = updateWorkspaceResponse200 & {
+  headers: Headers;
+};
+export type updateWorkspaceResponseError = (
+  | updateWorkspaceResponse401
+  | updateWorkspaceResponse403
+  | updateWorkspaceResponse404
+  | updateWorkspaceResponse409
+  | updateWorkspaceResponse422
+  | updateWorkspaceResponse500
+) & {
+  headers: Headers;
+};
+
+export const getUpdateWorkspaceUrl = (workspaceId: string) => {
+  return `/api/workspaces/${workspaceId}`;
+};
+
+/**
+ * owner/adminのみ実行できる。versionが一致しない場合は409。
+ * @summary Workspaceの名称を変更する
+ */
+export const updateWorkspace = async (
+  workspaceId: string,
+  workspaceUpdate: WorkspaceUpdate,
+  options?: Parameters<typeof customFetch>[1],
+): Promise<updateWorkspaceResponseSuccess> => {
+  const getHeaders = (
+    h?: NonNullable<RequestInit["headers"]>,
+  ): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(
+          h as Iterable<Iterable<string>>,
+          (entry) => Array.from(entry) as [string, string],
+        ),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+  return customFetch<updateWorkspaceResponseSuccess>(getUpdateWorkspaceUrl(workspaceId), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...getHeaders(options?.headers) },
+    body: JSON.stringify(workspaceUpdate),
+  });
+};
+
+export const getUpdateWorkspaceMutationKey = () => ["updateWorkspace"] as const;
+
+export const getUpdateWorkspaceMutationOptions = <
+  TError = ErrorType<
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | NotFoundResponse
+    | VersionConflictResponse
+    | ValidationFailedResponse
+    | InternalErrorResponse
+  >,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateWorkspace>>,
+    TError,
+    UpdateWorkspaceMutationVariables,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateWorkspace>>,
+  TError,
+  UpdateWorkspaceMutationVariables,
+  TContext
+> => {
+  const mutationKey = getUpdateWorkspaceMutationKey();
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateWorkspace>>,
+    UpdateWorkspaceMutationVariables
+  > = (props) => {
+    const { workspaceId, data } = props ?? {};
+
+    return updateWorkspace(workspaceId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateWorkspaceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateWorkspace>>
+>;
+export type UpdateWorkspaceMutationBody = WorkspaceUpdate;
+export type UpdateWorkspaceMutationError = ErrorType<
+  | UnauthorizedResponse
+  | ForbiddenResponse
+  | NotFoundResponse
+  | VersionConflictResponse
+  | ValidationFailedResponse
+  | InternalErrorResponse
+>;
+export type UpdateWorkspaceMutationVariables = { workspaceId: string; data: WorkspaceUpdate };
+
+/**
+ * @summary Workspaceの名称を変更する
+ */
+export const useUpdateWorkspace = <
+  TError = ErrorType<
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | NotFoundResponse
+    | VersionConflictResponse
+    | ValidationFailedResponse
+    | InternalErrorResponse
+  >,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof updateWorkspace>>,
+      TError,
+      UpdateWorkspaceMutationVariables,
+      TContext
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof updateWorkspace>>,
+  TError,
+  UpdateWorkspaceMutationVariables,
+  TContext
+> => {
+  return useMutation(getUpdateWorkspaceMutationOptions(options), queryClient);
+};
+export type deleteWorkspaceResponse204 = {
+  data: void;
+  status: 204;
+};
+
+export type deleteWorkspaceResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type deleteWorkspaceResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type deleteWorkspaceResponse404 = {
+  data: NotFoundResponse;
+  status: 404;
+};
+
+export type deleteWorkspaceResponse500 = {
+  data: InternalErrorResponse;
+  status: 500;
+};
+
+export type deleteWorkspaceResponseSuccess = deleteWorkspaceResponse204 & {
+  headers: Headers;
+};
+export type deleteWorkspaceResponseError = (
+  | deleteWorkspaceResponse401
+  | deleteWorkspaceResponse403
+  | deleteWorkspaceResponse404
+  | deleteWorkspaceResponse500
+) & {
+  headers: Headers;
+};
+
+export const getDeleteWorkspaceUrl = (workspaceId: string) => {
+  return `/api/workspaces/${workspaceId}`;
+};
+
+/**
+ * ownerのみ実行できる。配下のProject・Roadmap・Task・Label・招待・メンバーシップも削除する。
+ * @summary Workspaceを削除する
+ */
+export const deleteWorkspace = async (
+  workspaceId: string,
+  options?: Parameters<typeof customFetch>[1],
+): Promise<deleteWorkspaceResponseSuccess> => {
+  return customFetch<deleteWorkspaceResponseSuccess>(getDeleteWorkspaceUrl(workspaceId), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteWorkspaceMutationKey = () => ["deleteWorkspace"] as const;
+
+export const getDeleteWorkspaceMutationOptions = <
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteWorkspace>>,
+    TError,
+    DeleteWorkspaceMutationVariables,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteWorkspace>>,
+  TError,
+  DeleteWorkspaceMutationVariables,
+  TContext
+> => {
+  const mutationKey = getDeleteWorkspaceMutationKey();
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteWorkspace>>,
+    DeleteWorkspaceMutationVariables
+  > = (props) => {
+    const { workspaceId } = props ?? {};
+
+    return deleteWorkspace(workspaceId, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteWorkspaceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteWorkspace>>
+>;
+
+export type DeleteWorkspaceMutationError = ErrorType<
+  UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+>;
+export type DeleteWorkspaceMutationVariables = { workspaceId: string };
+
+/**
+ * @summary Workspaceを削除する
+ */
+export const useDeleteWorkspace = <
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | InternalErrorResponse
+  >,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteWorkspace>>,
+      TError,
+      DeleteWorkspaceMutationVariables,
+      TContext
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteWorkspace>>,
+  TError,
+  DeleteWorkspaceMutationVariables,
+  TContext
+> => {
+  return useMutation(getDeleteWorkspaceMutationOptions(options), queryClient);
+};
 export type listWorkspaceMembersResponse200 = {
   data: Member[];
   status: 200;

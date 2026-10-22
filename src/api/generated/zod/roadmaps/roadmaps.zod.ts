@@ -26,6 +26,14 @@ export const ListRoadmapsResponseItem = zod
     workspaceId: zod.uuid().describe("サーバーが採番するUUID v7。クライアントは指定しない。"),
     name: zod.string().min(1).max(listRoadmapsResponseNameMax),
     description: zod.string().max(listRoadmapsResponseDescriptionMax).nullish(),
+    startDate: zod
+      .union([zod.iso.date().describe("タイムゾーンを持たない日付（YYYY-MM-DD）。"), zod.null()])
+      .optional()
+      .describe("学習を開始する日。"),
+    dueDate: zod
+      .union([zod.iso.date().describe("タイムゾーンを持たない日付（YYYY-MM-DD）。"), zod.null()])
+      .optional()
+      .describe("完了予定日。開始日以降に設定する。"),
     archivedAt: zod
       .union([
         zod.iso
@@ -66,6 +74,12 @@ export const createRoadmapBodyDescriptionMax = 2000;
 export const CreateRoadmapBody = zod.object({
   name: zod.string().min(1).max(createRoadmapBodyNameMax),
   description: zod.string().max(createRoadmapBodyDescriptionMax).nullish(),
+  startDate: zod
+    .union([zod.iso.date().describe("タイムゾーンを持たない日付（YYYY-MM-DD）。"), zod.null()])
+    .optional(),
+  dueDate: zod
+    .union([zod.iso.date().describe("タイムゾーンを持たない日付（YYYY-MM-DD）。"), zod.null()])
+    .optional(),
 });
 
 export const createRoadmapResponseNameMax = 100;
@@ -79,6 +93,14 @@ export const CreateRoadmapResponse = zod
     workspaceId: zod.uuid().describe("サーバーが採番するUUID v7。クライアントは指定しない。"),
     name: zod.string().min(1).max(createRoadmapResponseNameMax),
     description: zod.string().max(createRoadmapResponseDescriptionMax).nullish(),
+    startDate: zod
+      .union([zod.iso.date().describe("タイムゾーンを持たない日付（YYYY-MM-DD）。"), zod.null()])
+      .optional()
+      .describe("学習を開始する日。"),
+    dueDate: zod
+      .union([zod.iso.date().describe("タイムゾーンを持たない日付（YYYY-MM-DD）。"), zod.null()])
+      .optional()
+      .describe("完了予定日。開始日以降に設定する。"),
     archivedAt: zod
       .union([
         zod.iso
@@ -122,6 +144,14 @@ export const GetRoadmapResponse = zod
     workspaceId: zod.uuid().describe("サーバーが採番するUUID v7。クライアントは指定しない。"),
     name: zod.string().min(1).max(getRoadmapResponseNameMax),
     description: zod.string().max(getRoadmapResponseDescriptionMax).nullish(),
+    startDate: zod
+      .union([zod.iso.date().describe("タイムゾーンを持たない日付（YYYY-MM-DD）。"), zod.null()])
+      .optional()
+      .describe("学習を開始する日。"),
+    dueDate: zod
+      .union([zod.iso.date().describe("タイムゾーンを持たない日付（YYYY-MM-DD）。"), zod.null()])
+      .optional()
+      .describe("完了予定日。開始日以降に設定する。"),
     archivedAt: zod
       .union([
         zod.iso
@@ -166,6 +196,14 @@ export const UpdateRoadmapBody = zod
       .describe("更新競合検出用。作成時1、更新ごとに+1。更新要求で不一致なら409を返す。"),
     name: zod.string().min(1).max(updateRoadmapBodyNameMax).optional(),
     description: zod.string().max(updateRoadmapBodyDescriptionMax).nullish(),
+    startDate: zod
+      .union([zod.iso.date().describe("タイムゾーンを持たない日付（YYYY-MM-DD）。"), zod.null()])
+      .optional()
+      .describe("省略は据え置き、nullは未設定化。"),
+    dueDate: zod
+      .union([zod.iso.date().describe("タイムゾーンを持たない日付（YYYY-MM-DD）。"), zod.null()])
+      .optional()
+      .describe("省略は据え置き、nullは未設定化。"),
   })
   .describe(
     "部分更新。未指定の項目は据え置き、descriptionのnullは未設定化。versionが現在値と異なれば409を返す。",
@@ -182,6 +220,14 @@ export const UpdateRoadmapResponse = zod
     workspaceId: zod.uuid().describe("サーバーが採番するUUID v7。クライアントは指定しない。"),
     name: zod.string().min(1).max(updateRoadmapResponseNameMax),
     description: zod.string().max(updateRoadmapResponseDescriptionMax).nullish(),
+    startDate: zod
+      .union([zod.iso.date().describe("タイムゾーンを持たない日付（YYYY-MM-DD）。"), zod.null()])
+      .optional()
+      .describe("学習を開始する日。"),
+    dueDate: zod
+      .union([zod.iso.date().describe("タイムゾーンを持たない日付（YYYY-MM-DD）。"), zod.null()])
+      .optional()
+      .describe("完了予定日。開始日以降に設定する。"),
     archivedAt: zod
       .union([
         zod.iso
