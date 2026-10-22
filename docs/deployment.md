@@ -48,6 +48,9 @@ Accessを通過してもseedユーザーは有効にならない。画面の実�
 `Quality` は全PRとmainで、固定バージョン・frozen lockfileの依存導入、Void型生成、
 `vp check`、OpenAPI lint、Orvalの生成差分、実DBを使うテスト、型検査を含むビルドを実行する。
 テストが0件なら失敗する。CIにCloudflare等の秘密情報は渡さない。
+PRでは同じ参照の古い実行を取り消す（mainと配備からの呼び出しは取り消さない）。
+`Workflow lint` が `.github/workflows/` の変更をactionlintで検査する。
+使用するActionはコミットSHAで固定し、Dependabotが週次で更新PRを作る（Actions・npm）。
 
 ## 手動CD
 
