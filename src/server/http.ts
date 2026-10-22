@@ -1,22 +1,33 @@
-import { toErrorResponse, validationFailed } from "./errors";
-import { resolveActorId } from "./auth";
+import { Effect } from "effect";
+import { runPromise } from "@/lib/effect";
+import { serverEffect, toErrorResponse, validationFailed, UnexpectedServerError } from "./errors";
+import { resolveActorIdEffect } from "./auth";
 
-export const readJson = async (request: Request): Promise<unknown> => {
-  try {
-    return await request.json();
-  } catch {
-    throw validationFailed([{ path: "", message: "リクエスト本文をJSONとして解釈できません" }]);
-  }
-};
+export const readJsonEffect = (request: Request) =>
+  Effect.tryPromise({
+    try: (): Promise<unknown> => request.json(),
+    catch: () =>
+      validationFailed([{ path: "", message: "リクエスト本文をJSONとして解釈できません" }]),
+  });
+
+export const readJson = (request: Request): Promise<unknown> => runPromise(readJsonEffect(request));
 
 // ルートの共通処理。認証済みのユーザーIDを渡し、結果をJSONにし、例外を共通のエラー形式に変換する。
-export const handle = async (run: (actorId: string) => Promise<unknown>, status = 200) => {
-  try {
-    const body = await run(await resolveActorId());
-    // 本文のない応答（204）は、実行結果がundefinedのときに返す。
-    if (body === undefined) return new Response(null, { status });
-    return Response.json(body, { status });
-  } catch (error) {
-    return toErrorResponse(error);
-  }
-};
+export const handleEffect = (run: (actorId: string) => Promise<unknown>, status = 200) =>
+  Effect.gen(function* () {
+    const actorId = yield* resolveActorIdEffect();
+    const body = yield* serverEffect(() => run(actorId));
+    return yield* Effect.try({
+      try: () =>
+        body === undefined ? new Response(null, { status }) : Response.json(body, { status }),
+      catch: (cause) => new UnexpectedServerError({ cause }),
+    });
+  }).pipe(
+    Effect.catchTags({
+      HttpError: (error) => Effect.sync(() => toErrorResponse(error)),
+      UnexpectedServerError: (error) => Effect.sync(() => toErrorResponse(error)),
+    }),
+  );
+
+export const handle = (run: (actorId: string) => Promise<unknown>, status = 200) =>
+  Effect.runPromise(handleEffect(run, status));

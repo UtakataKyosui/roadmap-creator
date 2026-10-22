@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vite-plus/test";
+import { describe, expect, test, vi } from "vite-plus/test";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { devFixtures } from "../../db/dev-fixtures";
@@ -85,6 +85,35 @@ describe("エラー応答", () => {
   test("不正なJSON本文は422になる", async () => {
     const request = new Request("http://x.test", { method: "POST", body: "{" });
     await expect(readJson(request)).rejects.toMatchObject({ status: 422 });
+  });
+
+  test("同期的なサービス例外もHTTPエラーとして扱う", async () => {
+    const response = await handle(() => {
+      throw new HttpError(403, "forbidden", "denied");
+    });
+    expect(response.status).toBe(403);
+  });
+
+  test("DB障害とJSON化できない結果は内部情報を漏らさず500になる", async () => {
+    const logger = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      for (const run of [
+        async () => {
+          throw new Error("private database detail");
+        },
+        async () => ({ value: 1n }),
+      ]) {
+        const response = await handle(run);
+        expect(response.status).toBe(500);
+        expect(await response.json()).toEqual({
+          code: "internal",
+          message: "サーバー内部でエラーが発生しました",
+        });
+      }
+      expect(logger).toHaveBeenCalledTimes(2);
+    } finally {
+      logger.mockRestore();
+    }
   });
 });
 
