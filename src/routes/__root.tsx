@@ -7,7 +7,7 @@ import { sessionQueryOptions } from "@/api/session";
 import { getSiteOrigin } from "@/api/site";
 import { DefaultCatchBoundary } from "@/components/DefaultCatchBoundary";
 import { NotFound } from "@/components/NotFound";
-import { safeRedirect } from "@/domain/auth-redirect";
+import { safeRedirect } from "@roadmapper/domain/auth-redirect";
 import { registerServiceWorker } from "@/pwa/register";
 import appCss from "@/styles/app.css?url";
 import { seo } from "@/utils/seo";

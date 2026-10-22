@@ -1,5 +1,5 @@
 import type { QueryClient } from "@tanstack/react-query";
-import type { Workspace, Project } from "./generated/models";
+import type { Workspace, Project } from "@roadmapper/api-contract/models";
 import {
   getListProjectsQueryKey,
   type listProjectsResponseSuccess,

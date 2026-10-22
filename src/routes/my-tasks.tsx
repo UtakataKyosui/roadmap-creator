@@ -3,8 +3,8 @@ import { getListMyTasksQueryOptions } from "@/api/generated/endpoints/my-tasks/m
 import { getListWorkspacesQueryOptions } from "@/api/generated/endpoints/workspaces/workspaces";
 import { getListProjectsQueryOptions } from "@/api/generated/endpoints/projects/projects";
 import { MyTasksPage } from "@/components/my-tasks/MyTasksPage";
-import { todayCalendarDate } from "@/domain/calendar-date";
-import { parseMyTasksSearch, toApiParams } from "@/domain/my-tasks";
+import { todayCalendarDate } from "@roadmapper/domain/calendar-date";
+import { parseMyTasksSearch, toApiParams } from "@roadmapper/domain/my-tasks";
 
 // ログイン中の利用者が担当するタスクの一覧。条件とページ番号はURLで持つ。
 export const Route = createFileRoute("/my-tasks")({

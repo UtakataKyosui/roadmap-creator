@@ -7,6 +7,6 @@ export default defineConfig({
     environment: "node",
     // forksのコード転送用一時ファイルで起きるENOENTを避け、スレッド間で直接渡す。
     pool: "threads",
-    include: ["src/**/*.test.ts"],
+    include: ["src/**/*.test.ts", "packages/*/src/**/*.test.ts"],
   },
 });

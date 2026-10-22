@@ -1,0 +1,13 @@
+{
+  "name": "@roadmapper/api-contract",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./models": "./src/models/index.ts",
+    "./zod/*": "./src/zod/*.ts"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
+}

@@ -3,8 +3,8 @@ import { Map as MapIcon } from "lucide-react";
 import { useState } from "react";
 import { authClient } from "@/api/auth-client";
 import { Notice } from "@/components/state/StateViews";
-import { Button } from "@/components/ui/button";
-import { loginErrorMessage, loginUrl, safeRedirect } from "@/domain/auth-redirect";
+import { Button } from "@roadmapper/ui/components/ui/button";
+import { loginErrorMessage, loginUrl, safeRedirect } from "@roadmapper/domain/auth-redirect";
 
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>): { redirect?: string; error?: string } => ({

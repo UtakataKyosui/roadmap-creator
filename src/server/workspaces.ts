@@ -5,8 +5,8 @@ import type { Db } from "./db";
 import {
   CreateWorkspaceBody,
   UpdateWorkspaceBody,
-} from "@/api/generated/zod/workspaces/workspaces.zod";
-import { UpdateProjectBody } from "@/api/generated/zod/projects/projects.zod";
+} from "@roadmapper/api-contract/zod/workspaces/workspaces.zod";
+import { UpdateProjectBody } from "@roadmapper/api-contract/zod/projects/projects.zod";
 import { forbidden, notFound, parseInput, validationFailed, versionConflict } from "./errors";
 import { nowIso, uuidv7 } from "./ids";
 

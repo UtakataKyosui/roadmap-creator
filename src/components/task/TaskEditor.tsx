@@ -13,20 +13,25 @@ import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { invalidateTasks } from "@/api/cache";
 import { apiErrorMessage } from "@/api/error-message";
 import { useCreateTask, useGetTask, useUpdateTask } from "@/api/generated/endpoints/tasks/tasks";
-import type { Task, TaskCreate, TaskStatus } from "@/api/generated/models";
+import type { Task, TaskCreate, TaskStatus } from "@roadmapper/api-contract/models";
 import { ApiError } from "@/api/http";
-import { initialTaskInput, taskInput, taskPatch, validateTaskInput } from "@/domain/task-editor";
+import {
+  initialTaskInput,
+  taskInput,
+  taskPatch,
+  validateTaskInput,
+} from "@roadmapper/domain/task-editor";
 import {
   PRIORITY_LABEL,
   STATUS_LABEL,
   TASK_PRIORITIES,
   TASK_STATUSES,
   progressPercent,
-} from "@/domain/task";
+} from "@roadmapper/domain/task";
 import { useWorkspaceOptions } from "@/hooks/use-workspace-options";
 import { ErrorState, LoadingState, Notice } from "@/components/state/StateViews";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@roadmapper/ui/components/ui/button";
+import { cn } from "@roadmapper/ui/lib/utils";
 
 export type TaskScope = { workspaceId: string; roadmapId: string };
 export type EditorSelection = { taskId: string } | { status: TaskStatus };

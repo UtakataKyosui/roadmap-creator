@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { todayCalendarDate } from "@/domain/calendar-date";
+import { todayCalendarDate } from "@roadmapper/domain/calendar-date";
 
 const subscribe = (notify: () => void) => {
   const timer = window.setInterval(notify, 60_000);

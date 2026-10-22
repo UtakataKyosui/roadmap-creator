@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
-import { parseResponse } from "../api/validation";
+import { parseResponse } from "@roadmapper/domain/validation";
 import {
   CreateInvitationResponse,
   GetInvitationPreviewResponse,
-} from "../api/generated/zod/invitations/invitations.zod";
+} from "@roadmapper/api-contract/zod/invitations/invitations.zod";
 import { devFixtures } from "../../db/dev-fixtures";
 import {
   acceptInvitation,

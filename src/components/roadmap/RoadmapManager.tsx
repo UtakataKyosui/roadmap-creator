@@ -10,7 +10,7 @@ import {
   Target,
 } from "lucide-react";
 import { useId, useState } from "react";
-import type { Roadmap } from "@/api/generated/models";
+import type { Roadmap } from "@roadmapper/api-contract/models";
 import { invalidateRoadmaps } from "@/api/cache";
 import { apiErrorMessage } from "@/api/error-message";
 import {
@@ -21,15 +21,15 @@ import {
 } from "@/api/generated/endpoints/roadmaps/roadmaps";
 import { ApiError } from "@/api/http";
 import { EmptyState, ErrorState, LoadingState } from "@/components/state/StateViews";
-import { Button } from "@/components/ui/button";
+import { Button } from "@roadmapper/ui/components/ui/button";
 import {
   roadmapPeriodLabel,
   validateRoadmapName,
   validateRoadmapPeriod,
   type RoadmapPeriod,
-} from "@/domain/roadmap";
+} from "@roadmapper/domain/roadmap";
 import { PeriodFields } from "./RoadmapPeriod";
-import { cn } from "@/lib/utils";
+import { cn } from "@roadmapper/ui/lib/utils";
 
 type Scope = { workspaceId: string; projectId: string };
 

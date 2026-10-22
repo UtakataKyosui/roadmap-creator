@@ -20,7 +20,7 @@ API 契約の正本は [`openapi/openapi.yaml`](openapi/openapi.yaml)（OpenAPI 
 | コマンド            | 内容                                                                        |
 | ------------------- | --------------------------------------------------------------------------- |
 | `pnpm api:lint`     | 仕様を検証する（Redocly、設定は `redocly.yaml`）                            |
-| `pnpm api:generate` | `src/api/generated/` を再生成する                                           |
+| `pnpm api:generate` | `src/api/generated/` と `packages/api-contract/src/` を再生成する           |
 | `pnpm api:check`    | 再生成して、コミット済みの生成物との差分がないことを確認する（CI でも実行） |
 
 ### 仕様を変更するとき
@@ -29,16 +29,16 @@ API 契約の正本は [`openapi/openapi.yaml`](openapi/openapi.yaml)（OpenAPI 
 2. `pnpm api:lint` で仕様を検証する
 3. `pnpm api:generate` で再生成し、生成物を仕様と同じコミットに含める
 
-`src/api/generated/` は直接編集しない。生成物は Orval が書き出した後に `vp fmt` で整形されるため、再生成しても差分は出ない。
+`src/api/generated/` と `packages/api-contract/src/` は直接編集しない。生成物は Orval が書き出した後に `vp fmt` で整形されるため、再生成しても差分は出ない。
 
 ### 構成
 
-| パス                           | 内容                                                                                                                     |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| `src/api/generated/endpoints/` | タグごとの API クライアントと `useXxx` フック、`getXxxQueryKey`                                                          |
-| `src/api/generated/models/`    | TypeScript の型                                                                                                          |
-| `src/api/generated/zod/`       | Zod スキーマ                                                                                                             |
-| `src/api/http.ts`              | 共通 HTTP 層（手書き）。Cookie の送信（SSR 時は受信した Cookie を転送）、サーバー側の絶対 URL 化、エラーの `ApiError` 化 |
+| パス                                | 内容                                                                                                                     |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `src/api/generated/endpoints/`      | タグごとの API クライアントと `useXxx` フック、`getXxxQueryKey`                                                          |
+| `packages/api-contract/src/models/` | TypeScript の型（`@roadmapper/api-contract/models`）。サーバー・ドメインロジックと共有する契約                           |
+| `packages/api-contract/src/zod/`    | Zod スキーマ（`@roadmapper/api-contract/zod/<tag>/<tag>.zod`）                                                           |
+| `src/api/http.ts`                   | 共通 HTTP 層（手書き）。Cookie の送信（SSR 時は受信した Cookie を転送）、サーバー側の絶対 URL 化、エラーの `ApiError` 化 |
 
 ### 規約
 
@@ -52,5 +52,11 @@ API 契約の正本は [`openapi/openapi.yaml`](openapi/openapi.yaml)（OpenAPI 
 ### 画面からの使い方
 
 - `src/api/query-client.ts`: QueryClient の生成。再試行するのはネットワーク失敗と 5xx のみ（2 回まで）。4xx、検証エラー、不正な JSON は再試行しない。更新系は再試行しない。`src/router.tsx` で生成し、TanStack Router の SSR 連携（`@tanstack/react-router-ssr-query`）で Provider とハイドレーションを設定している
-- `src/api/validation.ts`: `parseResponse` で応答を Zod 検証し、契約違反は `ResponseValidationError` を投げる。生成クライアントには組み込まれていないため、呼び出し側が明示的に使う。`startDate <= dueDate` のような生成できない横断検証（作成は `CreateTaskInput`、部分更新は現在のタスクの日付を渡す `updateTaskInputFor(current)`）もここに置く（送信前にフォームで使う）
+- `packages/domain/src/validation.ts`（`@roadmapper/domain/validation`）: `parseResponse` で応答を Zod 検証し、契約違反は `ResponseValidationError` を投げる。生成クライアントには組み込まれていないため、呼び出し側が明示的に使う。`startDate <= dueDate` のような生成できない横断検証（作成は `CreateTaskInput`、部分更新は現在のタスクの日付を渡す `updateTaskInputFor(current)`）もここに置く（送信前にフォームで使う）
 - `src/api/cache.ts`: 作成・更新・移動・削除後の `invalidateTasks`、ログアウト時の `clearUserCache`
+
+## パッケージ境界
+
+ルートがアプリ本体です。`packages/api-contract` は生成された型と Zod、`packages/domain` は純粋なロジック、`packages/ui` は表示部品を持ちます。依存は API 契約 → domain → UI → アプリの順に利用され、逆方向の参照を lint で禁止します。各パッケージは非公開で、TypeScript ソースを直接 export します。
+
+移動と import の再適用、PR のマージ順は [workspace 移行手順](docs/workspace-migration.md) を参照してください。

@@ -1,5 +1,5 @@
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
-import { loginUrl } from "@/domain/auth-redirect";
+import { loginUrl } from "@roadmapper/domain/auth-redirect";
 import { ApiError } from "./http";
 import { isRetryable } from "./error-message";
 

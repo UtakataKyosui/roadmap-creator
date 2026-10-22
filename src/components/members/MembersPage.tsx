@@ -10,12 +10,12 @@ import {
   useRevokeInvitation,
 } from "@/api/generated/endpoints/invitations/invitations";
 import { useListWorkspaceMembers } from "@/api/generated/endpoints/workspaces/workspaces";
-import type { Invitation, InvitationIssued, InvitationRole } from "@/api/generated/models";
+import type { Invitation, InvitationIssued, InvitationRole } from "@roadmapper/api-contract/models";
 import { ApiError } from "@/api/http";
 import { AppHeader } from "@/components/layout/AppShell";
 import { EmptyState, ErrorState, LoadingState, Notice } from "@/components/state/StateViews";
-import { Avatar } from "@/components/task/Avatar";
-import { Button } from "@/components/ui/button";
+import { Avatar } from "@roadmapper/ui/task/Avatar";
+import { Button } from "@roadmapper/ui/components/ui/button";
 import {
   INVITATION_ROLES,
   INVITATION_STATUS_LABEL,
@@ -23,8 +23,8 @@ import {
   ROLE_LABEL,
   absoluteInviteUrl,
   canManageInvitations,
-} from "@/domain/invitation";
-import { cn } from "@/lib/utils";
+} from "@roadmapper/domain/invitation";
+import { cn } from "@roadmapper/ui/lib/utils";
 
 const fieldClass =
   "h-9 rounded-sm border border-border-strong bg-surface-sunken px-3 text-[13px] focus:border-indigo focus:bg-surface focus:outline-none";

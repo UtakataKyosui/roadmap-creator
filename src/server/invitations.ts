@@ -1,6 +1,6 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 import { invitations, memberships, users, workspaces } from "../../db/schema";
-import { CreateInvitationBody } from "@/api/generated/zod/invitations/invitations.zod";
+import { CreateInvitationBody } from "@roadmapper/api-contract/zod/invitations/invitations.zod";
 import { assertIds, requireMember } from "./access";
 import type { Db } from "./db";
 import { forbidden, notFound, parseInput, validationFailed } from "./errors";

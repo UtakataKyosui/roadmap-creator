@@ -14,8 +14,8 @@
   "rtl": false,
   "aliases": {
     "components": "@/components",
-    "utils": "@/lib/utils",
-    "ui": "@/components/ui",
+    "utils": "@roadmapper/ui/lib/utils",
+    "ui": "@roadmapper/ui/components/ui",
     "lib": "@/lib",
     "hooks": "@/hooks"
   },

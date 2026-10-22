@@ -1,8 +1,8 @@
 import type { SQLiteSelect } from "drizzle-orm/sqlite-core";
 import { type SQL, and, asc, desc, eq, inArray, isNull, ne, or, sql } from "drizzle-orm";
 import { memberships, projects, roadmaps, tasks, users, workspaces } from "../../db/schema";
-import { ListMyTasksQueryParams } from "@/api/generated/zod/my-tasks/my-tasks.zod";
-import { addDays } from "@/domain/calendar-date";
+import { ListMyTasksQueryParams } from "@roadmapper/api-contract/zod/my-tasks/my-tasks.zod";
+import { addDays } from "@roadmapper/domain/calendar-date";
 import type { Db } from "./db";
 import { parseInput } from "./errors";
 import { taskColumns } from "./tasks";

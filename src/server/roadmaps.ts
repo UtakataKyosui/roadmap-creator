@@ -1,11 +1,14 @@
 import { and, asc, eq, sql } from "drizzle-orm";
 import { roadmaps } from "../../db/schema";
-import { CreateRoadmapBody, UpdateRoadmapBody } from "@/api/generated/zod/roadmaps/roadmaps.zod";
+import {
+  CreateRoadmapBody,
+  UpdateRoadmapBody,
+} from "@roadmapper/api-contract/zod/roadmaps/roadmaps.zod";
 import { assertIds, findRoadmap, requireMember, requireProject } from "./access";
 import type { Db } from "./db";
 import { notFound, parseInput, validationFailed, versionConflict } from "./errors";
 import { nowIso, uuidv7 } from "./ids";
-import { validateRoadmapPeriod } from "@/domain/roadmap";
+import { validateRoadmapPeriod } from "@roadmapper/domain/roadmap";
 
 const checkPeriod = (period: { startDate?: string | null; dueDate?: string | null }) => {
   const message = validateRoadmapPeriod({

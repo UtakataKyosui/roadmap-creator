@@ -1,8 +1,8 @@
 import { CircleAlert, CloudOff, Inbox, Info, LoaderCircle, RefreshCw } from "lucide-react";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { apiErrorMessage, isRetryable } from "@/api/error-message";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@roadmapper/ui/components/ui/button";
+import { cn } from "@roadmapper/ui/lib/utils";
 
 // 読み込み中・0件・取得失敗を区別して表示する共通部品。
 export function LoadingState({ label = "読み込み中…" }: { label?: string }) {
