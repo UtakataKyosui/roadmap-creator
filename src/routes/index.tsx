@@ -41,7 +41,11 @@ function Home() {
   return empty === "workspace" ? (
     <EmptyState
       title="利用できるワークスペースがありません"
-      description="開発環境では `pnpm db:seed` で開発用のデータを作成してください。"
+      description={
+        import.meta.env.DEV
+          ? "開発環境では `pnpm db:seed` で開発用のデータを作成してください。"
+          : "所属しているワークスペースがありません。ワークスペースのメンバーから招待を受けてください。"
+      }
     />
   ) : (
     <EmptyState
