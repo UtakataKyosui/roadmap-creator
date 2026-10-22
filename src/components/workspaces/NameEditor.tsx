@@ -1,7 +1,7 @@
 import { useId, useState } from "react";
 import { apiErrorMessage } from "@/api/error-message";
 import { ApiError } from "@/api/http";
-import { Button } from "@/components/ui/button";
+import { Button } from "@roadmapper/ui/components/ui/button";
 
 export function NameEditor({
   initial,

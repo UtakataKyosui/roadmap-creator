@@ -1,6 +1,6 @@
 import type { TaskPriority, TaskStatus } from "@roadmapper/api-contract/models";
 import { PRIORITY_LABEL, PRIORITY_TONE, STATUS_LABEL, STATUS_TONE } from "@roadmapper/domain/task";
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/utils";
 
 const base = "inline-flex items-center rounded-[4px] px-1.5 py-0.5 text-[10.5px] font-semibold";
 

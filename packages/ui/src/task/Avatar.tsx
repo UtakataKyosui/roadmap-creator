@@ -1,5 +1,5 @@
 import type { User } from "@roadmapper/api-contract/models";
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/utils";
 
 // 担当者が未設定のときはuserを渡さない。名前の頭文字（または画像）を丸く表示する。
 export function Avatar({

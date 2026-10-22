@@ -21,7 +21,7 @@ import {
 } from "@/api/generated/endpoints/roadmaps/roadmaps";
 import { ApiError } from "@/api/http";
 import { EmptyState, ErrorState, LoadingState } from "@/components/state/StateViews";
-import { Button } from "@/components/ui/button";
+import { Button } from "@roadmapper/ui/components/ui/button";
 import {
   roadmapPeriodLabel,
   validateRoadmapName,
@@ -29,7 +29,7 @@ import {
   type RoadmapPeriod,
 } from "@roadmapper/domain/roadmap";
 import { PeriodFields } from "./RoadmapPeriod";
-import { cn } from "@/lib/utils";
+import { cn } from "@roadmapper/ui/lib/utils";
 
 type Scope = { workspaceId: string; projectId: string };
 
