@@ -10,6 +10,7 @@ import type {
   InternalErrorResponse,
   NotFoundResponse,
   Project,
+  ProjectCreate,
   ProjectUpdate,
   UnauthorizedResponse,
   ValidationFailedResponse,
@@ -52,6 +53,175 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
+export type createProjectResponse201 = {
+  data: Project;
+  status: 201;
+};
+
+export type createProjectResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type createProjectResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type createProjectResponse404 = {
+  data: NotFoundResponse;
+  status: 404;
+};
+
+export type createProjectResponse422 = {
+  data: ValidationFailedResponse;
+  status: 422;
+};
+
+export type createProjectResponse500 = {
+  data: InternalErrorResponse;
+  status: 500;
+};
+
+export type createProjectResponseSuccess = createProjectResponse201 & {
+  headers: Headers;
+};
+export type createProjectResponseError = (
+  | createProjectResponse401
+  | createProjectResponse403
+  | createProjectResponse404
+  | createProjectResponse422
+  | createProjectResponse500
+) & {
+  headers: Headers;
+};
+
+export const getCreateProjectUrl = (workspaceId: string) => {
+  return `/api/workspaces/${workspaceId}/projects`;
+};
+
+/**
+ * owner/adminのみ実行できる。
+ * @summary Projectを作成する
+ */
+export const createProject = async (
+  workspaceId: string,
+  projectCreate: ProjectCreate,
+  options?: Parameters<typeof customFetch>[1],
+): Promise<createProjectResponseSuccess> => {
+  const getHeaders = (
+    h?: NonNullable<RequestInit["headers"]>,
+  ): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(
+          h as Iterable<Iterable<string>>,
+          (entry) => Array.from(entry) as [string, string],
+        ),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+  return customFetch<createProjectResponseSuccess>(getCreateProjectUrl(workspaceId), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...getHeaders(options?.headers) },
+    body: JSON.stringify(projectCreate),
+  });
+};
+
+export const getCreateProjectMutationKey = () => ["createProject"] as const;
+
+export const getCreateProjectMutationOptions = <
+  TError = ErrorType<
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | NotFoundResponse
+    | ValidationFailedResponse
+    | InternalErrorResponse
+  >,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createProject>>,
+    TError,
+    CreateProjectMutationVariables,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createProject>>,
+  TError,
+  CreateProjectMutationVariables,
+  TContext
+> => {
+  const mutationKey = getCreateProjectMutationKey();
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createProject>>,
+    CreateProjectMutationVariables
+  > = (props) => {
+    const { workspaceId, data } = props ?? {};
+
+    return createProject(workspaceId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateProjectMutationResult = NonNullable<Awaited<ReturnType<typeof createProject>>>;
+export type CreateProjectMutationBody = ProjectCreate;
+export type CreateProjectMutationError = ErrorType<
+  | UnauthorizedResponse
+  | ForbiddenResponse
+  | NotFoundResponse
+  | ValidationFailedResponse
+  | InternalErrorResponse
+>;
+export type CreateProjectMutationVariables = { workspaceId: string; data: ProjectCreate };
+
+/**
+ * @summary Projectを作成する
+ */
+export const useCreateProject = <
+  TError = ErrorType<
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | NotFoundResponse
+    | ValidationFailedResponse
+    | InternalErrorResponse
+  >,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof createProject>>,
+      TError,
+      CreateProjectMutationVariables,
+      TContext
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof createProject>>,
+  TError,
+  CreateProjectMutationVariables,
+  TContext
+> => {
+  return useMutation(getCreateProjectMutationOptions(options), queryClient);
+};
 export type listProjectsResponse200 = {
   data: Project[];
   status: 200;

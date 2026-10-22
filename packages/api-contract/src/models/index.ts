@@ -43,6 +43,7 @@ export * from "./notFoundError";
 export * from "./notFoundErrorCode";
 export * from "./notFoundResponse";
 export * from "./project";
+export * from "./projectCreate";
 export * from "./projectUpdate";
 export * from "./roadmap";
 export * from "./roadmapCreate";

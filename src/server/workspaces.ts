@@ -6,7 +6,10 @@ import {
   CreateWorkspaceBody,
   UpdateWorkspaceBody,
 } from "@roadmapper/api-contract/zod/workspaces/workspaces.zod";
-import { UpdateProjectBody } from "@roadmapper/api-contract/zod/projects/projects.zod";
+import {
+  CreateProjectBody,
+  UpdateProjectBody,
+} from "@roadmapper/api-contract/zod/projects/projects.zod";
 import { forbidden, notFound, parseInput, validationFailed, versionConflict } from "./errors";
 import { nowIso, uuidv7 } from "./ids";
 
@@ -109,6 +112,29 @@ export const createWorkspace = async (db: Db, actorId: string, body: unknown) =>
     }),
   ]);
   return created[0];
+};
+
+export const createProject = async (
+  db: Db,
+  actorId: string,
+  workspaceId: string,
+  body: unknown,
+) => {
+  assertIds(workspaceId);
+  await requireManager(db, workspaceId, actorId);
+  const input = parseInput(CreateProjectBody, body);
+  const now = nowIso();
+  const [created] = await db
+    .insert(projects)
+    .values({
+      id: uuidv7(),
+      workspaceId,
+      name: trimmedName(input.name),
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning();
+  return created;
 };
 
 export const deleteWorkspace = async (db: Db, actorId: string, workspaceId: string) => {

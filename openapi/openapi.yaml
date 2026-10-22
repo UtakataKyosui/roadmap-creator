@@ -403,6 +403,36 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
   /workspaces/{workspaceId}/projects:
+    post:
+      operationId: createProject
+      summary: Projectを作成する
+      description: owner/adminのみ実行できる。
+      tags: [Projects]
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "500":
+          $ref: "#/components/responses/InternalError"
     get:
       operationId: listProjects
       summary: Workspaceのプロジェクト一覧
@@ -895,6 +925,14 @@ components:
           maxLength: 100
         version:
           $ref: "#/components/schemas/Version"
+    ProjectCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
     ProjectUpdate:
       type: object
       required: [name, version]
