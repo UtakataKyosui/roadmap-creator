@@ -30,9 +30,12 @@ pnpm dev          # http://localhost:3000
 
 `env.ts` に宣言し、`void/env` から読む。ローカルの値は `.env`（Git 管理外）に置く。Worker 内では `process.env` に `.env` の値が入らないため、`process.env` は使わない。
 
-| 名前         | 既定値                  | 内容                              |
-| ------------ | ----------------------- | --------------------------------- |
-| `API_ORIGIN` | `http://localhost:3000` | SSR 中に API を呼ぶときのオリジン |
+| 名前                   | 既定値                  | 内容                                                         |
+| ---------------------- | ----------------------- | ------------------------------------------------------------ |
+| `API_ORIGIN`           | `http://localhost:3000` | SSR 中に API を呼ぶときのオリジン。認証のベース URL も兼ねる |
+| `BETTER_AUTH_SECRET`   | なし                    | セッション署名用の秘密鍵（32 文字以上）                      |
+| `GOOGLE_CLIENT_ID`     | なし                    | Google OAuth クライアント ID                                 |
+| `GOOGLE_CLIENT_SECRET` | なし                    | Google OAuth クライアントシークレット                        |
 
 本番の値は `void secret put <NAME>` で設定する。
 
@@ -77,6 +80,33 @@ OpenAPI 契約のすべての操作を実装している。Workspace・メンバ
 ### 認証前の開発用動作
 
 認証基盤（#13）の導入前は、開発ビルド（`import.meta.env.DEV`）に限り、すべてのリクエストを `db/dev-fixtures.ts` の開発用ユーザーとして扱う。本番ビルドでは常に 401 を返す。#13 では `src/server/auth.ts` の `resolveActorId` を、セッションから認証済みユーザーを取り出す処理に置き換える。
+
+## 認証（Google ログイン）
+
+| 項目           | 内容                                                                                                 |
+| -------------- | ---------------------------------------------------------------------------------------------------- |
+| ライブラリ     | [Better Auth](https://www.better-auth.com/)（Void の認証は framework mode 非対応のため直接利用する） |
+| セッション     | データベースに保存し、署名付き Cookie で参照する                                                     |
+| エンドポイント | `/api/auth/*`（`src/routes/api/auth.$.ts`）                                                          |
+| 設定           | `src/server/better-auth.ts`（`env` はリクエスト内でしか読めないため、初回利用時に組み立てる）        |
+
+### Google の設定
+
+Google Cloud Console で OAuth クライアント（ウェブアプリケーション）を作り、承認済みのリダイレクト URI を登録する。
+
+| 環境 | リダイレクト URI                                 |
+| ---- | ------------------------------------------------ |
+| 開発 | `http://localhost:3000/api/auth/callback/google` |
+| 本番 | `${API_ORIGIN}/api/auth/callback/google`         |
+
+開発の値は `.env`、本番は `void secret put BETTER_AUTH_SECRET` などで設定する。
+
+### データ
+
+認証テーブル（`auth_users` / `auth_sessions` / `auth_accounts` / `auth_verifications`）はアプリの `users` と別に持つ。認証ユーザーの作成時に、同じ ID でアプリの `users` を作る。
+
+- ID は UUID v7。`auth_accounts` は `(provider_id, account_id)` が一意で、同じ Google アカウントの並行ログインでもユーザーが重複しない。
+- メールアドレスだけで既存のユーザーに結びつけない（アカウントリンクは無効）。同じメールアドレスのアプリユーザーが既にいる場合、認証ユーザーの作成を拒否する。
 
 ## テスト
 
