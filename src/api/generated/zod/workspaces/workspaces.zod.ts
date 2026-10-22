@@ -60,6 +60,53 @@ export const ListWorkspacesResponseItem = zod
 export const ListWorkspacesResponse = zod.array(ListWorkspacesResponseItem);
 
 /**
+ * owner/adminのみ実行できる。versionが一致しない場合は409。
+ * @summary Workspaceの名称を変更する
+ */
+export const UpdateWorkspaceParams = zod.object({
+  workspaceId: zod.uuid(),
+});
+
+export const updateWorkspaceBodyNameMax = 100;
+
+export const UpdateWorkspaceBody = zod.object({
+  name: zod.string().min(1).max(updateWorkspaceBodyNameMax),
+  version: zod
+    .int()
+    .min(1)
+    .describe("更新競合検出用。作成時1、更新ごとに+1。更新要求で不一致なら409を返す。"),
+});
+
+export const updateWorkspaceResponseNameMax = 100;
+
+export const UpdateWorkspaceResponse = zod
+  .object({
+    id: zod.uuid().describe("サーバーが採番するUUID v7。クライアントは指定しない。"),
+    name: zod.string().min(1).max(updateWorkspaceResponseNameMax),
+    createdAt: zod.iso
+      .datetime({ offset: true })
+      .describe("UTCのRFC 3339 date-time。表示時のみ閲覧者のブラウザのタイムゾーンへ変換する。"),
+    updatedAt: zod.iso
+      .datetime({ offset: true })
+      .describe("UTCのRFC 3339 date-time。表示時のみ閲覧者のブラウザのタイムゾーンへ変換する。"),
+    version: zod
+      .int()
+      .min(1)
+      .describe("更新競合検出用。作成時1、更新ごとに+1。更新要求で不一致なら409を返す。"),
+  })
+  .describe("チームが共有する作業領域。共有境界であり、Label・Project・Membershipが属する。");
+
+/**
+ * ownerのみ実行できる。配下のProject・Roadmap・Task・Label・招待・メンバーシップも削除する。
+ * @summary Workspaceを削除する
+ */
+export const DeleteWorkspaceParams = zod.object({
+  workspaceId: zod.uuid(),
+});
+
+export const DeleteWorkspaceResponse = zod.void();
+
+/**
  * @summary Workspaceのメンバー一覧（担当者の選択肢）
  */
 export const ListWorkspaceMembersParams = zod.object({

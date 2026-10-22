@@ -1,4 +1,4 @@
-import { Link, useRouteContext, useRouter } from "@tanstack/react-router";
+import { Link, useRouteContext, useRouter, useRouterState } from "@tanstack/react-router";
 import {
   ChevronDown,
   ChevronRight,
@@ -14,6 +14,8 @@ import { Fragment, useState, type ReactNode } from "react";
 import { signOut as signOutSession } from "@/api/auth-client";
 import { clearUserCache } from "@/api/cache";
 import { useListRoadmaps } from "@/api/generated/endpoints/roadmaps/roadmaps";
+import { useListWorkspaces } from "@/api/generated/endpoints/workspaces/workspaces";
+import { useListProjects } from "@/api/generated/endpoints/projects/projects";
 import { Avatar } from "@/components/task/Avatar";
 import { Button } from "@/components/ui/button";
 import type { View } from "@/domain/breadcrumb";
@@ -63,6 +65,15 @@ export function AppHeader({
   project?: Named;
   roadmap?: Named;
 }) {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const workspaces = useListWorkspaces();
+  const selectedWorkspace = workspace ?? workspaces.data?.data[0];
+  const projects = useListProjects(selectedWorkspace?.id ?? "", {
+    query: { enabled: !!selectedWorkspace && !project },
+  });
+  const selectedProject = project ?? projects.data?.data.find((item) => !item.archivedAt);
+  const workspacePage = pathname === "/" || pathname === "/workspaces";
+
   return (
     <header className="app-header shrink-0 border-b bg-surface">
       <div className="header-main">
@@ -76,14 +87,18 @@ export function AppHeader({
           <span>Roadmap Studio</span>
         </Link>
         <nav aria-label="メインナビゲーション" className="header-navigation">
-          <Link to="/workspaces" className={navItem} activeProps={{ className: navActive }}>
+          <Link
+            to="/workspaces"
+            className={cn(navItem, workspacePage && navActive)}
+            aria-current={workspacePage ? "page" : undefined}
+          >
             <Building2 aria-hidden />
             ワークスペース
           </Link>
-          {workspace && project ? (
+          {selectedWorkspace && selectedProject ? (
             <Link
               to="/w/$workspaceId/p/$projectId"
-              params={{ workspaceId: workspace.id, projectId: project.id }}
+              params={{ workspaceId: selectedWorkspace.id, projectId: selectedProject.id }}
               className={navItem}
               activeProps={{ className: navActive }}
             >
@@ -91,15 +106,14 @@ export function AppHeader({
               ロードマップ
             </Link>
           ) : (
-            <Link
-              to="/"
-              activeOptions={{ exact: true }}
-              className={navItem}
-              activeProps={{ className: navActive }}
+            <span
+              aria-disabled="true"
+              className={cn(navItem, "opacity-50")}
+              title="ワークスペースとプロジェクトを作成してください"
             >
               <LayoutList aria-hidden />
               ロードマップ
-            </Link>
+            </span>
           )}
           <Link
             to="/my-tasks"
@@ -110,17 +124,26 @@ export function AppHeader({
             <ListChecks aria-hidden />
             マイタスク
           </Link>
-          {workspace && (
+          {selectedWorkspace ? (
             <Link
               to="/w/$workspaceId/members"
-              params={{ workspaceId: workspace.id }}
-              search={{ projectId: project?.id }}
+              params={{ workspaceId: selectedWorkspace.id }}
+              search={{ projectId: selectedProject?.id }}
               className={navItem}
               activeProps={{ className: navActive }}
             >
               <Users aria-hidden />
               メンバー
             </Link>
+          ) : (
+            <span
+              aria-disabled="true"
+              className={cn(navItem, "opacity-50")}
+              title="ワークスペースを作成してください"
+            >
+              <Users aria-hidden />
+              メンバー
+            </span>
           )}
         </nav>
         <div className="header-account">
@@ -146,9 +169,11 @@ export function AppHeader({
             })}
           </ol>
         </nav>
-        {workspace && project && (
-          <RoadmapSwitcher workspace={workspace} project={project} roadmap={roadmap} />
-        )}
+        <RoadmapSwitcher
+          workspace={selectedWorkspace}
+          project={selectedProject}
+          roadmap={roadmap}
+        />
       </div>
     </header>
   );
@@ -205,13 +230,14 @@ function RoadmapSwitcher({
   project,
   roadmap,
 }: {
-  workspace: Named;
-  project: Named;
+  workspace?: Named;
+  project?: Named;
   roadmap?: Named;
 }) {
   const router = useRouter();
-  const params = { workspaceId: workspace.id, projectId: project.id };
-  const roadmaps = useListRoadmaps(workspace.id, project.id);
+  const params = { workspaceId: workspace?.id ?? "", projectId: project?.id ?? "" };
+  const enabled = !!workspace && !!project;
+  const roadmaps = useListRoadmaps(params.workspaceId, params.projectId, { query: { enabled } });
   const items =
     roadmaps.data?.status === 200 ? roadmaps.data.data.filter((r) => !r.archivedAt) : [];
 
@@ -224,7 +250,7 @@ function RoadmapSwitcher({
         id="header-roadmap"
         className="header-roadmap-select h-8 appearance-none rounded-sm border bg-surface py-1 pr-8 pl-3 text-xs text-muted-foreground focus-visible:outline-2 focus-visible:outline-indigo"
         value={roadmap?.id ?? ""}
-        disabled={roadmaps.isPending || roadmaps.isError}
+        disabled={!enabled || roadmaps.isPending || roadmaps.isError || items.length === 0}
         onChange={(event) => {
           const roadmapId = event.target.value;
           if (roadmapId)
@@ -235,11 +261,17 @@ function RoadmapSwitcher({
         }}
       >
         <option value="" disabled>
-          {roadmaps.isPending
-            ? "読み込み中…"
-            : roadmaps.isError
-              ? "取得できませんでした"
-              : "ロードマップを選択"}
+          {!workspace
+            ? "ワークスペースを選択"
+            : !project
+              ? "プロジェクトを選択"
+              : roadmaps.isPending
+                ? "読み込み中…"
+                : roadmaps.isError
+                  ? "取得できませんでした"
+                  : items.length === 0
+                    ? "ロードマップがありません"
+                    : "ロードマップを選択"}
         </option>
         {items.map((item) => (
           <option key={item.id} value={item.id}>

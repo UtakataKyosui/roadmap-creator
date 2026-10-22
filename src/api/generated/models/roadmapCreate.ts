@@ -5,6 +5,7 @@
  * Roadmap Studioフェーズ1のAPI契約の正本。
  * OpenAPI spec version: 0.1.0
  */
+import type { CalendarDate } from "./calendarDate";
 
 export interface RoadmapCreate {
   /**
@@ -17,4 +18,6 @@ export interface RoadmapCreate {
    * @nullable
    */
   description?: string | null;
+  startDate?: CalendarDate | null;
+  dueDate?: CalendarDate | null;
 }

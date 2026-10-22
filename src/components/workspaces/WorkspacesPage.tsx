@@ -1,19 +1,24 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Link, useRouteContext, useRouter } from "@tanstack/react-router";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useId, useState } from "react";
 import { apiErrorMessage } from "@/api/error-message";
-import { useListProjects } from "@/api/generated/endpoints/projects/projects";
+import { useListProjects, useUpdateProject } from "@/api/generated/endpoints/projects/projects";
 import {
   getListWorkspacesQueryKey,
   useCreateWorkspace,
   useListWorkspaces,
+  useListWorkspaceMembers,
+  useDeleteWorkspace,
+  useUpdateWorkspace,
   type listWorkspacesResponseSuccess,
 } from "@/api/generated/endpoints/workspaces/workspaces";
-import type { Workspace } from "@/api/generated/models";
+import type { Workspace, Project } from "@/api/generated/models";
 import { AppHeader, PageHeader } from "@/components/layout/AppShell";
 import { EmptyState, ErrorState, LoadingState } from "@/components/state/StateViews";
 import { Button } from "@/components/ui/button";
+import { cacheProjectName, cacheWorkspaceName, removeWorkspaceCache } from "@/api/cache";
+import { NameEditor } from "./NameEditor";
 
 export function WorkspacesPage() {
   const queryClient = useQueryClient();
@@ -130,7 +135,11 @@ export function WorkspacesPage() {
             ) : workspaces.data?.data.length ? (
               <div className="space-y-3">
                 {workspaces.data.data.map((workspace) => (
-                  <WorkspaceCard key={workspace.id} workspace={workspace} />
+                  <WorkspaceCard
+                    key={workspace.id}
+                    workspace={workspace}
+                    onDeleted={() => setCreatedName(null)}
+                  />
                 ))}
               </div>
             ) : (
@@ -146,20 +155,84 @@ export function WorkspacesPage() {
   );
 }
 
-function WorkspaceCard({ workspace }: { workspace: Workspace }) {
+function WorkspaceCard({ workspace, onDeleted }: { workspace: Workspace; onDeleted: () => void }) {
   const projects = useListProjects(workspace.id);
+  const { user } = useRouteContext({ from: "__root__" });
+  const members = useListWorkspaceMembers(workspace.id);
+  const owner = members.data?.data.some(
+    (member) => member.user.id === user?.id && member.role === "owner",
+  );
+  const manager = members.data?.data.some(
+    (member) => member.user.id === user?.id && member.role !== "member",
+  );
+  const [editing, setEditing] = useState(false);
+  const update = useUpdateWorkspace();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const remove = useDeleteWorkspace();
+  const [confirming, setConfirming] = useState(false);
+  const [confirmation, setConfirmation] = useState("");
+  const confirmationId = useId();
   const activeProjects = projects.data?.data.filter((project) => !project.archivedAt) ?? [];
   return (
     <article className="rounded-sm border bg-surface p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="min-w-0 break-words text-sm font-bold">{workspace.name}</h3>
-        <Link
-          to="/w/$workspaceId/members"
-          params={{ workspaceId: workspace.id }}
-          className="text-xs text-indigo hover:underline"
-        >
-          メンバー
-        </Link>
+        {editing ? (
+          <NameEditor
+            initial={workspace}
+            label="ワークスペース名"
+            onCancel={() => setEditing(false)}
+            onRefresh={() =>
+              queryClient.invalidateQueries({ queryKey: getListWorkspacesQueryKey() })
+            }
+            onSave={async (data) => {
+              const result = await update.mutateAsync({ workspaceId: workspace.id, data });
+              await cacheWorkspaceName(queryClient, result.data);
+              setEditing(false);
+              void router.invalidate();
+            }}
+          />
+        ) : (
+          <div className="flex min-w-0 items-center gap-2">
+            <h3 className="min-w-0 break-words text-sm font-bold">{workspace.name}</h3>
+            {manager && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={`ワークスペース「${workspace.name}」の名称を編集`}
+                disabled={confirming}
+                onClick={() => setEditing(true)}
+              >
+                <Pencil aria-hidden />
+              </Button>
+            )}
+          </div>
+        )}
+        <div className="flex items-center gap-3">
+          <Link
+            to="/w/$workspaceId/members"
+            params={{ workspaceId: workspace.id }}
+            className="text-xs text-indigo hover:underline"
+          >
+            メンバー
+          </Link>
+          {owner && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-danger"
+              onClick={() => {
+                setEditing(false);
+                setConfirming(true);
+                remove.reset();
+              }}
+              aria-label={`「${workspace.name}」を削除`}
+            >
+              <Trash2 aria-hidden />
+              削除
+            </Button>
+          )}
+        </div>
       </div>
       {projects.isPending ? (
         <LoadingState label="プロジェクトを読み込み中…" />
@@ -168,15 +241,7 @@ function WorkspaceCard({ workspace }: { workspace: Workspace }) {
       ) : activeProjects.length ? (
         <ul className="mt-3 flex flex-wrap gap-3">
           {activeProjects.map((project) => (
-            <li key={project.id}>
-              <Link
-                to="/w/$workspaceId/p/$projectId"
-                params={{ workspaceId: workspace.id, projectId: project.id }}
-                className="text-sm text-indigo hover:underline"
-              >
-                {project.name}
-              </Link>
-            </li>
+            <ProjectName key={project.id} project={project} canEdit={!!manager && !confirming} />
           ))}
         </ul>
       ) : (
@@ -184,6 +249,112 @@ function WorkspaceCard({ workspace }: { workspace: Workspace }) {
           アクティブなプロジェクトがありません。
         </p>
       )}
+      {confirming && (
+        <section
+          aria-label="ワークスペースの削除確認"
+          className="mt-4 space-y-3 rounded-sm border border-danger bg-danger-tint p-4"
+        >
+          <h4 className="text-sm font-bold">「{workspace.name}」を削除しますか？</h4>
+          <p className="text-xs leading-6">
+            配下のプロジェクト、ロードマップ、タスク、コメント、招待もすべて削除されます。この操作は取り消せません。
+          </p>
+          <label htmlFor={confirmationId} className="block text-xs">
+            確認のため、ワークスペース名を入力してください。
+          </label>
+          <input
+            id={confirmationId}
+            value={confirmation}
+            disabled={remove.isPending}
+            onChange={(event) => setConfirmation(event.target.value)}
+            autoComplete="off"
+            className="h-9 w-full rounded-sm border bg-surface px-3 text-sm"
+          />
+          {remove.error && (
+            <p role="alert" className="text-xs text-danger">
+              {apiErrorMessage(remove.error)}
+            </p>
+          )}
+          <div className="flex gap-2">
+            <Button
+              variant="destructive"
+              disabled={confirmation !== workspace.name || remove.isPending}
+              onClick={() =>
+                remove.mutate(
+                  { workspaceId: workspace.id },
+                  {
+                    onSuccess: async () => {
+                      await removeWorkspaceCache(queryClient, workspace.id);
+                      onDeleted();
+                    },
+                  },
+                )
+              }
+            >
+              {remove.isPending ? "削除中…" : "完全に削除する"}
+            </Button>
+            <Button
+              variant="outline"
+              disabled={remove.isPending}
+              onClick={() => {
+                setConfirming(false);
+                setConfirmation("");
+              }}
+            >
+              キャンセル
+            </Button>
+          </div>
+        </section>
+      )}
     </article>
+  );
+}
+
+function ProjectName({ project, canEdit }: { project: Project; canEdit: boolean }) {
+  const [editing, setEditing] = useState(false);
+  const update = useUpdateProject();
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const projects = useListProjects(project.workspaceId);
+  return (
+    <li className={editing ? "w-full" : "flex items-center gap-2"}>
+      {editing && canEdit ? (
+        <NameEditor
+          initial={project}
+          label="プロジェクト名"
+          onCancel={() => setEditing(false)}
+          onRefresh={() => projects.refetch()}
+          onSave={async (data) => {
+            const result = await update.mutateAsync({
+              workspaceId: project.workspaceId,
+              projectId: project.id,
+              data,
+            });
+            await cacheProjectName(queryClient, result.data);
+            setEditing(false);
+            void router.invalidate();
+          }}
+        />
+      ) : (
+        <>
+          <Link
+            to="/w/$workspaceId/p/$projectId"
+            params={{ workspaceId: project.workspaceId, projectId: project.id }}
+            className="text-sm text-indigo hover:underline"
+          >
+            {project.name}
+          </Link>
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={`プロジェクト「${project.name}」の名称を編集`}
+              onClick={() => setEditing(true)}
+            >
+              <Pencil aria-hidden />
+            </Button>
+          )}
+        </>
+      )}
+    </li>
   );
 }

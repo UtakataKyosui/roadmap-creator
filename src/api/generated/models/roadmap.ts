@@ -5,6 +5,7 @@
  * Roadmap Studioフェーズ1のAPI契約の正本。
  * OpenAPI spec version: 0.1.0
  */
+import type { CalendarDate } from "./calendarDate";
 import type { Id } from "./id";
 import type { Timestamp } from "./timestamp";
 import type { Version } from "./version";
@@ -26,6 +27,10 @@ export interface Roadmap {
    * @nullable
    */
   description?: string | null;
+  /** 学習を開始する日。 */
+  startDate?: CalendarDate | null;
+  /** 完了予定日。開始日以降に設定する。 */
+  dueDate?: CalendarDate | null;
   archivedAt?: Timestamp | null;
   createdBy: Id;
   createdAt: Timestamp;

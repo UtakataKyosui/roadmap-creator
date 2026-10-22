@@ -40,3 +40,48 @@ export const ListProjectsResponseItem = zod.object({
     .describe("更新競合検出用。作成時1、更新ごとに+1。更新要求で不一致なら409を返す。"),
 });
 export const ListProjectsResponse = zod.array(ListProjectsResponseItem);
+
+/**
+ * owner/adminのみ実行できる。versionが一致しない場合は409。
+ * @summary Projectの名称を変更する
+ */
+export const UpdateProjectParams = zod.object({
+  workspaceId: zod.uuid(),
+  projectId: zod.uuid(),
+});
+
+export const updateProjectBodyNameMax = 100;
+
+export const UpdateProjectBody = zod.object({
+  name: zod.string().min(1).max(updateProjectBodyNameMax),
+  version: zod
+    .int()
+    .min(1)
+    .describe("更新競合検出用。作成時1、更新ごとに+1。更新要求で不一致なら409を返す。"),
+});
+
+export const updateProjectResponseNameMax = 100;
+
+export const UpdateProjectResponse = zod.object({
+  id: zod.uuid().describe("サーバーが採番するUUID v7。クライアントは指定しない。"),
+  workspaceId: zod.uuid().describe("サーバーが採番するUUID v7。クライアントは指定しない。"),
+  name: zod.string().min(1).max(updateProjectResponseNameMax),
+  archivedAt: zod
+    .union([
+      zod.iso
+        .datetime({ offset: true })
+        .describe("UTCのRFC 3339 date-time。表示時のみ閲覧者のブラウザのタイムゾーンへ変換する。"),
+      zod.null(),
+    ])
+    .optional(),
+  createdAt: zod.iso
+    .datetime({ offset: true })
+    .describe("UTCのRFC 3339 date-time。表示時のみ閲覧者のブラウザのタイムゾーンへ変換する。"),
+  updatedAt: zod.iso
+    .datetime({ offset: true })
+    .describe("UTCのRFC 3339 date-time。表示時のみ閲覧者のブラウザのタイムゾーンへ変換する。"),
+  version: zod
+    .int()
+    .min(1)
+    .describe("更新競合検出用。作成時1、更新ごとに+1。更新要求で不一致なら409を返す。"),
+});

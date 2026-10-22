@@ -16,15 +16,19 @@ import { Button } from "@/components/ui/button";
 import { TaskEditor, type EditorSelection, type TaskScope } from "@/components/task/TaskEditor";
 import type { View } from "@/domain/breadcrumb";
 import { cn } from "@/lib/utils";
+import type { Roadmap } from "@/api/generated/models";
+import { RoadmapPeriodEditor } from "./RoadmapPeriod";
 
 export function GoalOverview({
   scope,
   name,
   view,
+  roadmap,
 }: {
   scope: TaskScope & { projectId: string };
   name: string;
   view: View;
+  roadmap: Roadmap;
 }) {
   const query = useQuery(roadmapTasksOptions(scope.workspaceId, scope.roadmapId));
   const [selection, setSelection] = useState<EditorSelection | null>(null);
@@ -48,6 +52,7 @@ export function GoalOverview({
           <p className="mt-2 text-xs leading-6 text-muted-foreground">
             学びたいことを、小さな一歩に。一つずつ、目指す自分へ。
           </p>
+          <RoadmapPeriodEditor key={roadmap.id} roadmap={roadmap} />
         </div>
         <span className="goal-emblem" aria-hidden>
           <Flag className="size-8" strokeWidth={1.4} />

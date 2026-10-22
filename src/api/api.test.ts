@@ -2,7 +2,18 @@ import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 import { ApiError } from "./http";
 import type { Task } from "./generated/models";
 import { createQueryClient } from "./query-client";
-import { invalidateRoadmaps, invalidateTasks } from "./cache";
+import {
+  cacheProjectName,
+  cacheWorkspaceName,
+  invalidateRoadmaps,
+  invalidateTasks,
+  removeWorkspaceCache,
+} from "./cache";
+import { getListProjectsQueryKey } from "./generated/endpoints/projects/projects";
+import {
+  deleteWorkspace,
+  getListWorkspacesQueryKey,
+} from "./generated/endpoints/workspaces/workspaces";
 import { getListMyTasksQueryKey } from "./generated/endpoints/my-tasks/my-tasks";
 import {
   CreateTaskInput,
@@ -148,6 +159,71 @@ describe("Zodスキーマ", () => {
 });
 
 describe("生成されたquery/mutation", () => {
+  test("改名後はヘッダーとパンくずが読む一覧キャッシュを更新し、マイタスクを再取得対象にする", async () => {
+    const client = createQueryClient();
+    const workspace = {
+      id: workspaceId,
+      name: "元の名前",
+      version: 1,
+      createdAt: task.createdAt,
+      updatedAt: task.updatedAt,
+    };
+    const project = { ...workspace, id: roadmapId, workspaceId };
+    const workspaceKey = getListWorkspacesQueryKey();
+    const projectKey = getListProjectsQueryKey(workspaceId);
+    client.setQueryData(workspaceKey, { status: 200, headers: new Headers(), data: [workspace] });
+    client.setQueryData(projectKey, { status: 200, headers: new Headers(), data: [project] });
+    client.setQueryData(getListMyTasksQueryKey(), { data: [] });
+    await cacheWorkspaceName(client, { ...workspace, name: "チームの新名称", version: 2 });
+    await cacheProjectName(client, { ...project, name: "プロジェクトの新名称", version: 2 });
+    expect(client.getQueryData(workspaceKey)).toMatchObject({
+      data: [{ id: workspaceId, name: "チームの新名称", version: 2 }],
+    });
+    expect(client.getQueryData(projectKey)).toMatchObject({
+      data: [{ id: roadmapId, name: "プロジェクトの新名称", version: 2 }],
+    });
+    expect(client.getQueryState(getListMyTasksQueryKey())?.isInvalidated).toBe(true);
+    client.clear();
+  });
+
+  test("WorkspaceのDELETEは204の本文なし応答を扱える", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+    const response = await deleteWorkspace(workspaceId);
+    expect(response.status).toBe(204);
+    expect(response.data).toBeUndefined();
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining(`/api/workspaces/${workspaceId}`),
+      expect.objectContaining({ method: "DELETE", credentials: "include" }),
+    );
+  });
+
+  test("Workspace削除後は対象データとマイタスクのキャッシュを捨て、別Workspaceを保持する", async () => {
+    const client = createQueryClient();
+    const otherId = "0190a000-0000-7000-8000-000000000099";
+    const listKey = getListWorkspacesQueryKey();
+    const tasksKey = getListTasksQueryOptions(workspaceId, roadmapId).queryKey;
+    const otherKey = getListTasksQueryOptions(otherId, roadmapId).queryKey;
+    client.setQueryData(listKey, { status: 200, data: [{ id: workspaceId }, { id: otherId }] });
+    client.setQueryData(tasksKey, {
+      status: 200,
+      headers: new Headers(),
+      data: { items: [task], nextCursor: null },
+    });
+    client.setQueryData(otherKey, {
+      status: 200,
+      headers: new Headers(),
+      data: { items: [], nextCursor: null },
+    });
+    client.setQueryData(getListMyTasksQueryKey(), { data: [task] });
+    await removeWorkspaceCache(client, workspaceId);
+    expect(client.getQueryData(listKey)).toMatchObject({ data: [{ id: otherId }] });
+    expect(client.getQueryData(tasksKey)).toBeUndefined();
+    expect(client.getQueryData(getListMyTasksQueryKey())).toBeUndefined();
+    expect(client.getQueryData(otherKey)).toMatchObject({ data: { items: [], nextCursor: null } });
+    client.clear();
+  });
+
   test("queryがAPIを呼び、QueryKeyにworkspaceとroadmapが入る", async () => {
     const fetchMock = stubFetch(200, { items: [task], nextCursor: null });
     const queryClient = createQueryClient();
