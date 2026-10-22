@@ -1,17 +1,17 @@
 import { beforeEach, describe, expect, test } from "vite-plus/test";
 import { devFixtures } from "../../db/dev-fixtures";
 import { parseResponse } from "../api/validation";
-import { ListLabelsResponse } from "../api/generated/zod/labels/labels.zod";
+import { ListLabelsResponse } from "@roadmapper/api-contract/zod/labels/labels.zod";
 import {
   ListProjectsResponse,
   UpdateProjectResponse,
-} from "../api/generated/zod/projects/projects.zod";
+} from "@roadmapper/api-contract/zod/projects/projects.zod";
 import {
   ListWorkspaceMembersResponse,
   ListWorkspacesResponse,
   CreateWorkspaceResponse,
   UpdateWorkspaceResponse,
-} from "../api/generated/zod/workspaces/workspaces.zod";
+} from "@roadmapper/api-contract/zod/workspaces/workspaces.zod";
 import {
   createWorkspace,
   deleteWorkspace,

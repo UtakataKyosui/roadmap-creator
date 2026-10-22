@@ -10,7 +10,7 @@ import {
   useRevokeInvitation,
 } from "@/api/generated/endpoints/invitations/invitations";
 import { useListWorkspaceMembers } from "@/api/generated/endpoints/workspaces/workspaces";
-import type { Invitation, InvitationIssued, InvitationRole } from "@/api/generated/models";
+import type { Invitation, InvitationIssued, InvitationRole } from "@roadmapper/api-contract/models";
 import { ApiError } from "@/api/http";
 import { AppHeader } from "@/components/layout/AppShell";
 import { EmptyState, ErrorState, LoadingState, Notice } from "@/components/state/StateViews";

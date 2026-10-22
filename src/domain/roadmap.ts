@@ -1,4 +1,4 @@
-import { createRoadmapBodyNameMax } from "@/api/generated/zod/roadmaps/roadmaps.zod";
+import { createRoadmapBodyNameMax } from "@roadmapper/api-contract/zod/roadmaps/roadmaps.zod";
 import { hasValidDateRange, inclusiveDays, parseCalendarDate } from "./calendar-date";
 
 export type RoadmapPeriod = { startDate: string | null; dueDate: string | null };

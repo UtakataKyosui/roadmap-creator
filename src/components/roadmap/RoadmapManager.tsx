@@ -10,7 +10,7 @@ import {
   Target,
 } from "lucide-react";
 import { useId, useState } from "react";
-import type { Roadmap } from "@/api/generated/models";
+import type { Roadmap } from "@roadmapper/api-contract/models";
 import { invalidateRoadmaps } from "@/api/cache";
 import { apiErrorMessage } from "@/api/error-message";
 import {

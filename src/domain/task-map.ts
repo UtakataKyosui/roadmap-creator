@@ -1,5 +1,5 @@
 import type { Edge, Node } from "@xyflow/react";
-import type { Task } from "@/api/generated/models";
+import type { Task } from "@roadmapper/api-contract/models";
 
 export type MapSide = "top" | "right" | "bottom" | "left";
 export type MapNodeData =

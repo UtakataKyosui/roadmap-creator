@@ -1,4 +1,4 @@
-import type { Task, TaskStatus } from "@/api/generated/models";
+import type { Task, TaskStatus } from "@roadmapper/api-contract/models";
 
 export const columnTasks = (tasks: Task[], status: TaskStatus) =>
   tasks

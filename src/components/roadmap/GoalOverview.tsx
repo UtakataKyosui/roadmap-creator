@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { TaskEditor, type EditorSelection, type TaskScope } from "@/components/task/TaskEditor";
 import type { View } from "@/domain/breadcrumb";
 import { cn } from "@/lib/utils";
-import type { Roadmap } from "@/api/generated/models";
+import type { Roadmap } from "@roadmapper/api-contract/models";
 import { RoadmapPeriodEditor } from "./RoadmapPeriod";
 
 export function GoalOverview({

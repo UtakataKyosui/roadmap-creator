@@ -1,4 +1,4 @@
-import type { TaskPriority, TaskStatus } from "@/api/generated/models";
+import type { TaskPriority, TaskStatus } from "@roadmapper/api-contract/models";
 
 // ボードの列順。この順序を全画面で共有する。
 export const TASK_STATUSES = [

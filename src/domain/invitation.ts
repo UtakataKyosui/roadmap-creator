@@ -1,4 +1,8 @@
-import type { InvitationRole, InvitationStatus, MembershipRole } from "@/api/generated/models";
+import type {
+  InvitationRole,
+  InvitationStatus,
+  MembershipRole,
+} from "@roadmapper/api-contract/models";
 
 export const ROLE_LABEL: Record<MembershipRole, string> = {
   owner: "オーナー",

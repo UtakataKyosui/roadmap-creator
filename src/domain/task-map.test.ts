@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vite-plus/test";
-import type { Task } from "@/api/generated/models";
+import type { Task } from "@roadmapper/api-contract/models";
 import { buildTaskMap } from "./task-map";
 
 const task = (id: string, status: Task["status"], sortOrder = "a0"): Task => ({

@@ -1,6 +1,6 @@
 import type { ZodType, output } from "zod";
 import { Data, Effect } from "effect";
-import type { ErrorCode, ErrorDetail } from "@/api/generated/models";
+import type { ErrorCode, ErrorDetail } from "@roadmapper/api-contract/models";
 
 export class HttpError extends Error {
   readonly _tag = "HttpError";

@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, test } from "vite-plus/test";
 import { parseResponse } from "../api/validation";
-import { GetRoadmapResponse } from "../api/generated/zod/roadmaps/roadmaps.zod";
+import { GetRoadmapResponse } from "@roadmapper/api-contract/zod/roadmaps/roadmaps.zod";
 import {
   CreateTaskResponse,
   ListTasksResponse,
   UpdateTaskResponse,
-} from "../api/generated/zod/tasks/tasks.zod";
+} from "@roadmapper/api-contract/zod/tasks/tasks.zod";
 import { devFixtures } from "../../db/dev-fixtures";
 import { createRoadmap, getRoadmap, listRoadmaps, updateRoadmap } from "./roadmaps";
 import { createTask, deleteTask, getTask, listTasks, updateTask } from "./tasks";

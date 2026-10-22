@@ -2,8 +2,8 @@ import { queryOptions } from "@tanstack/react-query";
 import { Effect } from "effect";
 import { runPromise } from "@/lib/effect";
 import { getListTasksQueryKey, getListTasksUrl } from "./generated/endpoints/tasks/tasks";
-import type { Task } from "./generated/models";
-import { ListTasksResponse } from "./generated/zod/tasks/tasks.zod";
+import type { Task } from "@roadmapper/api-contract/models";
+import { ListTasksResponse } from "@roadmapper/api-contract/zod/tasks/tasks.zod";
 import { customFetchEffect } from "./http";
 import { parseResponseEffect, ResponseValidationError } from "./validation";
 

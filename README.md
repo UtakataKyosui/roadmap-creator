@@ -20,7 +20,7 @@ API 契約の正本は [`openapi/openapi.yaml`](openapi/openapi.yaml)（OpenAPI 
 | コマンド            | 内容                                                                        |
 | ------------------- | --------------------------------------------------------------------------- |
 | `pnpm api:lint`     | 仕様を検証する（Redocly、設定は `redocly.yaml`）                            |
-| `pnpm api:generate` | `src/api/generated/` を再生成する                                           |
+| `pnpm api:generate` | `src/api/generated/` と `packages/api-contract/src/` を再生成する           |
 | `pnpm api:check`    | 再生成して、コミット済みの生成物との差分がないことを確認する（CI でも実行） |
 
 ### 仕様を変更するとき
@@ -29,16 +29,16 @@ API 契約の正本は [`openapi/openapi.yaml`](openapi/openapi.yaml)（OpenAPI 
 2. `pnpm api:lint` で仕様を検証する
 3. `pnpm api:generate` で再生成し、生成物を仕様と同じコミットに含める
 
-`src/api/generated/` は直接編集しない。生成物は Orval が書き出した後に `vp fmt` で整形されるため、再生成しても差分は出ない。
+`src/api/generated/` と `packages/api-contract/src/` は直接編集しない。生成物は Orval が書き出した後に `vp fmt` で整形されるため、再生成しても差分は出ない。
 
 ### 構成
 
-| パス                           | 内容                                                                                                                     |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| `src/api/generated/endpoints/` | タグごとの API クライアントと `useXxx` フック、`getXxxQueryKey`                                                          |
-| `src/api/generated/models/`    | TypeScript の型                                                                                                          |
-| `src/api/generated/zod/`       | Zod スキーマ                                                                                                             |
-| `src/api/http.ts`              | 共通 HTTP 層（手書き）。Cookie の送信（SSR 時は受信した Cookie を転送）、サーバー側の絶対 URL 化、エラーの `ApiError` 化 |
+| パス                                | 内容                                                                                                                     |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `src/api/generated/endpoints/`      | タグごとの API クライアントと `useXxx` フック、`getXxxQueryKey`                                                          |
+| `packages/api-contract/src/models/` | TypeScript の型（`@roadmapper/api-contract/models`）。サーバー・ドメインロジックと共有する契約                           |
+| `packages/api-contract/src/zod/`    | Zod スキーマ（`@roadmapper/api-contract/zod/<tag>/<tag>.zod`）                                                           |
+| `src/api/http.ts`                   | 共通 HTTP 層（手書き）。Cookie の送信（SSR 時は受信した Cookie を転送）、サーバー側の絶対 URL 化、エラーの `ApiError` 化 |
 
 ### 規約
 

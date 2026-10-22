@@ -4,7 +4,11 @@ import { env } from "void/env";
 import { Effect } from "effect";
 import { z } from "zod";
 import { runPromise } from "@/lib/effect";
-import { ErrorCode, type Error as ApiErrorBody, type ErrorDetail } from "./generated/models";
+import {
+  ErrorCode,
+  type Error as ApiErrorBody,
+  type ErrorDetail,
+} from "@roadmapper/api-contract/models";
 
 export class ApiError extends Error {
   readonly _tag = "ApiError";

@@ -1,6 +1,6 @@
 import { CalendarDays, GripVertical, MessageSquare } from "lucide-react";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
-import type { Label, Task, User } from "@/api/generated/models";
+import type { Label, Task, User } from "@roadmapper/api-contract/models";
 import { formatShortDate, isOverdue } from "@/domain/calendar-date";
 import { progressPercent, STATUS_ACCENT, STATUS_FILL } from "@/domain/task";
 import { cn } from "@/lib/utils";

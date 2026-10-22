@@ -3,7 +3,7 @@ import { parseResponse } from "../api/validation";
 import {
   CreateInvitationResponse,
   GetInvitationPreviewResponse,
-} from "../api/generated/zod/invitations/invitations.zod";
+} from "@roadmapper/api-contract/zod/invitations/invitations.zod";
 import { devFixtures } from "../../db/dev-fixtures";
 import {
   acceptInvitation,

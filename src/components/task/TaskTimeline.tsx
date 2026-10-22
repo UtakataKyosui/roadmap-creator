@@ -10,7 +10,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useState, type CSSProperties } from "react";
-import type { Task } from "@/api/generated/models";
+import type { Task } from "@roadmapper/api-contract/models";
 import { roadmapTasksOptions } from "@/api/roadmap-tasks";
 import { addDays, parseCalendarDate } from "@/domain/calendar-date";
 import { useLocalToday } from "@/hooks/use-local-today";

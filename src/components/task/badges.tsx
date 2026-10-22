@@ -1,4 +1,4 @@
-import type { TaskPriority, TaskStatus } from "@/api/generated/models";
+import type { TaskPriority, TaskStatus } from "@roadmapper/api-contract/models";
 import { PRIORITY_LABEL, PRIORITY_TONE, STATUS_LABEL, STATUS_TONE } from "@/domain/task";
 import { cn } from "@/lib/utils";
 

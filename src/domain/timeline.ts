@@ -1,4 +1,4 @@
-import type { Task } from "@/api/generated/models";
+import type { Task } from "@roadmapper/api-contract/models";
 import { addDays, diffDays } from "./calendar-date";
 
 export const timelinePlacement = (
