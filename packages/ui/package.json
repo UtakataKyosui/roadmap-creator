@@ -1,0 +1,27 @@
+{
+  "name": "@roadmapper/ui",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./lib/*": "./src/lib/*.ts",
+    "./components/*": "./src/components/*.tsx",
+    "./task/*": "./src/task/*.tsx"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.9.0",
+    "@roadmapper/api-contract": "workspace:*",
+    "@roadmapper/domain": "workspace:*",
+    "class-variance-authority": "^0.7.1",
+    "cn": "^0.5.0",
+    "lucide-react": "^1.59.0"
+  },
+  "devDependencies": {
+    "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "@xyflow/react": "^12.12.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}

@@ -1,5 +1,5 @@
 import { Position, type HandleProps } from "@xyflow/react";
-import { BaseHandle } from "@/components/base-handle";
+import { BaseHandle } from "./base-handle";
 
 const wrapperClassNames: Record<Position, string> = {
   [Position.Top]: "flex-col-reverse left-1/2 -translate-y-full -translate-x-1/2",

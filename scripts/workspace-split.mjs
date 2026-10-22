@@ -28,6 +28,30 @@ const LAYERS = [
       ["src/domain", "packages/domain/src"],
     ],
   },
+  {
+    name: "ui",
+    moves: [
+      ["src/lib/utils.ts", "packages/ui/src/lib/utils.ts"],
+      ["src/components/ui", "packages/ui/src/components/ui"],
+      ["src/components/base-handle.tsx", "packages/ui/src/components/base-handle.tsx"],
+      ["src/components/base-node.tsx", "packages/ui/src/components/base-node.tsx"],
+      ["src/components/button-handle.tsx", "packages/ui/src/components/button-handle.tsx"],
+      [
+        "src/components/labeled-group-node.tsx",
+        "packages/ui/src/components/labeled-group-node.tsx",
+      ],
+      ["src/components/node-appendix.tsx", "packages/ui/src/components/node-appendix.tsx"],
+      [
+        "src/components/node-status-indicator.tsx",
+        "packages/ui/src/components/node-status-indicator.tsx",
+      ],
+      ["src/components/node-tooltip.tsx", "packages/ui/src/components/node-tooltip.tsx"],
+      ["src/components/task/TaskCard.tsx", "packages/ui/src/task/TaskCard.tsx"],
+      ["src/components/task/TaskCard.test.ts", "packages/ui/src/task/TaskCard.test.ts"],
+      ["src/components/task/badges.tsx", "packages/ui/src/task/badges.tsx"],
+      ["src/components/task/Avatar.tsx", "packages/ui/src/task/Avatar.tsx"],
+    ],
+  },
 ];
 
 const args = process.argv.slice(2);

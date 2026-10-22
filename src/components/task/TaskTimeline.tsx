@@ -19,10 +19,10 @@ import { STATUS_ACCENT, STATUS_LABEL, STATUS_TONE } from "@roadmapper/domain/tas
 import { useWorkspaceOptions } from "@/hooks/use-workspace-options";
 import { PageHeader } from "@/components/layout/AppShell";
 import { EmptyState, ErrorState, LoadingState } from "@/components/state/StateViews";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Avatar } from "./Avatar";
-import { PriorityBadge } from "./badges";
+import { Button } from "@roadmapper/ui/components/ui/button";
+import { cn } from "@roadmapper/ui/lib/utils";
+import { Avatar } from "@roadmapper/ui/task/Avatar";
+import { PriorityBadge } from "@roadmapper/ui/task/badges";
 import { TaskEditor, type EditorSelection, type TaskScope } from "./TaskEditor";
 
 const DAYS = 28;

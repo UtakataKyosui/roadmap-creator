@@ -1,7 +1,7 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { ErrorState } from "@/components/state/StateViews";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@roadmapper/ui/components/ui/button";
 
 export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   const router = useRouter();
