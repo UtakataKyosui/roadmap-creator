@@ -1,7 +1,9 @@
 import type { ZodType, output } from "zod";
+import { Data, Effect } from "effect";
 import type { ErrorCode, ErrorDetail } from "@/api/generated/models";
 
 export class HttpError extends Error {
+  readonly _tag = "HttpError";
   readonly status: number;
   readonly code: ErrorCode;
   readonly details: ErrorDetail[] | undefined;
@@ -14,6 +16,23 @@ export class HttpError extends Error {
     this.details = details;
   }
 }
+
+export class UnexpectedServerError extends Data.TaggedError("UnexpectedServerError")<{
+  readonly cause: unknown;
+}> {}
+
+export type ServerError = HttpError | UnexpectedServerError;
+
+// 既存のDB/外部ライブラリのPromiseを取り込む境界。業務エラーを保持し、
+// その他の失敗は内部情報を含むcauseとしてサーバー側に留める。
+export const serverEffect = <A>(run: () => PromiseLike<A>): Effect.Effect<A, ServerError> =>
+  Effect.tryPromise({
+    try: () => Promise.resolve(run()),
+    catch: (cause) =>
+      cause instanceof HttpError || cause instanceof UnexpectedServerError
+        ? cause
+        : new UnexpectedServerError({ cause }),
+  });
 
 export const unauthorized = () => new HttpError(401, "unauthorized", "ログインが必要です");
 export const forbidden = () => new HttpError(403, "forbidden", "この操作を行う権限がありません");
@@ -59,7 +78,10 @@ export const toErrorResponse = (error: unknown) => {
       { status: error.status },
     );
   }
-  console.error("Unhandled API error", error);
+  console.error(
+    "Unhandled API error",
+    error instanceof UnexpectedServerError ? error.cause : error,
+  );
   return Response.json(
     { code: "internal", message: "サーバー内部でエラーが発生しました" },
     { status: 500 },

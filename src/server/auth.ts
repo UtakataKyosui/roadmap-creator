@@ -1,7 +1,9 @@
 import { getRequestHeaders } from "@tanstack/react-start/server";
+import { Effect } from "effect";
+import { runPromise } from "@/lib/effect";
 import { devFixtures } from "../../db/dev-fixtures";
 import { AuthNotConfiguredError, getAuth } from "./better-auth";
-import { unauthorized } from "./errors";
+import { serverEffect, unauthorized, type ServerError } from "./errors";
 import { ensureAuthProfile } from "./auth-profile";
 import { database } from "./database";
 
@@ -20,17 +22,23 @@ type ResolveOptions = {
 // 認証済みのユーザーIDを返す。セッションはサーバーが検証し、クライアントの申告は信用しない。
 // 認証の環境変数が未設定の開発ビルドに限り、開発用ユーザーとして扱う。
 // 本番ビルドでは未設定でも開発用ユーザーにはならず、常に未認証になる。
-export const resolveActorId = async ({
+export const resolveActorIdEffect = ({
   allowDevUser = import.meta.env.DEV,
   readSession = readSessionUserId,
 }: ResolveOptions = {}) => {
-  try {
-    const userId = await readSession();
-    if (!userId) throw unauthorized();
-    return userId;
-  } catch (error) {
-    if (error instanceof AuthNotConfiguredError && allowDevUser) return devFixtures.userId;
-    if (error instanceof AuthNotConfiguredError) throw unauthorized();
-    throw error;
-  }
+  return serverEffect(readSession).pipe(
+    Effect.catchTag("UnexpectedServerError", (error): Effect.Effect<string | null, ServerError> => {
+      if (!(error.cause instanceof AuthNotConfiguredError)) return Effect.fail(error);
+      return allowDevUser ? Effect.succeed(devFixtures.userId) : Effect.fail(unauthorized());
+    }),
+    Effect.flatMap((userId) => (userId ? Effect.succeed(userId) : Effect.fail(unauthorized()))),
+  );
 };
+
+export const resolveActorId = (options: ResolveOptions = {}) =>
+  // セッション用ServerFnとの境界では、従来どおり元の例外を保持する。
+  runPromise(
+    resolveActorIdEffect(options).pipe(
+      Effect.mapError((error) => (error._tag === "UnexpectedServerError" ? error.cause : error)),
+    ),
+  );
