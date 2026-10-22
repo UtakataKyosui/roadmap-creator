@@ -10,7 +10,7 @@ import {
   useUpdateRoadmap,
 } from "@/api/generated/endpoints/roadmaps/roadmaps";
 import type { Roadmap } from "@roadmapper/api-contract/models";
-import { Button } from "@/components/ui/button";
+import { Button } from "@roadmapper/ui/components/ui/button";
 import {
   roadmapPeriodLabel,
   validateRoadmapPeriod,

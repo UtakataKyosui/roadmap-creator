@@ -6,9 +6,9 @@ import { useListMyTasks } from "@/api/generated/endpoints/my-tasks/my-tasks";
 import type { MyTaskItem, MyTaskSummary } from "@roadmapper/api-contract/models";
 import { AppHeader } from "@/components/layout/AppShell";
 import { EmptyState, ErrorState, LoadingState } from "@/components/state/StateViews";
-import { Avatar } from "@/components/task/Avatar";
-import { PriorityBadge, StatusBadge } from "@/components/task/badges";
-import { Button } from "@/components/ui/button";
+import { Avatar } from "@roadmapper/ui/task/Avatar";
+import { PriorityBadge, StatusBadge } from "@roadmapper/ui/task/badges";
+import { Button } from "@roadmapper/ui/components/ui/button";
 import { formatShortDate, isOverdue } from "@roadmapper/domain/calendar-date";
 import {
   DUE_FILTERS,
@@ -21,7 +21,7 @@ import {
 } from "@roadmapper/domain/my-tasks";
 import { STATUS_FILL, STATUS_LABEL, TASK_STATUSES, progressPercent } from "@roadmapper/domain/task";
 import { useLocalToday } from "@/hooks/use-local-today";
-import { cn } from "@/lib/utils";
+import { cn } from "@roadmapper/ui/lib/utils";
 
 const fieldClass =
   "h-9 rounded-sm border border-border-strong bg-surface-sunken px-3 text-[13px] focus:border-indigo focus:bg-surface focus:outline-none";
