@@ -12,10 +12,10 @@ import {
 import { useState } from "react";
 import type { Task } from "@roadmapper/api-contract/models";
 import { roadmapTasksOptions } from "@/api/roadmap-tasks";
-import { addDays, parseCalendarDate } from "@/domain/calendar-date";
+import { addDays, parseCalendarDate } from "@roadmapper/domain/calendar-date";
 import { useLocalToday } from "@/hooks/use-local-today";
-import { timelinePlacement } from "@/domain/timeline";
-import { STATUS_ACCENT, STATUS_LABEL, STATUS_TONE } from "@/domain/task";
+import { timelinePlacement } from "@roadmapper/domain/timeline";
+import { STATUS_ACCENT, STATUS_LABEL, STATUS_TONE } from "@roadmapper/domain/task";
 import { useWorkspaceOptions } from "@/hooks/use-workspace-options";
 import { PageHeader } from "@/components/layout/AppShell";
 import { EmptyState, ErrorState, LoadingState } from "@/components/state/StateViews";

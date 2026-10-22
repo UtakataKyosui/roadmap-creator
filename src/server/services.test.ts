@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from "vite-plus/test";
-import { parseResponse } from "../api/validation";
+import { parseResponse } from "@roadmapper/domain/validation";
 import { GetRoadmapResponse } from "@roadmapper/api-contract/zod/roadmaps/roadmaps.zod";
 import {
   CreateTaskResponse,

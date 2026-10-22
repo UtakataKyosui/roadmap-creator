@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vite-plus/test";
-import { CreateTaskInput } from "@/api/validation";
+import { CreateTaskInput } from "./validation";
 import {
   addDays,
   diffDays,

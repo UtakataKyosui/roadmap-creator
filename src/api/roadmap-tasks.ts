@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { getListTasksQueryKey, listTasks } from "./generated/endpoints/tasks/tasks";
 import type { Task } from "@roadmapper/api-contract/models";
 import { ListTasksResponse } from "@roadmapper/api-contract/zod/tasks/tasks.zod";
-import { parseResponse } from "./validation";
+import { parseResponse } from "@roadmapper/domain/validation";
 
 // 全ページを取得し、件数と移動先の隣接関係をページ境界でも正しく扱う。
 export const roadmapTasksOptions = (workspaceId: string, roadmapId: string) =>

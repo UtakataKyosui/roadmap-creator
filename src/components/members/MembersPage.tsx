@@ -23,7 +23,7 @@ import {
   ROLE_LABEL,
   absoluteInviteUrl,
   canManageInvitations,
-} from "@/domain/invitation";
+} from "@roadmapper/domain/invitation";
 import { cn } from "@/lib/utils";
 
 const fieldClass =

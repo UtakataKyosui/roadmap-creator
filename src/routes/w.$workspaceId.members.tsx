@@ -2,8 +2,8 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { getListWorkspacesQueryOptions } from "@/api/generated/endpoints/workspaces/workspaces";
 import { getListProjectsQueryOptions } from "@/api/generated/endpoints/projects/projects";
 import { MembersPage } from "@/components/members/MembersPage";
-import { parseMembersSearch, pickReturnProject } from "@/domain/members-search";
-import { isUuid } from "@/domain/ids";
+import { parseMembersSearch, pickReturnProject } from "@roadmapper/domain/members-search";
+import { isUuid } from "@roadmapper/domain/ids";
 
 // ワークスペースのメンバー一覧と、メンバーの招待・招待の管理。
 export const Route = createFileRoute("/w/$workspaceId/members")({

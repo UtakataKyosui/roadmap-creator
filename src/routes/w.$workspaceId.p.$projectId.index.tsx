@@ -2,7 +2,7 @@ import { createFileRoute, getRouteApi } from "@tanstack/react-router";
 import { getListRoadmapsQueryOptions } from "@/api/generated/endpoints/roadmaps/roadmaps";
 import { AppShell, PageHeader } from "@/components/layout/AppShell";
 import { RoadmapManager } from "@/components/roadmap/RoadmapManager";
-import { buildBreadcrumb } from "@/domain/breadcrumb";
+import { buildBreadcrumb } from "@roadmapper/domain/breadcrumb";
 
 const projectRoute = getRouteApi("/w/$workspaceId/p/$projectId");
 

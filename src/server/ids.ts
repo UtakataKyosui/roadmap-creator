@@ -1,5 +1,5 @@
 // 画面のURL検証でも使う純粋関数のためdomainに置き、サーバーからはここ経由で参照する。
-export { isUuid } from "@/domain/ids";
+export { isUuid } from "@roadmapper/domain/ids";
 
 let lastTimestamp = 0;
 

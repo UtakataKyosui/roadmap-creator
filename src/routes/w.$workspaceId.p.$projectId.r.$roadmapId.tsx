@@ -10,8 +10,8 @@ import { getGetRoadmapQueryOptions } from "@/api/generated/endpoints/roadmaps/ro
 import { ApiError } from "@/api/http";
 import { AppShell } from "@/components/layout/AppShell";
 import { GoalOverview } from "@/components/roadmap/GoalOverview";
-import { buildBreadcrumb, type View } from "@/domain/breadcrumb";
-import { isUuid } from "@/domain/ids";
+import { buildBreadcrumb, type View } from "@roadmapper/domain/breadcrumb";
+import { isUuid } from "@roadmapper/domain/ids";
 
 const projectRoute = getRouteApi("/w/$workspaceId/p/$projectId");
 

@@ -14,7 +14,7 @@ import { getListRoadmapsQueryOptions } from "@/api/generated/endpoints/roadmaps/
 import { ApiError } from "@/api/http";
 import { ErrorState, LoadingState, Notice } from "@/components/state/StateViews";
 import { Button } from "@/components/ui/button";
-import { INVITATION_STATUS_LABEL } from "@/domain/invitation";
+import { INVITATION_STATUS_LABEL } from "@roadmapper/domain/invitation";
 
 const unusable = {
   accepted: "この招待はすでに使われています。",

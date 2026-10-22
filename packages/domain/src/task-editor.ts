@@ -1,5 +1,5 @@
 import type { Task, TaskCreate, TaskStatus, TaskUpdate } from "@roadmapper/api-contract/models";
-import { CreateTaskInput } from "@/api/validation";
+import { CreateTaskInput } from "./validation";
 
 export const initialTaskInput = (status: TaskStatus = "todo"): TaskCreate => ({
   title: "",

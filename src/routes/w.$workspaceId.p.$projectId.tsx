@@ -2,7 +2,7 @@ import { Outlet, createFileRoute, notFound } from "@tanstack/react-router";
 import { getListProjectsQueryOptions } from "@/api/generated/endpoints/projects/projects";
 import { getListWorkspacesQueryOptions } from "@/api/generated/endpoints/workspaces/workspaces";
 import { ApiError } from "@/api/http";
-import { isUuid } from "@/domain/ids";
+import { isUuid } from "@roadmapper/domain/ids";
 
 // Workspace・Projectの存在確認とパンくず用のデータ取得。ロードマップの階層の親になる。
 export const Route = createFileRoute("/w/$workspaceId/p/$projectId")({

@@ -27,7 +27,7 @@ import {
   validateRoadmapName,
   validateRoadmapPeriod,
   type RoadmapPeriod,
-} from "@/domain/roadmap";
+} from "@roadmapper/domain/roadmap";
 import { PeriodFields } from "./RoadmapPeriod";
 import { cn } from "@/lib/utils";
 

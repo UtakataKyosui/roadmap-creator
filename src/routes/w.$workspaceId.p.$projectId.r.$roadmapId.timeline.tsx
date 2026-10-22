@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { roadmapTasksOptions } from "@/api/roadmap-tasks";
 import { TaskTimeline } from "@/components/task/TaskTimeline";
-import { todayCalendarDate } from "@/domain/calendar-date";
+import { todayCalendarDate } from "@roadmapper/domain/calendar-date";
 
 export const Route = createFileRoute("/w/$workspaceId/p/$projectId/r/$roadmapId/timeline")({
   loader: async ({ context: { queryClient }, params }) => {
