@@ -23,10 +23,7 @@ function ProjectPage() {
 
   return (
     <AppShell workspace={workspace} project={project} trail={[workspaceName, projectName]}>
-      <PageHeader
-        title="ロードマップ"
-        description={`${project.name}のロードマップを作成・名称変更します`}
-      />
+      <PageHeader title="ロードマップ" description="目標を決めて、学びの道筋をつくりましょう" />
       <main className="p-6">
         <RoadmapManager workspaceId={workspaceId} projectId={projectId} />
       </main>

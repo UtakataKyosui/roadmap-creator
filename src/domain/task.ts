@@ -18,7 +18,7 @@ export const TASK_PRIORITIES = [
 export const STATUS_LABEL: Record<TaskStatus, string> = {
   todo: "未着手",
   in_progress: "進行中",
-  review: "レビュー",
+  review: "振り返り",
   done: "完了",
 };
 

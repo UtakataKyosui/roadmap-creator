@@ -22,7 +22,7 @@ describe("進捗率とラベル", () => {
     expect(TASK_STATUSES.map((s) => STATUS_LABEL[s])).toEqual([
       "未着手",
       "進行中",
-      "レビュー",
+      "振り返り",
       "完了",
     ]);
     expect(Object.values(PRIORITY_LABEL)).toEqual(["低", "中", "高", "緊急"]);

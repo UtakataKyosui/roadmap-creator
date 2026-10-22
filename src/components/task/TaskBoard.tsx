@@ -76,16 +76,16 @@ export function TaskBoard({ scope, initialToday }: { scope: TaskScope; initialTo
   return (
     <>
       <PageHeader
-        title="ボード"
-        description="カードをドラッグするか、ステータスと矢印で並べ替えます"
+        title="学習ステップ"
+        description="取り組みを整理して、できたことを増やしましょう"
         actions={
           <Button size="lg" onClick={() => setSelection({ status: "todo" })} disabled={moving}>
             <Plus aria-hidden />
-            新しいアイテムを追加
+            ステップを追加
           </Button>
         }
       />
-      <main className="flex flex-1 flex-col gap-3 px-6 py-5">
+      <main className="flex flex-1 flex-col gap-3 px-5 pb-7 md:px-7">
         {moving && (
           <Notice tone="progress" role="status">
             移動を保存中…
@@ -122,7 +122,7 @@ export function TaskBoard({ scope, initialToday }: { scope: TaskScope; initialTo
               <section
                 key={status}
                 aria-label={STATUS_LABEL[status]}
-                className="flex min-w-0 flex-col gap-2.5 rounded-md border bg-surface-sunken p-3"
+                className="flex min-w-0 flex-col gap-3 rounded-lg border bg-surface-subtle/50 p-3.5"
                 onDragOver={(e) => {
                   if (dragging && !moving) e.preventDefault();
                 }}
@@ -245,7 +245,13 @@ export function TaskBoard({ scope, initialToday }: { scope: TaskScope; initialTo
                 </ol>
                 {column.length === 0 && (
                   <p className="py-3 text-center text-xs text-subtle-foreground">
-                    タスクがありません
+                    {status === "todo"
+                      ? "これから学びたいことを追加"
+                      : status === "in_progress"
+                        ? "取り組み始めたら、ここへ"
+                        : status === "review"
+                          ? "学んだことを、もう一度確認"
+                          : "できたことを積み重ねよう"}
                   </p>
                 )}
                 <Button
@@ -254,7 +260,7 @@ export function TaskBoard({ scope, initialToday }: { scope: TaskScope; initialTo
                   disabled={moving}
                   onClick={() => setSelection({ status })}
                 >
-                  ＋ アイテムを追加
+                  ＋ ステップを追加
                 </Button>
               </section>
             );

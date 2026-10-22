@@ -50,7 +50,7 @@
   }
 }
 
-/* designs/roadmap-studio.fig の変数と同じ値。名前の対応は docs/phase1-screens.md を参照。 */
+/* 学びを積み重ねるための、温かみのあるニュートラルと深いグリーン。 */
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans:
@@ -96,18 +96,18 @@
 }
 
 :root {
-  --bg-app: #f6f7f9;
+  --bg-app: #f7f8f5;
   --surface: #ffffff;
-  --surface-subtle: #f1f3f7;
-  --surface-sunken: #fafbfc;
-  --border: #e5e8ee;
-  --border-strong: #d2d8e2;
-  --text-primary: #15181e;
-  --text-secondary: #5a6476;
-  --text-tertiary: #8c95a6;
-  --indigo: #4f46e5;
-  --indigo-strong: #4338ca;
-  --indigo-tint: #eef0fe;
+  --surface-subtle: #eef1ec;
+  --surface-sunken: #f8f9f6;
+  --border: #e4e8e0;
+  --border-strong: #cfd8cb;
+  --text-primary: #26362e;
+  --text-secondary: #657269;
+  --text-tertiary: #758176;
+  --indigo: #347359;
+  --indigo-strong: #275c46;
+  --indigo-tint: #e9f2e9;
   --teal: #0d9488;
   --teal-tint: #e4f6f4;
   --amber: #b45309;
@@ -133,4 +133,203 @@
   --input: var(--border-strong);
   --ring: var(--indigo);
   --radius: 10px;
+}
+
+.app-header {
+  box-shadow: 0 1px 8px #26362e03;
+}
+.header-main {
+  display: flex;
+  align-items: center;
+  gap: 44px;
+  min-height: 72px;
+  padding: 0 32px;
+}
+.header-navigation {
+  display: flex;
+  align-items: stretch;
+  align-self: stretch;
+  gap: 28px;
+}
+.header-nav-link {
+  border-bottom: 2px solid transparent;
+  padding: 0 2px;
+}
+.header-nav-link.is-active {
+  border-bottom-color: var(--indigo);
+}
+.header-account {
+  margin-left: auto;
+}
+.header-context {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  gap: 24px;
+  padding: 8px 32px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-sunken);
+}
+.header-roadmap-select {
+  width: 240px;
+  text-overflow: ellipsis;
+}
+.goal-overview {
+  flex-shrink: 0;
+  background: var(--surface);
+  padding: 32px 32px 0;
+  border-bottom: 1px solid var(--border);
+}
+.goal-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+.goal-emblem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  flex-shrink: 0;
+  border: 1px solid #dce8d8;
+  border-radius: 24px;
+  color: var(--indigo);
+  background: #f2f6ec;
+  transform: rotate(-8deg);
+}
+.goal-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-top: 26px;
+  margin-bottom: 22px;
+}
+.goal-progress {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-right: 28px;
+  border-right: 1px solid var(--border);
+}
+.goal-next {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.goal-tabs {
+  display: flex;
+  gap: 28px;
+  overflow-x: auto;
+}
+.goal-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 15px 2px;
+  border-bottom: 2px solid transparent;
+  font-size: 12px;
+  color: var(--text-secondary);
+  transition: color 0.15s;
+}
+.goal-tab:hover,
+.goal-tab.is-active {
+  color: var(--indigo);
+}
+.goal-tab.is-active {
+  border-bottom-color: var(--indigo);
+  font-weight: 600;
+}
+.roadmap-flow {
+  min-height: 400px;
+}
+.roadmap-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #dce8d8;
+  border-radius: 18px;
+  background: #eff4e9;
+  padding: 32px;
+}
+.roadmap-hero::after {
+  content: "";
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border: 30px solid #34735908;
+  border-radius: 50%;
+  top: -60px;
+  right: -40px;
+  pointer-events: none;
+}
+@media (max-width: 767px) {
+  .header-main {
+    flex-wrap: wrap;
+    gap: 0 16px;
+    padding: 0 20px;
+  }
+  .header-brand,
+  .header-account {
+    display: flex;
+    align-items: center;
+    min-height: 64px;
+  }
+  .header-navigation {
+    order: 3;
+    width: 100%;
+    min-height: 44px;
+    gap: 24px;
+    overflow-x: auto;
+  }
+  .header-nav-link {
+    font-size: 12px;
+  }
+  .header-context {
+    gap: 12px;
+    padding: 8px 20px;
+  }
+  .header-roadmap-select {
+    width: 160px;
+  }
+  .app-content {
+    overflow: auto;
+  }
+  .goal-overview {
+    padding: 24px 20px 0;
+  }
+  .goal-emblem {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+  }
+  .goal-stats {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin-top: 20px;
+  }
+  .goal-progress {
+    padding-right: 0;
+    border-right: 0;
+  }
+  .goal-next {
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  .goal-tabs {
+    gap: 20px;
+  }
+  .goal-tab {
+    font-size: 11px;
+    gap: 6px;
+  }
+  .roadmap-hero {
+    padding: 24px;
+  }
+  .page-header {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 }

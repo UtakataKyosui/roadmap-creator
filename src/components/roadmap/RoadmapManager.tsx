@@ -1,6 +1,14 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, CircleAlert, Map as MapIcon, Pencil, Plus } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  CircleAlert,
+  Map as MapIcon,
+  Pencil,
+  Plus,
+  Target,
+} from "lucide-react";
 import { useId, useState } from "react";
 import type { Roadmap } from "@/api/generated/models";
 import { invalidateRoadmaps } from "@/api/cache";
@@ -64,7 +72,7 @@ function NameField({
         if (result.ok) onSubmit(result.name);
       }}
     >
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+      <div className="flex min-w-0 flex-1 basis-full flex-col gap-1.5 sm:basis-0">
         <label htmlFor={inputId} className={label ? "text-xs font-semibold" : "sr-only"}>
           {label ?? "ロードマップの名称"}
         </label>
@@ -81,7 +89,7 @@ function NameField({
           aria-invalid={shown ? true : undefined}
           aria-describedby={shown ? errorId : undefined}
           autoFocus={onCancel !== undefined}
-          placeholder="ロードマップの名称"
+          placeholder="例：TOEIC 800点を目指す"
           className="h-9 w-full rounded-sm border border-border-strong bg-surface px-3 text-[13px] focus:border-indigo focus:outline-none aria-invalid:border-destructive"
         />
         {shown ? (
@@ -92,8 +100,25 @@ function NameField({
         ) : (
           hint && <p className="text-[11px] text-subtle-foreground">{hint}</p>
         )}
+        {!onCancel && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {["TOEIC 800点を目指す", "基本情報技術者に合格する", "チームで英会話を身につける"].map(
+              (example) => (
+                <button
+                  key={example}
+                  type="button"
+                  disabled={pending}
+                  className="rounded-full border bg-surface-sunken px-3 py-1.5 text-[10px] text-muted-foreground transition-colors hover:border-indigo hover:text-indigo"
+                  onClick={() => setValue(example)}
+                >
+                  {example}
+                </button>
+              ),
+            )}
+          </div>
+        )}
       </div>
-      <div className={cn("flex gap-2", label && "pt-[22px]")}>
+      <div className={cn("flex gap-2", label && "sm:pt-[22px]")}>
         <Button type="submit" size="lg" disabled={pending}>
           {!onCancel && <Plus aria-hidden />}
           {pending ? "保存中…" : submitLabel}
@@ -169,16 +194,19 @@ function RoadmapRow({ roadmap, scope, index }: { roadmap: Roadmap; scope: Scope;
   }
 
   return (
-    <li className="flex h-14 items-center gap-3 px-4">
+    <li className="flex min-h-24 flex-wrap items-center gap-3 px-5 py-4">
       <RoadmapIcon index={index} />
-      <span className="min-w-0 flex-1 truncate text-sm font-semibold">{roadmap.name}</span>
+      <div className="min-w-0 flex-1">
+        <p className="mb-1 text-[10px] tracking-wider text-subtle-foreground">目指しているゴール</p>
+        <span className="block truncate text-sm font-semibold">{roadmap.name}</span>
+      </div>
       <Link
-        to="/w/$workspaceId/p/$projectId/r/$roadmapId/board"
+        to="/w/$workspaceId/p/$projectId/r/$roadmapId/map"
         params={{ ...scope, roadmapId: roadmap.id }}
         className="inline-flex items-center gap-1 text-xs font-semibold text-indigo hover:underline"
-        aria-label={`「${roadmap.name}」のボードを開く`}
+        aria-label={`「${roadmap.name}」のロードマップを開く`}
       >
-        ボードを開く
+        学びを続ける
         <ArrowRight aria-hidden className="size-3.5" />
       </Link>
       <Button
@@ -209,9 +237,9 @@ export function RoadmapManager({ workspaceId, projectId }: Scope) {
         onSuccess: async (response) => {
           await invalidateRoadmaps(queryClient, workspaceId, projectId);
           if (response.status !== 201) return;
-          // 作成後はそのロードマップのボードへ進み、タスク追加に移れるようにする。
+          // 作成後はマップへ進み、目標に必要な学習ステップを追加する。
           await navigate({
-            to: "/w/$workspaceId/p/$projectId/r/$roadmapId/board",
+            to: "/w/$workspaceId/p/$projectId/r/$roadmapId/map",
             params: { ...scope, roadmapId: response.data.id },
           });
         },
@@ -225,12 +253,37 @@ export function RoadmapManager({ workspaceId, projectId }: Scope) {
   const items = roadmaps.data.status === 200 ? roadmaps.data.data.filter((r) => !r.archivedAt) : [];
 
   return (
-    <div className="flex max-w-3xl flex-col gap-5">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+      <div className="roadmap-hero">
+        <p className="mb-4 flex items-center gap-2 text-[11px] font-semibold tracking-[0.16em] text-indigo">
+          <BookOpen className="size-4" aria-hidden /> LEARN AT YOUR OWN PACE
+        </p>
+        <h1 className="text-2xl font-bold leading-relaxed md:text-3xl">
+          なりたい自分への道を、描こう。
+        </h1>
+        <p className="mt-3 max-w-xl text-sm leading-7 text-muted-foreground">
+          資格の合格も、新しいスキルも。目標までの道のりを小さなステップに分けて、自分やチームのペースで進めましょう。
+        </p>
+        <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-xs font-medium text-indigo">
+          <span className="flex items-center gap-2">
+            <Target className="size-4" aria-hidden />
+            目標を決める
+          </span>
+          <span className="flex items-center gap-2">
+            <MapIcon className="size-4" aria-hidden />
+            学びの道筋をつくる
+          </span>
+          <span className="flex items-center gap-2">
+            <ArrowRight className="size-4" aria-hidden />
+            一歩ずつ進める
+          </span>
+        </div>
+      </div>
       {items.length === 0 ? (
         <div className="rounded-md border bg-surface">
           <EmptyState
             title="ロードマップがまだありません"
-            description="名称をつけて作成すると、タスクを追加できます。"
+            description="まずは、たどり着きたい目標を一つ決めてみましょう。"
           />
         </div>
       ) : (
@@ -239,7 +292,7 @@ export function RoadmapManager({ workspaceId, projectId }: Scope) {
             id={listId}
             className="flex items-center gap-2 border-b bg-surface-sunken px-4 py-3 text-xs font-semibold text-muted-foreground"
           >
-            ロードマップ
+            取り組んでいるロードマップ
             <span className="rounded-full bg-surface-subtle px-[7px] text-[11px]">
               {items.length}
             </span>
@@ -253,19 +306,19 @@ export function RoadmapManager({ workspaceId, projectId }: Scope) {
       )}
       <section
         aria-labelledby={createId}
-        className="flex flex-col gap-3 rounded-md border bg-surface p-4"
+        className="flex flex-col gap-5 rounded-lg border bg-surface p-6"
       >
         <div>
           <h2 id={createId} className="text-sm font-bold">
-            新しいロードマップ
+            次は、何を目指しますか？
           </h2>
           <p className="mt-1 text-xs text-subtle-foreground">
-            作成すると、そのロードマップのボードが開きます。
+            達成したい目標に名前をつけましょう。作成後に、必要な学習ステップを追加できます。
           </p>
         </div>
         <NameField
-          label="ロードマップの名称"
-          submitLabel="作成"
+          label="達成したい目標"
+          submitLabel="ロードマップを作成"
           pending={create.isPending}
           error={create.error ? failureMessage(create.error) : null}
           onSubmit={submitCreate}

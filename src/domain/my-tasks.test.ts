@@ -8,6 +8,20 @@ import {
 } from "./my-tasks";
 
 describe("マイタスクの検索条件", () => {
+  test("ナビゲーションのワークスペースを条件変更後も保持し、APIの絞り込みには含めない", () => {
+    const context = {
+      workspaceId: "0190a000-0000-7000-8000-000000000010",
+      projectId: "0190a000-0000-7000-8000-000000000020",
+    };
+    expect(parseMyTasksSearch(context)).toEqual(context);
+    expect(withFilter({ ...context, page: 3 }, { status: "todo" })).toEqual({
+      ...context,
+      status: "todo",
+    });
+    expect(hasActiveFilters(context)).toBe(false);
+    expect(toApiParams(context, "2026-10-22")).toEqual(toApiParams({}, "2026-10-22"));
+    expect(parseMyTasksSearch({ workspaceId: "invalid", projectId: "invalid" })).toEqual({});
+  });
   test("有効な値だけを取り出し、不正な値・1ページ目の指定は捨てる", () => {
     expect(
       parseMyTasksSearch({ q: "  設計 ", status: "review", due: "thisWeek", page: "3" }),

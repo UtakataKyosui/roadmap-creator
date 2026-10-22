@@ -4,7 +4,7 @@ import { getListRoadmapsQueryOptions } from "@/api/generated/endpoints/roadmaps/
 import { getListWorkspacesQueryOptions } from "@/api/generated/endpoints/workspaces/workspaces";
 import { EmptyState } from "@/components/state/StateViews";
 
-// 入口。最初のアクティブなProjectの最初のロードマップのボードへ移る。
+// 入口。最初のアクティブなProjectの最初のロードマップのマップへ移る。
 // ロードマップがなければProjectの画面（作成導線）、Workspaceまたはアクティブなprojectが無ければ空状態を表示する。
 export const Route = createFileRoute("/")({
   loader: async ({ context: { queryClient } }) => {
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/")({
       const params = { workspaceId: workspace.id, projectId: project.id };
       if (!roadmap) throw redirect({ to: "/w/$workspaceId/p/$projectId", params });
       throw redirect({
-        to: "/w/$workspaceId/p/$projectId/r/$roadmapId/board",
+        to: "/w/$workspaceId/p/$projectId/r/$roadmapId/map",
         params: { ...params, roadmapId: roadmap.id },
       });
     }
