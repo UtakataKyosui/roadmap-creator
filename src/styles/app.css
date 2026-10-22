@@ -269,8 +269,21 @@
   --task-col: 300px;
   min-width: calc(var(--task-col) + var(--cells-width));
 }
+/* viewport-fit=cover では横向きでノッチの下に内容が入るため、左右と下を避ける。cover がなければ env() は 0。 */
+.app-content,
+.safe-inline {
+  padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+}
 .app-content {
   padding-bottom: env(safe-area-inset-bottom);
+}
+.header-main {
+  padding-left: max(32px, env(safe-area-inset-left));
+  padding-right: max(32px, env(safe-area-inset-right));
+}
+.header-context {
+  padding-left: max(32px, env(safe-area-inset-left));
+  padding-right: max(32px, env(safe-area-inset-right));
 }
 /* タブレット幅まではナビゲーションを2段目に置き、4項目を均等に並べる。 */
 @media (max-width: 1023px) {
@@ -310,7 +323,7 @@
   .header-context {
     flex-wrap: wrap;
     gap: 8px 12px;
-    padding: 8px 20px;
+    padding: 8px max(20px, env(safe-area-inset-right)) 8px max(20px, env(safe-area-inset-left));
   }
   .header-context > nav,
   .header-context > div {
