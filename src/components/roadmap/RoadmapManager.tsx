@@ -224,7 +224,7 @@ function RoadmapRow({ roadmap, scope, index }: { roadmap: Roadmap; scope: Scope;
       <Link
         to="/w/$workspaceId/p/$projectId/r/$roadmapId/map"
         params={{ ...scope, roadmapId: roadmap.id }}
-        className="inline-flex items-center gap-1 text-xs font-semibold text-indigo hover:underline"
+        className="inline-flex items-center gap-1 text-xs font-semibold text-indigo hover:underline pointer-coarse:min-h-11"
         aria-label={`「${roadmap.name}」のロードマップを開く`}
       >
         学びを続ける

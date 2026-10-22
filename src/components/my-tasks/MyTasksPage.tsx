@@ -73,7 +73,7 @@ export function MyTasksPage({
   return (
     <div className="flex h-dvh flex-col">
       <AppHeader trail={["マイタスク"]} workspace={workspace} project={project} />
-      <main className="flex min-h-0 flex-1 flex-col overflow-auto">
+      <main className="safe-inline flex min-h-0 flex-1 flex-col overflow-auto">
         <div className="flex min-h-16 shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b bg-surface px-6 py-3">
           <h1 className="text-xl font-bold">マイタスク</h1>
           <p className="text-xs text-subtle-foreground">

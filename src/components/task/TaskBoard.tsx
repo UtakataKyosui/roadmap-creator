@@ -111,7 +111,7 @@ export function TaskBoard({ scope, initialToday }: { scope: TaskScope; initialTo
             担当者・ラベルの表示を取得できませんでした。
           </Notice>
         )}
-        <div className="grid flex-1 grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-4 xl:items-stretch">
+        <div className="-mx-5 flex flex-1 snap-x snap-mandatory scroll-px-5 items-start gap-3 overflow-x-auto px-5 pb-2 md:mx-0 md:grid md:snap-none md:grid-cols-2 md:gap-4 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-4 xl:items-stretch">
           {TASK_STATUSES.map((status) => {
             const column = columnTasks(tasks, status);
             const drop = (taskId: string, index: number) => {
@@ -122,7 +122,7 @@ export function TaskBoard({ scope, initialToday }: { scope: TaskScope; initialTo
               <section
                 key={status}
                 aria-label={STATUS_LABEL[status]}
-                className="flex min-w-0 flex-col gap-3 rounded-lg border bg-surface-subtle/50 p-3.5"
+                className="flex w-[84%] max-w-80 shrink-0 snap-start flex-col gap-3 rounded-lg border bg-surface-subtle/50 p-3.5 md:w-auto md:max-w-none md:min-w-0 md:shrink"
                 onDragOver={(e) => {
                   if (dragging && !moving) e.preventDefault();
                 }}

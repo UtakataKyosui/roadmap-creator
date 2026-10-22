@@ -155,12 +155,26 @@ export function AppHeader({
           <ol className="flex items-center gap-1.5 text-xs text-subtle-foreground">
             {trail.map((item, index) => {
               const current = index === trail.length - 1;
+              // 狭い画面では現在地とその1つ上だけを出す。
+              const hiddenOnMobile = index < trail.length - 2;
               return (
                 <Fragment key={index}>
-                  {index > 0 && <ChevronRight aria-hidden className="size-3 shrink-0" />}
+                  {index > 0 && (
+                    <ChevronRight
+                      aria-hidden
+                      className={cn(
+                        "size-3 shrink-0",
+                        index <= trail.length - 2 && "max-sm:hidden",
+                      )}
+                    />
+                  )}
                   <li
                     aria-current={current ? "page" : undefined}
-                    className={cn("truncate", current && "font-semibold text-foreground")}
+                    className={cn(
+                      "truncate",
+                      current && "font-semibold text-foreground",
+                      hiddenOnMobile && "max-sm:hidden",
+                    )}
                   >
                     {item}
                   </li>
