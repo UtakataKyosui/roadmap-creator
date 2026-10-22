@@ -20,7 +20,7 @@ import {
   ResponseValidationError,
   parseResponse,
   updateTaskInputFor,
-} from "./validation";
+} from "@roadmapper/domain/validation";
 import { MutationObserver } from "@tanstack/react-query";
 import {
   getListTasksQueryOptions,

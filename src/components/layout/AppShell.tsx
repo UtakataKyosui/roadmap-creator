@@ -18,7 +18,7 @@ import { useListWorkspaces } from "@/api/generated/endpoints/workspaces/workspac
 import { useListProjects } from "@/api/generated/endpoints/projects/projects";
 import { Avatar } from "@/components/task/Avatar";
 import { Button } from "@/components/ui/button";
-import type { View } from "@/domain/breadcrumb";
+import type { View } from "@roadmapper/domain/breadcrumb";
 import { cn } from "@/lib/utils";
 
 type Named = { id: string; name: string };

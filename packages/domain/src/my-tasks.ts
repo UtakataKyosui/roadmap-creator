@@ -4,7 +4,7 @@ import type {
   TaskStatus,
 } from "@roadmapper/api-contract/models";
 import { TASK_STATUSES } from "./task";
-import { isUuid } from "@/server/ids";
+import { isUuid } from "./ids";
 
 export const MY_TASKS_PAGE_SIZE = 20;
 

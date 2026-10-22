@@ -20,6 +20,14 @@ const LAYERS = [
       ["src/api/generated/zod", "packages/api-contract/src/zod"],
     ],
   },
+  {
+    name: "domain",
+    moves: [
+      // validation.tsはcalendar-dateに依存し、task-editorから使われるためdomainに置く（循環の解消）。
+      ["src/api/validation.ts", "packages/domain/src/validation.ts"],
+      ["src/domain", "packages/domain/src"],
+    ],
+  },
 ];
 
 const args = process.argv.slice(2);
@@ -42,18 +50,26 @@ const walk = (dir) =>
   });
 
 // ファイル単位の対応表（移動元→移動先）。移動前後のどちらでも作れる。
+// ファイル指定の行を先に登録し、ディレクトリ指定の行はそれ以外のファイルだけを受け持つ。
 const fileMoves = new Map();
-for (const [from, to] of moves) {
-  if (isDir(from)) for (const file of walk(from)) fileMoves.set(file, to + file.slice(from.length));
-  else if (isDir(to))
-    for (const file of walk(to)) fileMoves.set(from + file.slice(to.length), file);
-  else fileMoves.set(from, to);
+const isDirMove = ([from, to]) => isDir(from) || (!isFile(from) && isDir(to));
+for (const [from, to] of moves.filter((move) => !isDirMove(move))) fileMoves.set(from, to);
+const claimed = new Set(fileMoves.values());
+for (const [from, to] of moves.filter(isDirMove)) {
+  if (isDir(from))
+    for (const file of walk(from))
+      if (!fileMoves.has(file)) fileMoves.set(file, to + file.slice(from.length));
+  if (isDir(to))
+    for (const file of walk(to))
+      if (!claimed.has(file) && !fileMoves.has(from + file.slice(to.length)))
+        fileMoves.set(from + file.slice(to.length), file);
 }
 const originOf = new Map([...fileMoves].map(([from, to]) => [to, from]));
 
 if (args.includes("--move")) {
-  for (const [from, to] of moves) {
-    if (!existsSync(abs(from))) continue;
+  // ファイル単位でgit mvし、移動先のディレクトリが既にあっても（rebase後の追加ファイルなど）合流できるようにする。
+  for (const [from, to] of fileMoves) {
+    if (!isFile(from)) continue;
     if (existsSync(abs(to))) throw new Error(`Both ${from} and ${to} exist`);
     mkdirSync(dirname(abs(to)), { recursive: true });
     execFileSync("git", ["mv", from, to], { cwd: root, stdio: "inherit" });
@@ -87,7 +103,6 @@ const exportSpecifier = (pkg, file) => {
 };
 
 const EXTENSIONS = ["", ".ts", ".tsx", ".d.ts", "/index.ts", "/index.tsx"];
-// 移動前の配置で解決する（移動済みのファイルは対応表のキーとして存在する扱い）。
 const resolveIn = (base, exists) => {
   for (const ext of EXTENSIONS) {
     const candidate = toPosix(base + ext);
@@ -96,6 +111,7 @@ const resolveIn = (base, exists) => {
   return null;
 };
 const existsNow = (path) => isFile(path);
+// 移動前の配置での存在判定（移動済みのファイルは対応表のキーとして存在する扱い）。
 const existedBefore = (path) => fileMoves.has(path) || (isFile(path) && !originOf.has(path));
 
 const rewriteSpecifier = (importer, specifier) => {

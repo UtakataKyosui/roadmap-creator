@@ -1,6 +1,5 @@
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-export const isUuid = (value: string) => UUID_PATTERN.test(value);
+// 画面のURL検証でも使う純粋関数のためdomainに置き、サーバーからはここ経由で参照する。
+export { isUuid } from "@roadmapper/domain/ids";
 
 let lastTimestamp = 0;
 

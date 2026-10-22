@@ -9,7 +9,7 @@ import { EmptyState, ErrorState, LoadingState } from "@/components/state/StateVi
 import { Avatar } from "@/components/task/Avatar";
 import { PriorityBadge, StatusBadge } from "@/components/task/badges";
 import { Button } from "@/components/ui/button";
-import { formatShortDate, isOverdue } from "@/domain/calendar-date";
+import { formatShortDate, isOverdue } from "@roadmapper/domain/calendar-date";
 import {
   DUE_FILTERS,
   DUE_FILTER_LABEL,
@@ -18,8 +18,8 @@ import {
   toApiParams,
   withFilter,
   type MyTasksSearch,
-} from "@/domain/my-tasks";
-import { STATUS_FILL, STATUS_LABEL, TASK_STATUSES, progressPercent } from "@/domain/task";
+} from "@roadmapper/domain/my-tasks";
+import { STATUS_FILL, STATUS_LABEL, TASK_STATUSES, progressPercent } from "@roadmapper/domain/task";
 import { useLocalToday } from "@/hooks/use-local-today";
 import { cn } from "@/lib/utils";
 

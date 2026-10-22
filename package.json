@@ -25,6 +25,7 @@
   "dependencies": {
     "@base-ui/react": "^1.9.0",
     "@roadmapper/api-contract": "workspace:*",
+    "@roadmapper/domain": "workspace:*",
     "@tanstack/react-query": "^5.104.4",
     "@tanstack/react-router": "^1.170.45",
     "@tanstack/react-router-devtools": "^1.167.2",

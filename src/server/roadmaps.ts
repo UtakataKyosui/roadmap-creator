@@ -8,7 +8,7 @@ import { assertIds, findRoadmap, requireMember, requireProject } from "./access"
 import type { Db } from "./db";
 import { notFound, parseInput, validationFailed, versionConflict } from "./errors";
 import { nowIso, uuidv7 } from "./ids";
-import { validateRoadmapPeriod } from "@/domain/roadmap";
+import { validateRoadmapPeriod } from "@roadmapper/domain/roadmap";
 
 const checkPeriod = (period: { startDate?: string | null; dueDate?: string | null }) => {
   const message = validateRoadmapPeriod({

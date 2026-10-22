@@ -1,5 +1,5 @@
 import { ApiError, InvalidResponseError, RequestAbortedError } from "./http";
-import { ResponseValidationError } from "./validation";
+import { ResponseValidationError } from "@roadmapper/domain/validation";
 
 // 画面にはAPIのmessageをそのまま出さず、codeで文言を決める。
 export const apiErrorMessage = (error: unknown) => {

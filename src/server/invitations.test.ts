@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
-import { parseResponse } from "../api/validation";
+import { parseResponse } from "@roadmapper/domain/validation";
 import {
   CreateInvitationResponse,
   GetInvitationPreviewResponse,

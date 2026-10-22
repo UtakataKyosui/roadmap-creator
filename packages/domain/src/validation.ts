@@ -1,6 +1,6 @@
 import type { ZodType, output } from "zod";
 import { Effect } from "effect";
-import { hasValidDateRange } from "@/domain/calendar-date";
+import { hasValidDateRange } from "./calendar-date";
 import { CreateTaskBody, UpdateTaskBody } from "@roadmapper/api-contract/zod/tasks/tasks.zod";
 
 export class ResponseValidationError extends Error {

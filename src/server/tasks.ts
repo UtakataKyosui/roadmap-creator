@@ -16,7 +16,7 @@ import type { BatchItem } from "drizzle-orm/batch";
 import { generateKeyBetween } from "fractional-indexing";
 import { comments, labels, memberships, taskLabels, tasks } from "../../db/schema";
 import { ListTasksQueryParams } from "@roadmapper/api-contract/zod/tasks/tasks.zod";
-import { CreateTaskInput, updateTaskInputFor } from "@/api/validation";
+import { CreateTaskInput, updateTaskInputFor } from "@roadmapper/domain/validation";
 import { assertIds, findRoadmap, requireMember } from "./access";
 import type { Db } from "./db";
 import { notFound, parseInput, toPointer, validationFailed, versionConflict } from "./errors";

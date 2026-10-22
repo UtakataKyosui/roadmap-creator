@@ -14,7 +14,7 @@ import { useState } from "react";
 import { roadmapTasksOptions } from "@/api/roadmap-tasks";
 import { Button } from "@/components/ui/button";
 import { TaskEditor, type EditorSelection, type TaskScope } from "@/components/task/TaskEditor";
-import type { View } from "@/domain/breadcrumb";
+import type { View } from "@roadmapper/domain/breadcrumb";
 import { cn } from "@/lib/utils";
 import type { Roadmap } from "@roadmapper/api-contract/models";
 import { RoadmapPeriodEditor } from "./RoadmapPeriod";

@@ -11,7 +11,11 @@ import {
 } from "@/api/generated/endpoints/roadmaps/roadmaps";
 import type { Roadmap } from "@roadmapper/api-contract/models";
 import { Button } from "@/components/ui/button";
-import { roadmapPeriodLabel, validateRoadmapPeriod, type RoadmapPeriod } from "@/domain/roadmap";
+import {
+  roadmapPeriodLabel,
+  validateRoadmapPeriod,
+  type RoadmapPeriod,
+} from "@roadmapper/domain/roadmap";
 
 export function PeriodFields({
   value,

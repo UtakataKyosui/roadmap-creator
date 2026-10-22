@@ -5,7 +5,7 @@ import { getListTasksQueryKey, getListTasksUrl } from "./generated/endpoints/tas
 import type { Task } from "@roadmapper/api-contract/models";
 import { ListTasksResponse } from "@roadmapper/api-contract/zod/tasks/tasks.zod";
 import { customFetchEffect } from "./http";
-import { parseResponseEffect, ResponseValidationError } from "./validation";
+import { parseResponseEffect, ResponseValidationError } from "@roadmapper/domain/validation";
 
 export const roadmapTasksEffect = (workspaceId: string, roadmapId: string, signal?: AbortSignal) =>
   Effect.gen(function* () {

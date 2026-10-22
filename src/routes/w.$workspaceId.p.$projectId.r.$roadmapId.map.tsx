@@ -1,7 +1,7 @@
 import { createFileRoute, getRouteApi } from "@tanstack/react-router";
 import { roadmapTasksOptions } from "@/api/roadmap-tasks";
 import { TaskMap } from "@/components/task/TaskMap";
-import { todayCalendarDate } from "@/domain/calendar-date";
+import { todayCalendarDate } from "@roadmapper/domain/calendar-date";
 
 const roadmapRoute = getRouteApi("/w/$workspaceId/p/$projectId/r/$roadmapId");
 
