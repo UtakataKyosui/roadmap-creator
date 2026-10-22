@@ -1,5 +1,5 @@
 {
-  "name": "tanstack-start-example-basic",
+  "name": "roadmapper",
   "private": true,
   "type": "module",
   "sideEffects": false,
@@ -19,7 +19,8 @@
     "api:check": "orval && node scripts/check-generated.mjs",
     "db:generate": "void db generate",
     "db:migrate": "void db migrate",
-    "db:seed": "void db seed"
+    "db:seed": "void db seed",
+    "void:secret:put": "void secret sync .env"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
