@@ -265,11 +265,19 @@
   right: -40px;
   pointer-events: none;
 }
-@media (max-width: 767px) {
+.timeline-table {
+  --task-col: 300px;
+  min-width: calc(var(--task-col) + var(--cells-width));
+}
+.app-content {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+/* タブレット幅まではナビゲーションを2段目に置き、4項目を均等に並べる。 */
+@media (max-width: 1023px) {
   .header-main {
     flex-wrap: wrap;
     gap: 0 16px;
-    padding: 0 20px;
+    padding: 0 max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-area-inset-left));
   }
   .header-brand,
   .header-account {
@@ -280,19 +288,39 @@
   .header-navigation {
     order: 3;
     width: 100%;
-    min-height: 44px;
-    gap: 24px;
-    overflow-x: auto;
+    min-height: 48px;
+    justify-content: space-between;
+    gap: 8px;
   }
   .header-nav-link {
-    font-size: 12px;
+    flex: 1;
+    justify-content: center;
+  }
+}
+@media (max-width: 767px) {
+  .header-navigation {
+    min-height: 52px;
+  }
+  .header-nav-link {
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 0;
+    font-size: 11px;
   }
   .header-context {
-    gap: 12px;
+    flex-wrap: wrap;
+    gap: 8px 12px;
     padding: 8px 20px;
   }
+  .header-context > nav,
+  .header-context > div {
+    flex: 1 1 100%;
+  }
   .header-roadmap-select {
-    width: 160px;
+    width: 100%;
+  }
+  .timeline-table {
+    --task-col: 148px;
   }
   .app-content {
     overflow: auto;
@@ -331,5 +359,26 @@
   .page-header {
     padding-left: 20px;
     padding-right: 20px;
+  }
+}
+
+/* タッチ操作では、押せる要素を44px以上にし、入力時の自動ズームを避ける。 */
+@media (pointer: coarse) {
+  button,
+  select,
+  .header-nav-link,
+  .goal-tab {
+    min-height: 44px;
+  }
+  button {
+    min-width: 44px;
+  }
+  select,
+  textarea,
+  input:not([type="checkbox"], [type="radio"]) {
+    font-size: 16px;
+  }
+  input:not([type="checkbox"], [type="radio"]) {
+    min-height: 44px;
   }
 }
