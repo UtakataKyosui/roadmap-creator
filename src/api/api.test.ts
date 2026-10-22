@@ -112,7 +112,10 @@ describe("画面用の全ページ取得", () => {
     const client = createQueryClient();
     await expect(
       client.fetchQuery({ ...roadmapTasksOptions(workspaceId, roadmapId), retry: false }),
-    ).rejects.toThrow("Repeated task cursor");
+    ).rejects.toMatchObject({
+      _tag: "ResponseValidationError",
+      issues: [{ path: ["nextCursor"], message: "Repeated task cursor" }],
+    });
     expect(fetchMock).toHaveBeenCalledTimes(2);
     client.clear();
   });

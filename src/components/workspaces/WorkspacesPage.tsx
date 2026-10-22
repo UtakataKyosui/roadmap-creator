@@ -212,7 +212,7 @@ function WorkspaceCard({ workspace, onDeleted }: { workspace: Workspace; onDelet
           <Link
             to="/w/$workspaceId/members"
             params={{ workspaceId: workspace.id }}
-            className="text-xs text-indigo hover:underline"
+            className="inline-flex items-center text-xs text-indigo hover:underline pointer-coarse:min-h-11"
           >
             メンバー
           </Link>
@@ -339,7 +339,7 @@ function ProjectName({ project, canEdit }: { project: Project; canEdit: boolean 
           <Link
             to="/w/$workspaceId/p/$projectId"
             params={{ workspaceId: project.workspaceId, projectId: project.id }}
-            className="text-sm text-indigo hover:underline"
+            className="inline-flex items-center text-sm text-indigo hover:underline pointer-coarse:min-h-11"
           >
             {project.name}
           </Link>

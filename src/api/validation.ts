@@ -1,8 +1,10 @@
 import type { ZodType, output } from "zod";
+import { Effect } from "effect";
 import { hasValidDateRange } from "@/domain/calendar-date";
 import { CreateTaskBody, UpdateTaskBody } from "@roadmapper/api-contract/zod/tasks/tasks.zod";
 
 export class ResponseValidationError extends Error {
+  readonly _tag = "ResponseValidationError";
   readonly issues: ReadonlyArray<{ path: ReadonlyArray<PropertyKey>; message: string }>;
 
   constructor(issues: ResponseValidationError["issues"]) {
@@ -20,6 +22,17 @@ export const parseResponse = <S extends ZodType>(schema: S, data: unknown): outp
   }
   return result.data;
 };
+
+export const parseResponseEffect = <S extends ZodType>(
+  schema: S,
+  data: unknown,
+): Effect.Effect<output<S>, ResponseValidationError> =>
+  Effect.suspend(() => {
+    const result = schema.safeParse(data);
+    return result.success
+      ? Effect.succeed(result.data)
+      : Effect.fail(new ResponseValidationError(result.error.issues));
+  });
 
 // 生成されたZodスキーマでは表せない横断検証。開始日は期限日以前でなければならない。
 type DateRange = { startDate?: string | null; dueDate?: string | null };

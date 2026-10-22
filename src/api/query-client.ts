@@ -1,6 +1,7 @@
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import { loginUrl } from "@/domain/auth-redirect";
 import { ApiError } from "./http";
+import { isRetryable } from "./error-message";
 
 const MAX_RETRIES = 2;
 
@@ -8,8 +9,7 @@ const MAX_RETRIES = 2;
 // 不正なJSONなど、再試行しても結果が変わらない失敗は再試行しない。
 const shouldRetry = (failureCount: number, error: unknown) => {
   if (failureCount >= MAX_RETRIES) return false;
-  if (error instanceof ApiError) return error.status >= 500;
-  return error instanceof TypeError;
+  return isRetryable(error);
 };
 
 export const createQueryClient = () => {

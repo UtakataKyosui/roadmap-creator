@@ -39,6 +39,10 @@ pnpm dev          # http://localhost:3000
 
 本番の値は `void secret put <NAME>` で設定する。
 
+### OGP（共有カード）
+
+ルートの `head` が `src/utils/seo.ts` で Open Graph・Twitter カードを出力する。`og:image` などの絶対 URL は `API_ORIGIN` から作る（`src/api/site.ts`）ため、本番は公開 URL を設定する。メタタグにはサービス共通の文言だけを渡し、ワークスペース・プロジェクト・ロードマップ・タスクの名前は入れない。画像 `public/og-image.png`（1200x630）は `scripts/og-image.svg` から `sh scripts/generate-og-image.sh`（macOS）で再生成する。
+
 ### 開発用データ
 
 `db/seed.ts` が開発用ユーザー、Workspace、Project、Roadmap、Label を作る。ID は `db/dev-fixtures.ts` で固定している。

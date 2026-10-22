@@ -48,6 +48,9 @@ Accessを通過してもseedユーザーは有効にならない。画面の実�
 `Quality` は全PRとmainで、固定バージョン・frozen lockfileの依存導入、Void型生成、
 `vp check`、OpenAPI lint、Orvalの生成差分、実DBを使うテスト、型検査を含むビルドを実行する。
 テストが0件なら失敗する。CIにCloudflare等の秘密情報は渡さない。
+PRでは同じ参照の古い実行を取り消す（mainと配備からの呼び出しは取り消さない）。
+`Workflow lint` が `.github/workflows/` の変更をactionlintで検査する。
+使用するActionはコミットSHAで固定し、Dependabotが週次で更新PRを作る（Actions・npm）。
 
 ## 手動CD
 
@@ -87,6 +90,18 @@ CDのジョブサマリーに環境・コミット・URLを記録し、Void出�
 アプリ失敗後もDBが更新済みの可能性がある。DBをリセット・seedせず、追加修正か前進マイグレーションを選ぶ。
 旧コードと現行DBの互換性を確認した後、承認を受けて
 `vp run void project rollback <previous-version>`。アプリの切り戻しはDBを復元しない。
+
+## PWA（Service Worker）
+
+`public/` のファイルはそのまま配信される（`public/` 配下は常時再検証、ハッシュ付き `/assets/*` のみ長期キャッシュ）。
+`public/sw.js` は本番ビルドでのみ `src/pwa/register.ts` から登録する（スコープ `/`）。
+Workers Assetsは `.html` 付きURLをリダイレクトするため、オフライン画面は `/offline`（`public/offline.html`）で参照する。
+
+- キャッシュしない: `/api/**`、非GET、HTML（セッション状態を含むため）。ページ遷移はネットワーク優先で、失敗時のみ `/offline` を返す。
+- cache-first: `/assets/*`（ハッシュ付き）。stale-while-revalidate: アイコン。
+- 更新: キャッシュ内容を変える変更では `public/sw.js` の `VERSION` を上げる。activate時に旧キャッシュを削除し、`skipWaiting`/`clients.claim` で即時に切り替わる。
+- 判定ロジック `classifyRequest` は `src/pwa/sw.test.ts` で検証する。
+- maskableアイコンは、現行の丸型アイコンが安全領域を満たさないため未対応。
 
 ## 未検証の前提
 
