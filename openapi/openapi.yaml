@@ -16,6 +16,8 @@ tags:
     description: ロードマップに属するタスク。ボードとタイムラインが共有する。
   - name: Labels
     description: Workspaceに属するラベル。
+  - name: MyTasks
+    description: ログイン中のユーザーが担当するタスク（マイタスク）。
 security:
   - sessionCookie: []
 paths:
@@ -35,6 +37,89 @@ paths:
                   $ref: "#/components/schemas/Workspace"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /me/tasks:
+    get:
+      operationId: listMyTasks
+      summary: ログイン中のユーザーが担当するタスク一覧（マイタスク）
+      description: |
+        担当者がログイン中のユーザーのタスクだけを、所属するWorkspaceの範囲で返す。担当者を指定するパラメータはない。
+        アーカイブ済みのProject・Roadmapのタスクは含めない。
+        並びは指定したsortとdirection、同値はid昇順で、ページをまたいでも重複・欠落しない。dueDateとstartDate未設定のタスクは常に末尾。
+        summaryは検索・絞り込みの条件に影響されず、担当タスク全体から算出する。
+      tags: [MyTasks]
+      parameters:
+        - name: today
+          in: query
+          required: true
+          description: 期限切れ・期限の判定に使う基準日。利用者のタイムゾーンの今日をクライアントが送り、すべての判定と集計で共通に使う。
+          schema:
+            $ref: "#/components/schemas/CalendarDate"
+        - name: q
+          in: query
+          description: タイトルと説明の部分一致検索。
+          schema:
+            type: string
+            maxLength: 200
+        - name: status
+          in: query
+          description: 指定したステータスのみ返す。複数指定はOR。
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/TaskStatus"
+          style: form
+          explode: true
+        - name: due
+          in: query
+          description: |
+            期限の絞り込み。複数指定はOR。
+            overdue=期限がtodayより前で未完了、today=期限がtoday、thisWeek=期限がtoday以降today+6日まで、noDueDate=期限なし。
+            overdueとthisWeekに完了タスクは含めない。
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/MyTaskDueFilter"
+          style: form
+          explode: true
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [dueDate, priority, createdAt, updatedAt]
+            default: dueDate
+        - name: direction
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+        - name: page
+          in: query
+          description: 1始まりのページ番号。条件を変えたら1に戻す。
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyTaskPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
         "500":
           $ref: "#/components/responses/InternalError"
   /workspaces/{workspaceId}/members:
@@ -853,6 +938,74 @@ components:
         nextCursor:
           type: [string, "null"]
           description: 次ページがなければnull。
+    MyTaskDueFilter:
+      type: string
+      enum: [overdue, today, thisWeek, noDueDate]
+    MyTaskItem:
+      type: object
+      description: マイタスクの1行。Taskに、遷移と表示に必要な所属情報と担当者を添える。
+      required: [task, assignee, workspaceName, projectId, projectName, roadmapName]
+      properties:
+        task:
+          $ref: "#/components/schemas/Task"
+        assignee:
+          $ref: "#/components/schemas/User"
+        workspaceName:
+          type: string
+        projectId:
+          $ref: "#/components/schemas/Id"
+        projectName:
+          type: string
+        roadmapName:
+          type: string
+    MyTaskSummary:
+      type: object
+      description: |
+        担当タスク全体の集計。検索・絞り込みの条件には影響されない。
+        overdueは期限がtodayより前の未完了、dueThisWeekは期限がtoday以降today+6日までの未完了。
+      required: [total, todo, inProgress, review, done, overdue, dueThisWeek]
+      properties:
+        total:
+          type: integer
+          minimum: 0
+        todo:
+          type: integer
+          minimum: 0
+        inProgress:
+          type: integer
+          minimum: 0
+        review:
+          type: integer
+          minimum: 0
+        done:
+          type: integer
+          minimum: 0
+        overdue:
+          type: integer
+          minimum: 0
+        dueThisWeek:
+          type: integer
+          minimum: 0
+    MyTaskPage:
+      type: object
+      required: [items, page, pageSize, totalCount, summary]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/MyTaskItem"
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+        totalCount:
+          type: integer
+          minimum: 0
+          description: 条件に一致するタスクの総数。
+        summary:
+          $ref: "#/components/schemas/MyTaskSummary"
     ErrorCode:
       type: string
       enum: [unauthorized, forbidden, not_found, version_conflict, validation_failed, internal]
