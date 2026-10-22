@@ -13,7 +13,7 @@ import { getListProjectsQueryOptions } from "@/api/generated/endpoints/projects/
 import { getListRoadmapsQueryOptions } from "@/api/generated/endpoints/roadmaps/roadmaps";
 import { ApiError } from "@/api/http";
 import { ErrorState, LoadingState, Notice } from "@/components/state/StateViews";
-import { Button } from "@/components/ui/button";
+import { Button } from "@roadmapper/ui/components/ui/button";
 import { INVITATION_STATUS_LABEL } from "@roadmapper/domain/invitation";
 
 const unusable = {

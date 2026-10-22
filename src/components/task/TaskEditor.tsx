@@ -30,8 +30,8 @@ import {
 } from "@roadmapper/domain/task";
 import { useWorkspaceOptions } from "@/hooks/use-workspace-options";
 import { ErrorState, LoadingState, Notice } from "@/components/state/StateViews";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@roadmapper/ui/components/ui/button";
+import { cn } from "@roadmapper/ui/lib/utils";
 
 export type TaskScope = { workspaceId: string; roadmapId: string };
 export type EditorSelection = { taskId: string } | { status: TaskStatus };

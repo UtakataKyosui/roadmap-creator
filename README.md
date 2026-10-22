@@ -54,3 +54,9 @@ API 契約の正本は [`openapi/openapi.yaml`](openapi/openapi.yaml)（OpenAPI 
 - `src/api/query-client.ts`: QueryClient の生成。再試行するのはネットワーク失敗と 5xx のみ（2 回まで）。4xx、検証エラー、不正な JSON は再試行しない。更新系は再試行しない。`src/router.tsx` で生成し、TanStack Router の SSR 連携（`@tanstack/react-router-ssr-query`）で Provider とハイドレーションを設定している
 - `packages/domain/src/validation.ts`（`@roadmapper/domain/validation`）: `parseResponse` で応答を Zod 検証し、契約違反は `ResponseValidationError` を投げる。生成クライアントには組み込まれていないため、呼び出し側が明示的に使う。`startDate <= dueDate` のような生成できない横断検証（作成は `CreateTaskInput`、部分更新は現在のタスクの日付を渡す `updateTaskInputFor(current)`）もここに置く（送信前にフォームで使う）
 - `src/api/cache.ts`: 作成・更新・移動・削除後の `invalidateTasks`、ログアウト時の `clearUserCache`
+
+## パッケージ境界
+
+ルートがアプリ本体です。`packages/api-contract` は生成された型と Zod、`packages/domain` は純粋なロジック、`packages/ui` は表示部品を持ちます。依存は API 契約 → domain → UI → アプリの順に利用され、逆方向の参照を lint で禁止します。各パッケージは非公開で、TypeScript ソースを直接 export します。
+
+移動と import の再適用、PR のマージ順は [workspace 移行手順](docs/workspace-migration.md) を参照してください。

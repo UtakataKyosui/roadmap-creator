@@ -16,10 +16,10 @@ import { clearUserCache } from "@/api/cache";
 import { useListRoadmaps } from "@/api/generated/endpoints/roadmaps/roadmaps";
 import { useListWorkspaces } from "@/api/generated/endpoints/workspaces/workspaces";
 import { useListProjects } from "@/api/generated/endpoints/projects/projects";
-import { Avatar } from "@/components/task/Avatar";
-import { Button } from "@/components/ui/button";
+import { Avatar } from "@roadmapper/ui/task/Avatar";
+import { Button } from "@roadmapper/ui/components/ui/button";
 import type { View } from "@roadmapper/domain/breadcrumb";
-import { cn } from "@/lib/utils";
+import { cn } from "@roadmapper/ui/lib/utils";
 
 type Named = { id: string; name: string };
 

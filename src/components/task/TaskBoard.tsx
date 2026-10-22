@@ -13,9 +13,9 @@ import { useLocalToday } from "@/hooks/use-local-today";
 import { useWorkspaceOptions } from "@/hooks/use-workspace-options";
 import { PageHeader } from "@/components/layout/AppShell";
 import { ErrorState, LoadingState, Notice } from "@/components/state/StateViews";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { TaskCard } from "./TaskCard";
+import { Button } from "@roadmapper/ui/components/ui/button";
+import { cn } from "@roadmapper/ui/lib/utils";
+import { TaskCard } from "@roadmapper/ui/task/TaskCard";
 import { TaskEditor, type EditorSelection, type TaskScope } from "./TaskEditor";
 
 type Move = { taskId: string; status: TaskStatus; index: number };
