@@ -4,6 +4,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import * as React from "react";
 import { sessionQueryOptions } from "@/api/session";
+import { getSiteOrigin } from "@/api/site";
 import { DefaultCatchBoundary } from "@/components/DefaultCatchBoundary";
 import { NotFound } from "@/components/NotFound";
 import { safeRedirect } from "@/domain/auth-redirect";
@@ -19,7 +20,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     }
     return { user };
   },
-  head: () => ({
+  // メタタグの絶対URLに使う公開オリジン。
+  loader: async () => ({ siteOrigin: await getSiteOrigin() }),
+  head: ({ loaderData }) => ({
     meta: [
       {
         charSet: "utf-8",
@@ -31,6 +34,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       ...seo({
         title: "Roadmap Studio",
         description: "学習やプロジェクトのロードマップを、ボードとタイムラインで管理する。",
+        origin: loaderData?.siteOrigin ?? "http://localhost:3000",
+        siteName: "Roadmap Studio",
+        imagePath: "/og-image.png",
+        imageAlt:
+          "Roadmap Studio のロゴと、ロードマップをボードとタイムラインで管理するサービスの説明",
       }),
     ],
     links: [
