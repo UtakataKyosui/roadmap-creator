@@ -13,9 +13,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MyTasksRouteImport } from './routes/my-tasks'
 import { Route as ApiWorkspacesRouteImport } from './routes/api/workspaces'
+import { Route as InvitationsTokenRouteImport } from './routes/invitations.$token'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 import { Route as ApiInvitationsTokenRouteImport } from './routes/api/invitations.$token'
 import { Route as ApiMeTasksRouteImport } from './routes/api/me.tasks'
+import { Route as WWorkspaceIdMembersRouteImport } from './routes/w.$workspaceId.members'
 import { Route as ApiInvitationsTokenAcceptRouteImport } from './routes/api/invitations.$token.accept'
 import { Route as ApiWorkspacesWorkspaceIdInvitationsRouteImport } from './routes/api/workspaces.$workspaceId.invitations'
 import { Route as ApiWorkspacesWorkspaceIdLabelsRouteImport } from './routes/api/workspaces.$workspaceId.labels'
@@ -54,6 +56,11 @@ const ApiWorkspacesRoute = ApiWorkspacesRouteImport.update({
   path: '/api/workspaces',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InvitationsTokenRoute = InvitationsTokenRouteImport.update({
+  id: '/invitations/$token',
+  path: '/invitations/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -67,6 +74,11 @@ const ApiInvitationsTokenRoute = ApiInvitationsTokenRouteImport.update({
 const ApiMeTasksRoute = ApiMeTasksRouteImport.update({
   id: '/api/me/tasks',
   path: '/api/me/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WWorkspaceIdMembersRoute = WWorkspaceIdMembersRouteImport.update({
+  id: '/w/$workspaceId/members',
+  path: '/w/$workspaceId/members',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiInvitationsTokenAcceptRoute =
@@ -176,9 +188,11 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/my-tasks': typeof MyTasksRoute
   '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
+  '/invitations/$token': typeof InvitationsTokenRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/invitations/$token': typeof ApiInvitationsTokenRouteWithChildren
   '/api/me/tasks': typeof ApiMeTasksRoute
+  '/w/$workspaceId/members': typeof WWorkspaceIdMembersRoute
   '/api/invitations/$token/accept': typeof ApiInvitationsTokenAcceptRoute
   '/api/workspaces/$workspaceId/invitations': typeof ApiWorkspacesWorkspaceIdInvitationsRouteWithChildren
   '/api/workspaces/$workspaceId/labels': typeof ApiWorkspacesWorkspaceIdLabelsRoute
@@ -202,9 +216,11 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/my-tasks': typeof MyTasksRoute
   '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
+  '/invitations/$token': typeof InvitationsTokenRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/invitations/$token': typeof ApiInvitationsTokenRouteWithChildren
   '/api/me/tasks': typeof ApiMeTasksRoute
+  '/w/$workspaceId/members': typeof WWorkspaceIdMembersRoute
   '/api/invitations/$token/accept': typeof ApiInvitationsTokenAcceptRoute
   '/api/workspaces/$workspaceId/invitations': typeof ApiWorkspacesWorkspaceIdInvitationsRouteWithChildren
   '/api/workspaces/$workspaceId/labels': typeof ApiWorkspacesWorkspaceIdLabelsRoute
@@ -228,9 +244,11 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/my-tasks': typeof MyTasksRoute
   '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
+  '/invitations/$token': typeof InvitationsTokenRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/invitations/$token': typeof ApiInvitationsTokenRouteWithChildren
   '/api/me/tasks': typeof ApiMeTasksRoute
+  '/w/$workspaceId/members': typeof WWorkspaceIdMembersRoute
   '/api/invitations/$token/accept': typeof ApiInvitationsTokenAcceptRoute
   '/api/workspaces/$workspaceId/invitations': typeof ApiWorkspacesWorkspaceIdInvitationsRouteWithChildren
   '/api/workspaces/$workspaceId/labels': typeof ApiWorkspacesWorkspaceIdLabelsRoute
@@ -256,9 +274,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/my-tasks'
     | '/api/workspaces'
+    | '/invitations/$token'
     | '/api/auth/$'
     | '/api/invitations/$token'
     | '/api/me/tasks'
+    | '/w/$workspaceId/members'
     | '/api/invitations/$token/accept'
     | '/api/workspaces/$workspaceId/invitations'
     | '/api/workspaces/$workspaceId/labels'
@@ -282,9 +302,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/my-tasks'
     | '/api/workspaces'
+    | '/invitations/$token'
     | '/api/auth/$'
     | '/api/invitations/$token'
     | '/api/me/tasks'
+    | '/w/$workspaceId/members'
     | '/api/invitations/$token/accept'
     | '/api/workspaces/$workspaceId/invitations'
     | '/api/workspaces/$workspaceId/labels'
@@ -307,9 +329,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/my-tasks'
     | '/api/workspaces'
+    | '/invitations/$token'
     | '/api/auth/$'
     | '/api/invitations/$token'
     | '/api/me/tasks'
+    | '/w/$workspaceId/members'
     | '/api/invitations/$token/accept'
     | '/api/workspaces/$workspaceId/invitations'
     | '/api/workspaces/$workspaceId/labels'
@@ -334,9 +358,11 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MyTasksRoute: typeof MyTasksRoute
   ApiWorkspacesRoute: typeof ApiWorkspacesRouteWithChildren
+  InvitationsTokenRoute: typeof InvitationsTokenRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiInvitationsTokenRoute: typeof ApiInvitationsTokenRouteWithChildren
   ApiMeTasksRoute: typeof ApiMeTasksRoute
+  WWorkspaceIdMembersRoute: typeof WWorkspaceIdMembersRoute
   WWorkspaceIdPProjectIdRoute: typeof WWorkspaceIdPProjectIdRouteWithChildren
 }
 
@@ -370,6 +396,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWorkspacesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/invitations/$token': {
+      id: '/invitations/$token'
+      path: '/invitations/$token'
+      fullPath: '/invitations/$token'
+      preLoaderRoute: typeof InvitationsTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -389,6 +422,13 @@ declare module '@tanstack/react-router' {
       path: '/api/me/tasks'
       fullPath: '/api/me/tasks'
       preLoaderRoute: typeof ApiMeTasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/w/$workspaceId/members': {
+      id: '/w/$workspaceId/members'
+      path: '/w/$workspaceId/members'
+      fullPath: '/w/$workspaceId/members'
+      preLoaderRoute: typeof WWorkspaceIdMembersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/invitations/$token/accept': {
@@ -665,9 +705,11 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MyTasksRoute: MyTasksRoute,
   ApiWorkspacesRoute: ApiWorkspacesRouteWithChildren,
+  InvitationsTokenRoute: InvitationsTokenRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiInvitationsTokenRoute: ApiInvitationsTokenRouteWithChildren,
   ApiMeTasksRoute: ApiMeTasksRoute,
+  WWorkspaceIdMembersRoute: WWorkspaceIdMembersRoute,
   WWorkspaceIdPProjectIdRoute: WWorkspaceIdPProjectIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
