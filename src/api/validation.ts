@@ -1,6 +1,6 @@
 import type { ZodType, output } from "zod";
 import { hasValidDateRange } from "@/domain/calendar-date";
-import { CreateTaskBody, UpdateTaskBody } from "./generated/zod/tasks/tasks.zod";
+import { CreateTaskBody, UpdateTaskBody } from "@roadmapper/api-contract/zod/tasks/tasks.zod";
 
 export class ResponseValidationError extends Error {
   readonly issues: ReadonlyArray<{ path: ReadonlyArray<PropertyKey>; message: string }>;

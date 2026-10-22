@@ -1,5 +1,5 @@
 import type { ZodType, output } from "zod";
-import type { ErrorCode, ErrorDetail } from "@/api/generated/models";
+import type { ErrorCode, ErrorDetail } from "@roadmapper/api-contract/models";
 
 export class HttpError extends Error {
   readonly status: number;

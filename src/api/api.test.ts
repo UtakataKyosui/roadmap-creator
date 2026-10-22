@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 import { ApiError } from "./http";
-import type { Task } from "./generated/models";
+import type { Task } from "@roadmapper/api-contract/models";
 import { createQueryClient } from "./query-client";
 import {
   cacheProjectName,
@@ -27,7 +27,7 @@ import {
   getUpdateTaskMutationOptions,
   updateTask,
 } from "./generated/endpoints/tasks/tasks";
-import { ListTasksResponse } from "./generated/zod/tasks/tasks.zod";
+import { ListTasksResponse } from "@roadmapper/api-contract/zod/tasks/tasks.zod";
 import { roadmapTasksOptions } from "./roadmap-tasks";
 
 const workspaceId = "0190a000-0000-7000-8000-000000000001";

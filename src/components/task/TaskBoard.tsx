@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { invalidateTasks } from "@/api/cache";
 import { apiErrorMessage } from "@/api/error-message";
 import { useUpdateTask } from "@/api/generated/endpoints/tasks/tasks";
-import type { TaskStatus } from "@/api/generated/models";
+import type { TaskStatus } from "@roadmapper/api-contract/models";
 import { roadmapTasksOptions } from "@/api/roadmap-tasks";
 import { columnTasks, moveDestination } from "@/domain/task-position";
 import { STATUS_FILL, STATUS_LABEL, TASK_STATUSES } from "@/domain/task";

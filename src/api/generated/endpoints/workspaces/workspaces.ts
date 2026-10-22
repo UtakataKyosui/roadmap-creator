@@ -5,6 +5,19 @@
  * Roadmap Studioフェーズ1のAPI契約の正本。
  * OpenAPI spec version: 0.1.0
  */
+import type {
+  ForbiddenResponse,
+  InternalErrorResponse,
+  Member,
+  NotFoundResponse,
+  UnauthorizedResponse,
+  ValidationFailedResponse,
+  VersionConflictResponse,
+  Workspace,
+  WorkspaceCreate,
+  WorkspaceUpdate,
+} from "@roadmapper/api-contract/models";
+
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   DataTag,
@@ -20,19 +33,6 @@ import type {
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
-
-import type {
-  ForbiddenResponse,
-  InternalErrorResponse,
-  Member,
-  NotFoundResponse,
-  UnauthorizedResponse,
-  ValidationFailedResponse,
-  VersionConflictResponse,
-  Workspace,
-  WorkspaceCreate,
-  WorkspaceUpdate,
-} from "../../models";
 
 import { customFetch } from "../../../http";
 import type { ErrorType } from "../../../http";

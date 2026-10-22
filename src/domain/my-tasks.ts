@@ -1,4 +1,8 @@
-import type { ListMyTasksParams, MyTaskDueFilter, TaskStatus } from "@/api/generated/models";
+import type {
+  ListMyTasksParams,
+  MyTaskDueFilter,
+  TaskStatus,
+} from "@roadmapper/api-contract/models";
 import { TASK_STATUSES } from "./task";
 import { isUuid } from "@/server/ids";
 

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vite-plus/test";
-import type { Task } from "@/api/generated/models";
+import type { Task } from "@roadmapper/api-contract/models";
 import { initialTaskInput, taskInput, taskPatch, validateTaskInput } from "./task-editor";
 import { columnTasks, moveDestination } from "./task-position";
 import { timelinePlacement } from "./timeline";

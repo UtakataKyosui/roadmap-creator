@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vite-plus/test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import type { Task } from "@/api/generated/models";
+import type { Task } from "@roadmapper/api-contract/models";
 import { TaskCard } from "@/components/task/TaskCard";
 import { CreateTaskInput } from "@/api/validation";
 import {

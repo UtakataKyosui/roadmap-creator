@@ -13,7 +13,7 @@ import {
   useUpdateWorkspace,
   type listWorkspacesResponseSuccess,
 } from "@/api/generated/endpoints/workspaces/workspaces";
-import type { Workspace, Project } from "@/api/generated/models";
+import type { Workspace, Project } from "@roadmapper/api-contract/models";
 import { AppHeader, PageHeader } from "@/components/layout/AppShell";
 import { EmptyState, ErrorState, LoadingState } from "@/components/state/StateViews";
 import { Button } from "@/components/ui/button";

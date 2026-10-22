@@ -3,7 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { useListMyTasks } from "@/api/generated/endpoints/my-tasks/my-tasks";
-import type { MyTaskItem, MyTaskSummary } from "@/api/generated/models";
+import type { MyTaskItem, MyTaskSummary } from "@roadmapper/api-contract/models";
 import { AppHeader } from "@/components/layout/AppShell";
 import { EmptyState, ErrorState, LoadingState } from "@/components/state/StateViews";
 import { Avatar } from "@/components/task/Avatar";

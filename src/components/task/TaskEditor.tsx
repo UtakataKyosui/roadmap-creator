@@ -13,7 +13,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { invalidateTasks } from "@/api/cache";
 import { apiErrorMessage } from "@/api/error-message";
 import { useCreateTask, useGetTask, useUpdateTask } from "@/api/generated/endpoints/tasks/tasks";
-import type { Task, TaskCreate, TaskStatus } from "@/api/generated/models";
+import type { Task, TaskCreate, TaskStatus } from "@roadmapper/api-contract/models";
 import { ApiError } from "@/api/http";
 import { initialTaskInput, taskInput, taskPatch, validateTaskInput } from "@/domain/task-editor";
 import {

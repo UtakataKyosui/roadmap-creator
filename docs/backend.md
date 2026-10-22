@@ -83,7 +83,7 @@ OpenAPI 契約のすべての操作を実装している。Workspace・メンバ
 
 ### 入力検証とエラー
 
-- 入力は Orval が生成した Zod スキーマ（`src/api/generated/zod`）と `src/api/validation.ts` の横断検証で検証する。
+- 入力は Orval が生成した Zod スキーマ（`packages/api-contract/src/zod`）と `src/api/validation.ts` の横断検証で検証する。
 - 検証エラーは 422 `validation_failed`。`details[].path` は JSON ポインタ（例 `/dueDate`）。
 - 存在しない ID と UUID でない ID は 404、Workspace のメンバーでなければ 403、想定外の例外は内部情報を含まない 500 `internal`。
 

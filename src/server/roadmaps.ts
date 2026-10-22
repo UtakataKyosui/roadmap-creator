@@ -1,6 +1,9 @@
 import { and, asc, eq, sql } from "drizzle-orm";
 import { roadmaps } from "../../db/schema";
-import { CreateRoadmapBody, UpdateRoadmapBody } from "@/api/generated/zod/roadmaps/roadmaps.zod";
+import {
+  CreateRoadmapBody,
+  UpdateRoadmapBody,
+} from "@roadmapper/api-contract/zod/roadmaps/roadmaps.zod";
 import { assertIds, findRoadmap, requireMember, requireProject } from "./access";
 import type { Db } from "./db";
 import { notFound, parseInput, validationFailed, versionConflict } from "./errors";

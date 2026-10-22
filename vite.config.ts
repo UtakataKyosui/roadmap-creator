@@ -6,12 +6,14 @@ import tailwindcss from "@tailwindcss/vite";
 import { voidPlugin } from "void";
 
 export default defineConfig({
+  // pnpm workspaceのルートがアプリ本体のため、vp dev/build/previewの対象をルートに固定する。
+  defaultPackage: ".",
   staged: {
     "*": "vp check --fix",
   },
   fmt: { ignorePatterns: [".agents/**"] },
   lint: {
-    ignorePatterns: ["src/api/generated/**"],
+    ignorePatterns: ["src/api/generated/**", "packages/api-contract/src/**"],
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
     rules: { "vite-plus/prefer-vite-plus-imports": "error" },
     options: { typeAware: true, typeCheck: true },
