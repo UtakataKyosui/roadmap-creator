@@ -9,7 +9,7 @@ import {
   ChevronsRight,
   Plus,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import type { Task } from "@roadmapper/api-contract/models";
 import { roadmapTasksOptions } from "@/api/roadmap-tasks";
 import { addDays, parseCalendarDate } from "@roadmapper/domain/calendar-date";
@@ -27,7 +27,6 @@ import { TaskEditor, type EditorSelection, type TaskScope } from "./TaskEditor";
 
 const DAYS = 28;
 const CELL = 30;
-const TASK_COLUMN = 300;
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
 const dayInfo = (date: string) => {
@@ -121,11 +120,11 @@ export function TaskTimeline({ scope, initialToday }: { scope: TaskScope; initia
             aria-label="学習ステップのタイムライン"
           >
             <table
-              className="w-full table-fixed border-separate border-spacing-0 text-[13px]"
-              style={{ minWidth: TASK_COLUMN + DAYS * CELL }}
+              className="timeline-table w-full table-fixed border-separate border-spacing-0 text-[13px]"
+              style={{ "--cells-width": `${DAYS * CELL}px` } as CSSProperties}
             >
               <colgroup>
-                <col style={{ width: TASK_COLUMN }} />
+                <col style={{ width: "var(--task-col)" }} />
                 {days.map((day) => (
                   <col key={day.date} />
                 ))}

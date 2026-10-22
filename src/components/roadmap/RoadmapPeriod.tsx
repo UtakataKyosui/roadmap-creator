@@ -3,6 +3,7 @@ import { CalendarDays, Pencil } from "lucide-react";
 import { useId, useState } from "react";
 import { invalidateRoadmaps } from "@/api/cache";
 import { apiErrorMessage } from "@/api/error-message";
+import { ApiError } from "@/api/http";
 import {
   getGetRoadmapQueryKey,
   useGetRoadmap,
@@ -142,7 +143,7 @@ export function RoadmapPeriodEditor({ roadmap: initial }: { roadmap: Roadmap }) 
         >
           キャンセル
         </Button>
-        {update.error?.isVersionConflict && (
+        {update.error instanceof ApiError && update.error.isVersionConflict && (
           <Button
             type="button"
             variant="outline"
