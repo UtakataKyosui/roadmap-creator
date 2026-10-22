@@ -65,3 +65,4 @@ export * from "./versionConflictError";
 export * from "./versionConflictErrorCode";
 export * from "./versionConflictResponse";
 export * from "./workspace";
+export * from "./workspaceCreate";

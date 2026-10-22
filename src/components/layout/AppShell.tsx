@@ -6,6 +6,7 @@ import {
   ListChecks,
   LogOut,
   Sprout,
+  Building2,
   Users,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -75,6 +76,10 @@ export function AppHeader({
           <span>Roadmap Studio</span>
         </Link>
         <nav aria-label="メインナビゲーション" className="header-navigation">
+          <Link to="/workspaces" className={navItem} activeProps={{ className: navActive }}>
+            <Building2 aria-hidden />
+            ワークスペース
+          </Link>
           {workspace && project ? (
             <Link
               to="/w/$workspaceId/p/$projectId"

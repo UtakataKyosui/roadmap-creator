@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MyTasksRouteImport } from './routes/my-tasks'
+import { Route as WorkspacesRouteImport } from './routes/workspaces'
 import { Route as ApiWorkspacesRouteImport } from './routes/api/workspaces'
 import { Route as InvitationsTokenRouteImport } from './routes/invitations.$token'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
@@ -49,6 +50,11 @@ const LoginRoute = LoginRouteImport.update({
 const MyTasksRoute = MyTasksRouteImport.update({
   id: '/my-tasks',
   path: '/my-tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkspacesRoute = WorkspacesRouteImport.update({
+  id: '/workspaces',
+  path: '/workspaces',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiWorkspacesRoute = ApiWorkspacesRouteImport.update({
@@ -187,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/my-tasks': typeof MyTasksRoute
+  '/workspaces': typeof WorkspacesRoute
   '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
   '/invitations/$token': typeof InvitationsTokenRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -215,6 +222,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/my-tasks': typeof MyTasksRoute
+  '/workspaces': typeof WorkspacesRoute
   '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
   '/invitations/$token': typeof InvitationsTokenRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -243,6 +251,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/my-tasks': typeof MyTasksRoute
+  '/workspaces': typeof WorkspacesRoute
   '/api/workspaces': typeof ApiWorkspacesRouteWithChildren
   '/invitations/$token': typeof InvitationsTokenRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -273,6 +282,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/my-tasks'
+    | '/workspaces'
     | '/api/workspaces'
     | '/invitations/$token'
     | '/api/auth/$'
@@ -301,6 +311,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/my-tasks'
+    | '/workspaces'
     | '/api/workspaces'
     | '/invitations/$token'
     | '/api/auth/$'
@@ -328,6 +339,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/my-tasks'
+    | '/workspaces'
     | '/api/workspaces'
     | '/invitations/$token'
     | '/api/auth/$'
@@ -357,6 +369,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   MyTasksRoute: typeof MyTasksRoute
+  WorkspacesRoute: typeof WorkspacesRoute
   ApiWorkspacesRoute: typeof ApiWorkspacesRouteWithChildren
   InvitationsTokenRoute: typeof InvitationsTokenRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -387,6 +400,13 @@ declare module '@tanstack/react-router' {
       path: '/my-tasks'
       fullPath: '/my-tasks'
       preLoaderRoute: typeof MyTasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workspaces': {
+      id: '/workspaces'
+      path: '/workspaces'
+      fullPath: '/workspaces'
+      preLoaderRoute: typeof WorkspacesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/workspaces': {
@@ -704,6 +724,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   MyTasksRoute: MyTasksRoute,
+  WorkspacesRoute: WorkspacesRoute,
   ApiWorkspacesRoute: ApiWorkspacesRouteWithChildren,
   InvitationsTokenRoute: InvitationsTokenRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

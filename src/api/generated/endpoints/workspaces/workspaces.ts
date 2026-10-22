@@ -5,15 +5,18 @@
  * Roadmap Studioフェーズ1のAPI契約の正本。
  * OpenAPI spec version: 0.1.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseQueryResult,
+  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
@@ -24,7 +27,9 @@ import type {
   Member,
   NotFoundResponse,
   UnauthorizedResponse,
+  ValidationFailedResponse,
   Workspace,
+  WorkspaceCreate,
 } from "../../models";
 
 import { customFetch } from "../../../http";
@@ -47,6 +52,148 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
+export type createWorkspaceResponse201 = {
+  data: Workspace;
+  status: 201;
+};
+
+export type createWorkspaceResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type createWorkspaceResponse422 = {
+  data: ValidationFailedResponse;
+  status: 422;
+};
+
+export type createWorkspaceResponse500 = {
+  data: InternalErrorResponse;
+  status: 500;
+};
+
+export type createWorkspaceResponseSuccess = createWorkspaceResponse201 & {
+  headers: Headers;
+};
+export type createWorkspaceResponseError = (
+  | createWorkspaceResponse401
+  | createWorkspaceResponse422
+  | createWorkspaceResponse500
+) & {
+  headers: Headers;
+};
+
+export const getCreateWorkspaceUrl = () => {
+  return `/api/workspaces`;
+};
+
+/**
+ * 作成者をownerとして登録し、初期プロジェクト「マイプロジェクト」を作成する。すべてを同一トランザクションで保存する。
+ * @summary Workspaceを作成する
+ */
+export const createWorkspace = async (
+  workspaceCreate: WorkspaceCreate,
+  options?: Parameters<typeof customFetch>[1],
+): Promise<createWorkspaceResponseSuccess> => {
+  const getHeaders = (
+    h?: NonNullable<RequestInit["headers"]>,
+  ): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(
+          h as Iterable<Iterable<string>>,
+          (entry) => Array.from(entry) as [string, string],
+        ),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+  return customFetch<createWorkspaceResponseSuccess>(getCreateWorkspaceUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...getHeaders(options?.headers) },
+    body: JSON.stringify(workspaceCreate),
+  });
+};
+
+export const getCreateWorkspaceMutationKey = () => ["createWorkspace"] as const;
+
+export const getCreateWorkspaceMutationOptions = <
+  TError = ErrorType<UnauthorizedResponse | ValidationFailedResponse | InternalErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createWorkspace>>,
+    TError,
+    CreateWorkspaceMutationVariables,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createWorkspace>>,
+  TError,
+  CreateWorkspaceMutationVariables,
+  TContext
+> => {
+  const mutationKey = getCreateWorkspaceMutationKey();
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createWorkspace>>,
+    CreateWorkspaceMutationVariables
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createWorkspace(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateWorkspaceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createWorkspace>>
+>;
+export type CreateWorkspaceMutationBody = WorkspaceCreate;
+export type CreateWorkspaceMutationError = ErrorType<
+  UnauthorizedResponse | ValidationFailedResponse | InternalErrorResponse
+>;
+export type CreateWorkspaceMutationVariables = { data: WorkspaceCreate };
+
+/**
+ * @summary Workspaceを作成する
+ */
+export const useCreateWorkspace = <
+  TError = ErrorType<UnauthorizedResponse | ValidationFailedResponse | InternalErrorResponse>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof createWorkspace>>,
+      TError,
+      CreateWorkspaceMutationVariables,
+      TContext
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof createWorkspace>>,
+  TError,
+  CreateWorkspaceMutationVariables,
+  TContext
+> => {
+  return useMutation(getCreateWorkspaceMutationOptions(options), queryClient);
+};
 export type listWorkspacesResponse200 = {
   data: Workspace[];
   status: 200;

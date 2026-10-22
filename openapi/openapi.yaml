@@ -24,6 +24,30 @@ security:
   - sessionCookie: []
 paths:
   /workspaces:
+    post:
+      operationId: createWorkspace
+      summary: Workspaceを作成する
+      description: 作成者をownerとして登録し、初期プロジェクト「マイプロジェクト」を作成する。すべてを同一トランザクションで保存する。
+      tags: [Workspaces]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkspaceCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "500":
+          $ref: "#/components/responses/InternalError"
     get:
       operationId: listWorkspaces
       summary: ログイン中のユーザーが所属するWorkspace一覧
@@ -770,6 +794,14 @@ components:
           $ref: "#/components/schemas/Timestamp"
         updatedAt:
           $ref: "#/components/schemas/Timestamp"
+    WorkspaceCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
     Workspace:
       type: object
       description: チームが共有する作業領域。共有境界であり、Label・Project・Membershipが属する。
