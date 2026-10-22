@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test, vi } from "vite-plus/test";
-import { Effect, Either } from "effect";
+import { Effect, Result } from "effect";
 import {
   ApiError,
   customFetch,
@@ -78,12 +78,12 @@ describe("Effect HTTP境界", () => {
     vi.stubGlobal("fetch", async () => {
       throw cause;
     });
-    const result = await Effect.runPromise(Effect.either(customFetchEffect("/api/test", {})));
-    expect(Either.isLeft(result)).toBe(true);
-    if (Either.isLeft(result)) {
-      expect(result.left).toBeInstanceOf(NetworkError);
-      expect(result.left.cause).toBe(cause);
-      expect(isRetryable(result.left)).toBe(true);
+    const result = await Effect.runPromise(Effect.result(customFetchEffect("/api/test", {})));
+    expect(Result.isFailure(result)).toBe(true);
+    if (Result.isFailure(result)) {
+      expect(result.failure).toBeInstanceOf(NetworkError);
+      expect(result.failure.cause).toBe(cause);
+      expect(isRetryable(result.failure)).toBe(true);
     }
   });
 
