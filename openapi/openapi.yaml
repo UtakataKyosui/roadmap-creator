@@ -653,8 +653,8 @@ components:
     sessionCookie:
       type: apiKey
       in: cookie
-      name: session
-      description: サーバー側セッションのCookie。Cookie名は認証ライブラリの確定（#13）に合わせて変更する。
+      name: better-auth.session_token
+      description: Better Authが発行するサーバー側セッションのCookie。HTTPSでは `__Secure-` が先頭に付く。
   parameters:
     WorkspaceId:
       name: workspaceId

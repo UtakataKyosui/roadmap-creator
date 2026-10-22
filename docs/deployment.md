@@ -62,7 +62,7 @@ Environment変数は初期設定後に管理者が有効化する。自動で設
 
 - `DEPLOYMENT_READY=true`: 独立設定・lock・D1をレビュー済み。
 - `ACCESS_READY=true`: URLとバージョンURLのアクセス制限を検証済み。
-- `AUTH_READY=true`: productionのみ。#13完了と認証テスト済み。
+- `AUTH_READY=true`: productionのみ。Googleログイン（#13）の本番OAuth設定と認証テストを確認済み。
 - `APP_URL`: クエリや認証情報を含まないHTTPS origin。
 - `CLOUDFLARE_ACCOUNT_ID`、必要時 `CLOUDFLARE_WORKERS_SUBDOMAIN`。
 
