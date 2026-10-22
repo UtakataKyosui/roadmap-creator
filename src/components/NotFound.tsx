@@ -2,8 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { SearchX } from "lucide-react";
 import type { ReactNode } from "react";
 import { EmptyState } from "@/components/state/StateViews";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { buttonVariants } from "@roadmapper/ui/components/ui/button";
+import { cn } from "@roadmapper/ui/lib/utils";
 
 export function NotFound({ children }: { children?: ReactNode }) {
   return (

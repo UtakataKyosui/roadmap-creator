@@ -16,15 +16,15 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { roadmapTasksOptions } from "@/api/roadmap-tasks";
 import { PageHeader } from "@/components/layout/AppShell";
 import { ErrorState, LoadingState, Notice } from "@/components/state/StateViews";
-import { Button } from "@/components/ui/button";
+import { Button } from "@roadmapper/ui/components/ui/button";
 import { formatShortDate, isOverdue } from "@roadmapper/domain/calendar-date";
 import { buildTaskMap, type RoadmapNode } from "@roadmapper/domain/task-map";
 import { STATUS_FILL, STATUS_LABEL, TASK_STATUSES } from "@roadmapper/domain/task";
 import { useLocalToday } from "@/hooks/use-local-today";
 import { useWorkspaceOptions } from "@/hooks/use-workspace-options";
-import { cn } from "@/lib/utils";
-import { Avatar } from "./Avatar";
-import { LabelChip, PriorityBadge } from "./badges";
+import { cn } from "@roadmapper/ui/lib/utils";
+import { Avatar } from "@roadmapper/ui/task/Avatar";
+import { LabelChip, PriorityBadge } from "@roadmapper/ui/task/badges";
 import { TaskEditor, type EditorSelection, type TaskScope } from "./TaskEditor";
 
 type MapContextValue = {

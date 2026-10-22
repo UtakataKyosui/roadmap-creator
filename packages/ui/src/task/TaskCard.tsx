@@ -3,7 +3,7 @@ import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import type { Label, Task, User } from "@roadmapper/api-contract/models";
 import { formatShortDate, isOverdue } from "@roadmapper/domain/calendar-date";
 import { progressPercent, STATUS_ACCENT, STATUS_FILL } from "@roadmapper/domain/task";
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/utils";
 import { Avatar } from "./Avatar";
 import { LabelChip, PriorityBadge } from "./badges";
 
