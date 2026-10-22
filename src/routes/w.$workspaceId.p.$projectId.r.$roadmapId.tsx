@@ -9,6 +9,7 @@ import {
 import { getGetRoadmapQueryOptions } from "@/api/generated/endpoints/roadmaps/roadmaps";
 import { ApiError } from "@/api/http";
 import { AppShell } from "@/components/layout/AppShell";
+import { GoalOverview } from "@/components/roadmap/GoalOverview";
 import { buildBreadcrumb, type View } from "@/domain/breadcrumb";
 import { isUuid } from "@/server/ids";
 
@@ -73,6 +74,7 @@ function RoadmapLayout() {
         viewName,
       ]}
     >
+      <GoalOverview scope={params} name={roadmap.name} view={view} />
       <Outlet />
     </AppShell>
   );

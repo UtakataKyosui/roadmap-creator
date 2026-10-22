@@ -50,7 +50,7 @@ export function MembersPage({
 
   return (
     <div className="flex h-dvh flex-col">
-      <AppHeader trail={[workspace.name, "メンバー"]} />
+      <AppHeader trail={[workspace.name, "メンバー"]} workspace={workspace} />
       <main className="flex min-h-0 flex-1 flex-col overflow-auto">
         <div className="flex min-h-16 shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b bg-surface px-6 py-3">
           <h1 className="text-xl font-bold">メンバー</h1>

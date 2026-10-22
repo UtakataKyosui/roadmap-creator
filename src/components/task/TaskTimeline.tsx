@@ -66,8 +66,8 @@ export function TaskTimeline({ scope, initialToday }: { scope: TaskScope; initia
   return (
     <>
       <PageHeader
-        title="タイムライン"
-        description="28日間の予定を表示。期間はタスク詳細から編集します"
+        title="学習スケジュール"
+        description="28日間の学習予定。各ステップから期間を設定できます"
         actions={
           <>
             <div
@@ -89,7 +89,7 @@ export function TaskTimeline({ scope, initialToday }: { scope: TaskScope; initia
             </div>
             <Button size="lg" onClick={() => setSelection({ status: "todo" })}>
               <Plus aria-hidden />
-              新しいアイテムを追加
+              ステップを追加
             </Button>
           </>
         }
@@ -100,7 +100,7 @@ export function TaskTimeline({ scope, initialToday }: { scope: TaskScope; initia
           {formatRange(start)} 〜 {formatRange(end)}
           {query.data && (
             <span className="text-xs font-normal text-subtle-foreground">
-              · {query.data.length}件のタスク
+              · {query.data.length}件のステップ
             </span>
           )}
         </p>
@@ -110,15 +110,15 @@ export function TaskTimeline({ scope, initialToday }: { scope: TaskScope; initia
           <ErrorState error={query.error} onRetry={() => query.refetch()} />
         ) : query.data.length === 0 ? (
           <EmptyState
-            title="タスクがありません"
-            description="新しいアイテムを追加して期間を設定してください。"
+            title="学習の予定を立てましょう"
+            description="ステップを追加して、取り組む期間を設定してください。"
           />
         ) : (
           <div
             className="max-h-[calc(100dvh-14rem)] overflow-auto rounded-md border bg-surface"
             tabIndex={0}
             role="region"
-            aria-label="タスクのタイムライン"
+            aria-label="学習ステップのタイムライン"
           >
             <table
               className="w-full table-fixed border-separate border-spacing-0 text-[13px]"
@@ -133,7 +133,7 @@ export function TaskTimeline({ scope, initialToday }: { scope: TaskScope; initia
               <thead className="sticky top-0 z-20">
                 <tr>
                   <th className="sticky left-0 z-20 h-12 border-r border-b bg-surface-sunken px-4 text-left text-xs font-semibold text-muted-foreground">
-                    タスク
+                    学習ステップ
                   </th>
                   {days.map((day, index) => (
                     <th

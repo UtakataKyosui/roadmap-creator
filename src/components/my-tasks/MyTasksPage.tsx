@@ -29,9 +29,13 @@ const fieldClass =
 export function MyTasksPage({
   search,
   initialToday,
+  workspace,
+  project,
 }: {
   search: MyTasksSearch;
   initialToday: string;
+  workspace?: { id: string; name: string };
+  project?: { id: string; name: string };
 }) {
   const navigate = useNavigate({ from: "/my-tasks" });
   const today = useLocalToday(initialToday);
@@ -47,7 +51,10 @@ export function MyTasksPage({
     navigate({ search: withFilter(search, change), replace: true });
   const clear = () => {
     setText("");
-    return navigate({ search: {}, replace: true });
+    return navigate({
+      search: { workspaceId: search.workspaceId, projectId: search.projectId },
+      replace: true,
+    });
   };
   const goToPage = (next: number) =>
     navigate({ search: { ...search, page: next >= 2 ? next : undefined } });
@@ -65,7 +72,7 @@ export function MyTasksPage({
 
   return (
     <div className="flex h-dvh flex-col">
-      <AppHeader trail={["マイタスク"]} />
+      <AppHeader trail={["マイタスク"]} workspace={workspace} project={project} />
       <main className="flex min-h-0 flex-1 flex-col overflow-auto">
         <div className="flex min-h-16 shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b bg-surface px-6 py-3">
           <h1 className="text-xl font-bold">マイタスク</h1>

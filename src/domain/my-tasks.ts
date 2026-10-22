@@ -1,5 +1,6 @@
 import type { ListMyTasksParams, MyTaskDueFilter, TaskStatus } from "@/api/generated/models";
 import { TASK_STATUSES } from "./task";
+import { isUuid } from "@/server/ids";
 
 export const MY_TASKS_PAGE_SIZE = 20;
 
@@ -19,6 +20,9 @@ export const DUE_FILTER_LABEL: Record<MyTaskDueFilter, string> = {
 
 // URLの検索条件。ページ番号は2以上のときだけ持つ。
 export type MyTasksSearch = {
+  // ナビゲーションの戻り先。タスクの絞り込み条件には含めない。
+  workspaceId?: string;
+  projectId?: string;
   q?: string;
   status?: TaskStatus;
   due?: MyTaskDueFilter;
@@ -35,6 +39,9 @@ export const parseMyTasksSearch = (raw: Record<string, unknown>): MyTasksSearch 
   const due = oneOf(DUE_FILTERS, raw.due);
   const page = Number(raw.page);
   return {
+    ...(typeof raw.workspaceId === "string" &&
+      isUuid(raw.workspaceId) && { workspaceId: raw.workspaceId }),
+    ...(typeof raw.projectId === "string" && isUuid(raw.projectId) && { projectId: raw.projectId }),
     ...(q && { q }),
     ...(status && { status }),
     ...(due && { due }),

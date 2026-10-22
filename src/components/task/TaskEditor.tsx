@@ -95,7 +95,7 @@ export function TaskEditor({
   const [busy, setBusy] = useState(false);
   return (
     <Modal
-      title={"taskId" in selection ? "タスクを編集" : "新しいアイテムを追加"}
+      title={"taskId" in selection ? "学習ステップを編集" : "学習ステップを追加"}
       busy={busy}
       onClose={onClose}
     >
@@ -264,8 +264,8 @@ function TaskForm({
       <div className="space-y-3.5 px-6 pt-1 pb-4">
         <p className="text-xs text-subtle-foreground">
           {original
-            ? `タスクの基本情報を編集します。進捗 ${progressPercent(input.status ?? "todo")}% · コメント ${original.commentCount}`
-            : `新しいアイテムを追加し、ボードで管理します。進捗 ${progressPercent(input.status ?? "todo")}%`}
+            ? `学習内容や予定を見直しましょう。進捗 ${progressPercent(input.status ?? "todo")}% · コメント ${original.commentCount}`
+            : "目標に向けて、無理なく取り組める一歩を決めましょう。"}
         </p>
         {failure && (
           <div
@@ -327,11 +327,12 @@ function TaskForm({
         <fieldset disabled={pending} className="space-y-3.5">
           <div>
             <label className={labelClass} htmlFor={`${formId}-title`}>
-              タイトル（必須）
+              学ぶこと・取り組むこと（必須）
             </label>
             <input
               {...field("title")}
               ref={titleRef}
+              placeholder="例：参考書の第1章を読んで、練習問題を解く"
               className={inputClass}
               value={input.title}
               onChange={(e) => change("title", e.target.value)}
@@ -346,7 +347,7 @@ function TaskForm({
               {...field("description")}
               className={cn(inputClass, "h-auto py-2.5 leading-normal")}
               rows={3}
-              placeholder="背景や目的、完了条件を入力してください"
+              placeholder="使う教材や、どこまでできたら完了にするかを書いておきましょう"
               value={input.description ?? ""}
               onChange={(e) => change("description", e.target.value || null)}
             />
